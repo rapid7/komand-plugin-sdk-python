@@ -2,7 +2,6 @@ build:
   image: orca-build:latest
   commands:
     - cd $$BUILD && make all
-
 matrix:
   BUILD:
     - go
