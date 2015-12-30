@@ -64,7 +64,7 @@ func (ht *HelloTrigger) Config() interface{} {
 func TestWorkingTrigger(t *testing.T) {
 	Stdin = NewParamSet(strings.NewReader(triggerStartMessage))
 	helloTrigger := &HelloTrigger{}
-	helloTrigger.PluginInit(helloTrigger)
+	helloTrigger.Init(helloTrigger)
 	err := helloTrigger.Load()
 
 	if err != nil {
@@ -83,7 +83,7 @@ func TestWorkingTrigger(t *testing.T) {
 func TestTriggerWithBadMsgType(t *testing.T) {
 	Stdin = NewParamSet(strings.NewReader(badTriggerStartMessage))
 	helloTrigger := &HelloTrigger{}
-	helloTrigger.PluginInit(helloTrigger)
+	helloTrigger.Init(helloTrigger)
 	err := helloTrigger.Load()
 	if err == nil {
 		t.Fatal("Expected error parsing")
