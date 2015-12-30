@@ -29,8 +29,8 @@ func (tp *Trigger) Init(vars TriggerVars) {
 	tp.trigger = vars.Name()
 }
 
-func (tp *Trigger) Send(event interface{}) {
-	DispatchTriggerEvent(tp.DispatcherURL, event, tp.Meta)
+func (tp *Trigger) Send(event interface{}) error {
+	return DispatchTriggerEvent(tp.DispatcherURL, event, tp.Meta)
 }
 
 func (tp *Trigger) ReadStart() error {
