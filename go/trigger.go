@@ -23,10 +23,14 @@ type TriggerVars interface {
 	Name() string
 }
 
-func (tp *Trigger) PluginInit(vars TriggerVars) {
+func (tp *Trigger) Init(vars TriggerVars) {
 	tp.config = vars.Config()
 	tp.params = vars.Parameters()
 	tp.trigger = vars.Name()
+}
+
+func (tp *Trigger) Send(event interface{}) {
+	DispatchTriggerEvent(tp.DispatcherURL, event, tp.Meta)
 }
 
 func (tp *Trigger) Load() error {
