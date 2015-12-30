@@ -44,6 +44,7 @@ func (tp *Trigger) ReadStart() error {
 		return err
 	}
 
+	tp.DispatcherURL = startMessage.DispatcherURL
 	tp.Meta = msg.Meta
 
 	if startMessage.Trigger != tp.trigger {
