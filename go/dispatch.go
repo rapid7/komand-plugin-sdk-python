@@ -24,9 +24,7 @@ func DispatchTriggerEvent(url string, event interface{}, meta messages.Meta) err
 
 	trigger := messages.TriggerEvent{Uid: uid, Event: eventBytes}
 
-	bodyBytes, _ := json.Marshal(&trigger)
-
-	jsonStr, err := MarshalMessage("trigger_event", meta, trigger)
+	jsonStr, err := MarshalMessage("trigger_event", meta, &trigger)
 
 	if err != nil {
 		return err
