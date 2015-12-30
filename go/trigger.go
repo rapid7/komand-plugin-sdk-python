@@ -17,12 +17,16 @@ type Trigger struct {
 }
 
 type TriggerVars interface {
+	// Config for the plugin
 	Config() interface{}
-	Parameters() interface{}
 	// Name of trigger
 	Name() string
+	// Parameters struct for the trigger
+	Parameters() interface{}
 }
 
+// Init will initialize the trigger and set all of its internal vars
+// to pointers to the implementations of the config and parameters.
 func (tp *Trigger) Init(vars TriggerVars) {
 	tp.config = vars.Config()
 	tp.params = vars.Parameters()
@@ -51,6 +55,10 @@ func (tp *Trigger) ReadStart() error {
 		return fmt.Errorf("Expected trigger %s but got %s", tp.trigger, startMessage.Trigger)
 	}
 
+	if tp.DispatcherURL == "" {
+		return fmt.Errorf("Expected required dispatcher_url but nothing found: %+v", startMessage)
+	}
+
 	err = json.Unmarshal(startMessage.Config, config)
 
 	if err != nil {
@@ -62,46 +70,7 @@ func (tp *Trigger) ReadStart() error {
 	if err != nil {
 		return fmt.Errorf("Unable to parse parameters %s", err)
 	}
+
 	return nil
 
-}
-
-func MarshalMessage(msgtype string, meta messages.Meta, body interface{}) ([]byte, error) {
-
-	m := messages.Message{
-		MessageEnvelope: messages.MessageEnvelope{
-			Type:    msgtype,
-			Version: messages.Version,
-		},
-
-		Meta: meta,
-	}
-
-	bodyBytes, err := json.Marshal(body)
-
-	if err != nil {
-		return nil, err
-	}
-
-	m.Body = bodyBytes
-
-	return json.Marshal(&m)
-}
-
-func UnmarshalMessage(msgtype string, body interface{}) (*messages.Message, error) {
-	m := messages.Message{}
-
-	if err := Unmarshal(&m); err != nil {
-		return nil, err
-	}
-
-	if err := m.Validate(msgtype); err != nil {
-		return nil, err
-	}
-
-	if err := m.UnmarshalBody(body); err != nil {
-		return nil, fmt.Errorf("Unable to marshal Message.Body: %+v", err)
-	}
-
-	return &m, nil
 }

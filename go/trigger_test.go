@@ -28,6 +28,7 @@ var triggerStartMessage = `
 	"channel": "xyz-abc-123" 
   }, 
   "body": {
+     "dispatcher_url": "http://localhost:8000/blah",
 	 "trigger": "hello",
 	 "parameters": { "person": "Bob"},
 	 "config": { "thing": "one"}
