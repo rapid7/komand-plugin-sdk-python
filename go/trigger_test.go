@@ -44,12 +44,12 @@ type HelloParameters struct {
 }
 
 type HelloTrigger struct {
-	TriggerPlugin
+	Trigger
 	config     HelloConfig
 	parameters HelloParameters
 }
 
-func (ht *HelloTrigger) Trigger() string {
+func (ht *HelloTrigger) Name() string {
 	return "hello"
 }
 
@@ -85,15 +85,13 @@ func TestTriggerWithBadMsgType(t *testing.T) {
 	helloTrigger := &HelloTrigger{}
 	helloTrigger.PluginInit(helloTrigger)
 	err := helloTrigger.Load()
-	if err != nil {
-		t.Fatal("Unable to parse", err)
+	if err == nil {
+		t.Fatal("Expected error parsing")
 	}
 
-	if helloTrigger.parameters.Person != "Bob" {
-		t.Fatal("Expected Bob, got ", helloTrigger.parameters.Person)
+	msg := "Unexpected message type, wanted: trigger_start but got not_trigger_start"
+	if err.Error() != msg {
+		t.Fatal("Expected '%s' but got %s", msg, err)
 	}
 
-	if helloTrigger.config.Thing != "one" {
-		t.Fatal("Expected one, got ", helloTrigger.config.Thing)
-	}
 }

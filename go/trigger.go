@@ -7,7 +7,7 @@ import (
 	"github.com/orcalabs/plugin-sdk/go/messages"
 )
 
-type TriggerPlugin struct {
+type Trigger struct {
 	DispatcherURL string
 	Meta          messages.Meta
 
@@ -19,16 +19,17 @@ type TriggerPlugin struct {
 type TriggerVars interface {
 	Config() interface{}
 	Parameters() interface{}
-	Trigger() string
+	// Name of trigger
+	Name() string
 }
 
-func (tp *TriggerPlugin) PluginInit(vars TriggerVars) {
+func (tp *Trigger) PluginInit(vars TriggerVars) {
 	tp.config = vars.Config()
 	tp.params = vars.Parameters()
-	tp.trigger = vars.Trigger()
+	tp.trigger = vars.Name()
 }
 
-func (tp *TriggerPlugin) Load() error {
+func (tp *Trigger) Load() error {
 	config := tp.config
 	params := tp.params
 

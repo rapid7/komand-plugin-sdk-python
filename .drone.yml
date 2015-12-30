@@ -1,11 +1,11 @@
 build:
   image: orca-build:latest
   commands:
-    - cd $$BUILD && make all
+    - cd $$BUILD && make all && make test
 matrix:
   BUILD:
+    # TODO: add other plugin sdk builds here
     - go
-
 notify:
   slack:
     webhook_url: https://hooks.slack.com/services/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  
