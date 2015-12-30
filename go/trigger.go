@@ -33,15 +33,15 @@ func (tp *Trigger) Init(vars TriggerVars) {
 	tp.trigger = vars.Name()
 }
 
+// Send will dispatch a trigger event
 func (tp *Trigger) Send(event interface{}) error {
 	return DispatchTriggerEvent(tp.DispatcherURL, event, tp.Meta)
 }
 
+// ReadStart will read the start for the trigger
 func (tp *Trigger) ReadStart() error {
-	config := tp.config
-	params := tp.params
-
 	startMessage := &messages.TriggerStart{}
+
 	msg, err := UnmarshalMessage("trigger_start", &startMessage)
 
 	if err != nil {
@@ -59,13 +59,13 @@ func (tp *Trigger) ReadStart() error {
 		return fmt.Errorf("Expected required dispatcher_url but nothing found: %+v", startMessage)
 	}
 
-	err = json.Unmarshal(startMessage.Config, config)
+	err = json.Unmarshal(startMessage.Config, tp.config)
 
 	if err != nil {
 		return fmt.Errorf("Unable to parse config %s", err)
 	}
 
-	err = json.Unmarshal(startMessage.Parameters, params)
+	err = json.Unmarshal(startMessage.Parameters, tp.params)
 
 	if err != nil {
 		return fmt.Errorf("Unable to parse parameters %s", err)
