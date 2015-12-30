@@ -1,7 +1,9 @@
 build:
   image: orca-build:latest
   commands:
-    - cd $$BUILD && make all && make test
+    - cd $$BUILD
+    - make all
+    - make test
 matrix:
   BUILD:
     # TODO: add other plugin sdk builds here
