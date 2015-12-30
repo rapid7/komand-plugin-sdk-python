@@ -33,7 +33,7 @@ func (tp *Trigger) Send(event interface{}) {
 	DispatchTriggerEvent(tp.DispatcherURL, event, tp.Meta)
 }
 
-func (tp *Trigger) Load() error {
+func (tp *Trigger) ReadStart() error {
 	config := tp.config
 	params := tp.params
 

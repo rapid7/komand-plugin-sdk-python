@@ -65,7 +65,7 @@ func TestWorkingTrigger(t *testing.T) {
 	Stdin = NewParamSet(strings.NewReader(triggerStartMessage))
 	helloTrigger := &HelloTrigger{}
 	helloTrigger.Init(helloTrigger)
-	err := helloTrigger.Load()
+	err := helloTrigger.ReadStart()
 
 	if err != nil {
 		t.Fatal("Unable to parse", err)
@@ -84,7 +84,7 @@ func TestTriggerWithBadMsgType(t *testing.T) {
 	Stdin = NewParamSet(strings.NewReader(badTriggerStartMessage))
 	helloTrigger := &HelloTrigger{}
 	helloTrigger.Init(helloTrigger)
-	err := helloTrigger.Load()
+	err := helloTrigger.ReadStart()
 	if err == nil {
 		t.Fatal("Expected error parsing")
 	}
