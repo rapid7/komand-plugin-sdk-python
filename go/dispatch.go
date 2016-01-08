@@ -13,7 +13,7 @@ import (
 	"github.com/satori/go.uuid"
 )
 
-func DispatchTriggerEvent(url string, event interface{}, meta messages.Meta) error {
+func DispatchTriggerEvent(url string, event interface{}) error {
 	uid := uuid.NewV4().String()
 
 	eventBytes, err := json.Marshal(event)
@@ -24,7 +24,7 @@ func DispatchTriggerEvent(url string, event interface{}, meta messages.Meta) err
 
 	trigger := messages.TriggerEvent{Uid: uid, Event: eventBytes}
 
-	jsonStr, err := MarshalMessage("trigger_event", meta, &trigger)
+	jsonStr, err := MarshalMessage("trigger_event", &trigger)
 
 	if err != nil {
 		return err

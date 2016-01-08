@@ -8,8 +8,8 @@ import (
 )
 
 type Trigger struct {
+	TriggerID     int
 	DispatcherURL string
-	Meta          messages.Meta
 
 	config  interface{}
 	params  interface{}
@@ -35,21 +35,20 @@ func (tp *Trigger) Init(vars TriggerVars) {
 
 // Send will dispatch a trigger event
 func (tp *Trigger) Send(event interface{}) error {
-	return DispatchTriggerEvent(tp.DispatcherURL, event, tp.Meta)
+	return DispatchTriggerEvent(tp.DispatcherURL, event)
 }
 
 // ReadStart will read the start for the trigger
 func (tp *Trigger) ReadStart() error {
 	startMessage := &messages.TriggerStart{}
-
-	msg, err := UnmarshalMessage("trigger_start", &startMessage)
+	_, err := UnmarshalMessage("trigger_start", &startMessage)
 
 	if err != nil {
 		return err
 	}
 
+	tp.TriggerID = startMessage.TriggerID
 	tp.DispatcherURL = startMessage.DispatcherURL
-	tp.Meta = msg.Meta
 
 	if startMessage.Trigger != tp.trigger {
 		return fmt.Errorf("Expected trigger %s but got %s", tp.trigger, startMessage.Trigger)

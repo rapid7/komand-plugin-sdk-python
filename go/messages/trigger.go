@@ -3,6 +3,8 @@ package messages
 import "encoding/json"
 
 type TriggerStart struct {
+	// TriggerId that identifies the trigger in the system
+	TriggerID int `json:"trigger_id"`
 	// Config is the global config for the plugin
 	Config json.RawMessage `json:"config"`
 	// Dispatcher URL is the url for the channel
@@ -13,7 +15,9 @@ type TriggerStart struct {
 	Parameters json.RawMessage `json:"parameters"`
 }
 
+// TODO: make this match the models
 type TriggerEvent struct {
-	Uid   string          `json:"uid"`
-	Event json.RawMessage `json:"event"`
+	TriggerID int             `json:"trigger_id"`
+	Uid       string          `json:"uid"`
+	Event     json.RawMessage `json:"event"`
 }

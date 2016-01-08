@@ -7,16 +7,10 @@ import (
 
 type Message struct {
 	MessageEnvelope
-	Meta Meta            `json:"meta"` // meta data about channel
 	Body json.RawMessage `json:"body"` // body of data
 }
 
-// Meta provides metadata about the channel, included with each message
-type Meta struct {
-	// Channel is the unique string id for the channel
-	Channel string `json:"channel"`
-}
-
+// Validate the msg against the provided msgtype.
 func (m *Message) Validate(msgtype string) error {
 	if m.Version != Version {
 		return fmt.Errorf("Unexpected version, wanted: %s but got %s", Version, m.Version)
@@ -27,6 +21,7 @@ func (m *Message) Validate(msgtype string) error {
 	return nil
 }
 
+// UnmarshalBody unmarshals the message.Body into the `body` parameter
 func (m *Message) UnmarshalBody(body interface{}) error {
 	err := json.Unmarshal(m.Body, body)
 	if err != nil {
