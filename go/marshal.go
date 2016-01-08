@@ -7,15 +7,13 @@ import (
 	"github.com/orcalabs/plugin-sdk/go/messages"
 )
 
-func MarshalMessage(msgtype string, meta messages.Meta, body interface{}) ([]byte, error) {
+func MarshalMessage(msgtype string, body interface{}) ([]byte, error) {
 
 	m := messages.Message{
 		MessageEnvelope: messages.MessageEnvelope{
 			Type:    msgtype,
 			Version: messages.Version,
 		},
-
-		Meta: meta,
 	}
 
 	bodyBytes, err := json.Marshal(body)

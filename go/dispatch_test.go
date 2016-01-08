@@ -30,9 +30,9 @@ func TestTriggerFormatting(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	ev := &messages.TriggerEvent{Uid: "my-uid", Event: eventBytes}
+	ev := &messages.TriggerEvent{TriggerID: 100, Uid: "my-uid", Event: eventBytes}
 
-	jsonStr, err := MarshalMessage("trigger_event", helloTrigger.Meta, ev)
+	jsonStr, err := MarshalMessage("trigger_event", ev)
 
 	if err != nil {
 		t.Fatal(err)
@@ -40,10 +40,10 @@ func TestTriggerFormatting(t *testing.T) {
 
 	str := string(jsonStr)
 
-	expected := `{"version":"v1","type":"trigger_event","meta":{"channel":"xyz-abc-123"},"body":{"uid":"my-uid","event":{"OogaBooga":"12345"}}}`
+	expected := `{"version":"v1","type":"trigger_event","body":{"trigger_id":100,"uid":"my-uid","event":{"OogaBooga":"12345"}}}`
 
 	if str != expected {
-		t.Fatal("unexpected string", str)
+		t.Fatal("unexpected string", str, "wanted:", expected)
 	}
 
 }

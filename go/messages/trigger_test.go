@@ -19,10 +19,6 @@ func TestTriggerStartMessage(t *testing.T) {
 		t.Error("Type is wrong, expected trigger_start but got", m.Type)
 	}
 
-	if m.Meta.Channel != "xyz-abc-123" {
-		t.Error("Channel is wrong, got", m.Meta.Channel)
-	}
-
 	trigger := TriggerStart{}
 	err = json.Unmarshal(m.Body, &trigger)
 	if err != nil {
