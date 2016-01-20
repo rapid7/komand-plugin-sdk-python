@@ -13,16 +13,16 @@ import (
 	"github.com/satori/go.uuid"
 )
 
-func DispatchTriggerEvent(url string, event interface{}) error {
+func DispatchTriggerEvent(url string, output interface{}) error {
 	uid := uuid.NewV4().String()
 
-	eventBytes, err := json.Marshal(event)
+	eventBytes, err := json.Marshal(output)
 
 	if err != nil {
 		return err
 	}
 
-	trigger := messages.TriggerEvent{Uid: uid, Event: eventBytes}
+	trigger := messages.TriggerEvent{Uid: uid, Output: eventBytes}
 
 	jsonStr, err := MarshalMessage("trigger_event", &trigger)
 

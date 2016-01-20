@@ -5,12 +5,12 @@ import "encoding/json"
 type ActionStart struct {
 	// ActionId that identifies the action in the system
 	ActionID int `json:"action_id"`
-	// Config is the global config for the plugin
-	Config json.RawMessage `json:"config"`
+	// Connection is the global connection for the plugin
+	Connection json.RawMessage `json:"connection"`
 	// Action is the name of the action
 	Action string `json:"action"`
-	// Parameters are the parameters passed to action start
-	Parameters json.RawMessage `json:"parameters"`
+	// Input are the input passed to action start
+	Input json.RawMessage `json:"input"`
 }
 
 type ActionResult struct {

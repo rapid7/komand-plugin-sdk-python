@@ -14,25 +14,25 @@ type Action struct {
 	ActionID      int
 	DispatcherURL string
 
-	config interface{}
-	params interface{}
-	action string
+	connection interface{}
+	input      interface{}
+	action     string
 }
 
 type ActionVars interface {
-	// Config for the plugin
-	Config() interface{}
+	// Connection for the plugin
+	Connection() interface{}
 	// Name of action
 	Name() string
-	// Parameters struct for the action
-	Parameters() interface{}
+	// Input struct for the action
+	Input() interface{}
 }
 
 // Init will initialize the action and set all of its internal vars
-// to pointers to the implementations of the config and parameters.
+// to pointers to the implementations of the connection and parameters.
 func (act *Action) Init(vars ActionVars) {
-	act.config = vars.Config()
-	act.params = vars.Parameters()
+	act.connection = vars.Connection()
+	act.input = vars.Input()
 	act.action = vars.Name()
 }
 
@@ -93,13 +93,13 @@ func (act *Action) ReadStart() error {
 		return fmt.Errorf("Expected action %s but got %s", act.action, startMessage.Action)
 	}
 
-	err = json.Unmarshal(startMessage.Config, act.config)
+	err = json.Unmarshal(startMessage.Connection, act.connection)
 
 	if err != nil {
-		return fmt.Errorf("Unable to parse config %s", err)
+		return fmt.Errorf("Unable to parse connection %s", err)
 	}
 
-	err = json.Unmarshal(startMessage.Parameters, act.params)
+	err = json.Unmarshal(startMessage.Input, act.input)
 
 	if err != nil {
 		return fmt.Errorf("Unable to parse parameters %s", err)

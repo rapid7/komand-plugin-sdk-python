@@ -9,13 +9,10 @@ var triggerStartMessage = `
 {
   "version": "v1",
   "type": "trigger_start",
-  "meta": {
-	"channel": "xyz-abc-123" 
-  }, 
   "body": {
 	 "trigger": "hello",
-     "parameters": {},
-	 "config": {}
+     "input": {},
+	 "connection": {}
   }
 }
 `

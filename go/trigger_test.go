@@ -14,8 +14,8 @@ var badTriggerStartMessage = `
   }, 
   "body": {
 	 "trigger": "hello",
-	 "parameters": { "person": "Bob"},
-	 "config": { "thing": "one"}
+	 "input": { "person": "Bob"},
+	 "connection": { "thing": "one"}
   }
 }
 `
@@ -30,36 +30,36 @@ var triggerStartMessage = `
   "body": {
      "dispatcher_url": "http://localhost:8000/blah",
 	 "trigger": "hello",
-	 "parameters": { "person": "Bob"},
-	 "config": { "thing": "one"}
+	 "input": { "person": "Bob"},
+	 "connection": { "thing": "one"}
   }
 }
 `
 
-type HelloConfig struct {
+type HelloConnection struct {
 	Thing string `json:"thing"`
 }
 
-type HelloParameters struct {
+type HelloInput struct {
 	Person string `json:"person"`
 }
 
 type HelloTrigger struct {
 	Trigger
-	config     HelloConfig
-	parameters HelloParameters
+	connection HelloConnection
+	input      HelloInput
 }
 
 func (ht *HelloTrigger) Name() string {
 	return "hello"
 }
 
-func (ht *HelloTrigger) Parameters() interface{} {
-	return &ht.parameters
+func (ht *HelloTrigger) Input() interface{} {
+	return &ht.input
 }
 
-func (ht *HelloTrigger) Config() interface{} {
-	return &ht.config
+func (ht *HelloTrigger) Connection() interface{} {
+	return &ht.connection
 }
 
 func TestWorkingTrigger(t *testing.T) {
@@ -72,12 +72,12 @@ func TestWorkingTrigger(t *testing.T) {
 		t.Fatal("Unable to parse", err)
 	}
 
-	if helloTrigger.parameters.Person != "Bob" {
-		t.Fatal("Expected Bob, got ", helloTrigger.parameters.Person)
+	if helloTrigger.input.Person != "Bob" {
+		t.Fatal("Expected Bob, got ", helloTrigger.input.Person)
 	}
 
-	if helloTrigger.config.Thing != "one" {
-		t.Fatal("Expected one, got ", helloTrigger.config.Thing)
+	if helloTrigger.connection.Thing != "one" {
+		t.Fatal("Expected one, got ", helloTrigger.connection.Thing)
 	}
 }
 

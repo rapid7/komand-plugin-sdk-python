@@ -11,25 +11,25 @@ type Trigger struct {
 	TriggerID     int
 	DispatcherURL string
 
-	config  interface{}
-	params  interface{}
-	trigger string
+	connection interface{}
+	input      interface{}
+	trigger    string
 }
 
 type TriggerVars interface {
-	// Config for the plugin
-	Config() interface{}
+	// Connection for the plugin
+	Connection() interface{}
 	// Name of trigger
 	Name() string
-	// Parameters struct for the trigger
-	Parameters() interface{}
+	// Input struct for the trigger
+	Input() interface{}
 }
 
 // Init will initialize the trigger and set all of its internal vars
-// to pointers to the implementations of the config and parameters.
+// to pointers to the implementations of the connection and input.
 func (tp *Trigger) Init(vars TriggerVars) {
-	tp.config = vars.Config()
-	tp.params = vars.Parameters()
+	tp.connection = vars.Connection()
+	tp.input = vars.Input()
 	tp.trigger = vars.Name()
 }
 
@@ -58,16 +58,16 @@ func (tp *Trigger) ReadStart() error {
 		return fmt.Errorf("Expected required dispatcher_url but nothing found: %+v", startMessage)
 	}
 
-	err = json.Unmarshal(startMessage.Config, tp.config)
+	err = json.Unmarshal(startMessage.Connection, tp.connection)
 
 	if err != nil {
-		return fmt.Errorf("Unable to parse config %s", err)
+		return fmt.Errorf("Unable to parse connection %s", err)
 	}
 
-	err = json.Unmarshal(startMessage.Parameters, tp.params)
+	err = json.Unmarshal(startMessage.Input, tp.input)
 
 	if err != nil {
-		return fmt.Errorf("Unable to parse parameters %s", err)
+		return fmt.Errorf("Unable to parse input %s", err)
 	}
 
 	return nil

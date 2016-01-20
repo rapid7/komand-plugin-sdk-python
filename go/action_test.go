@@ -14,8 +14,8 @@ var badActionStartMessage = `
   }, 
   "body": {
 	 "action": "goodbye",
-	 "parameters": { "person": "Bob"},
-	 "config": { "thing": "one"}
+	 "input": { "person": "Bob"},
+	 "connection": { "thing": "one"}
   }
 }
 `
@@ -30,36 +30,36 @@ var actionStartMessage = `
   "body": {
      "action_id": 1,
 	 "action": "goodbye",
-	 "config": { "thing": "one"},
-	 "parameters": { "person": "Bob"}
+	 "connection": { "thing": "one"},
+	 "input": { "person": "Bob"}
   }
 }
 `
 
-type GoodbyeConfig struct {
+type Goodbyeconnection struct {
 	Thing string `json:"thing"`
 }
 
-type GoodbyeParameters struct {
+type GoodbyeInput struct {
 	Person string `json:"person"`
 }
 
 type GoodbyeAction struct {
 	Action
-	config     GoodbyeConfig
-	parameters GoodbyeParameters
+	connection Goodbyeconnection
+	input      GoodbyeInput
 }
 
 func (ht *GoodbyeAction) Name() string {
 	return "goodbye"
 }
 
-func (ht *GoodbyeAction) Parameters() interface{} {
-	return &ht.parameters
+func (ht *GoodbyeAction) Input() interface{} {
+	return &ht.input
 }
 
-func (ht *GoodbyeAction) Config() interface{} {
-	return &ht.config
+func (ht *GoodbyeAction) Connection() interface{} {
+	return &ht.connection
 }
 
 func TestWorkingAction(t *testing.T) {
@@ -72,12 +72,12 @@ func TestWorkingAction(t *testing.T) {
 		t.Fatal("Unable to parse", err)
 	}
 
-	if goodbyeAction.parameters.Person != "Bob" {
-		t.Fatal("Expected Bob, got ", goodbyeAction.parameters.Person)
+	if goodbyeAction.input.Person != "Bob" {
+		t.Fatal("Expected Bob, got ", goodbyeAction.input.Person)
 	}
 
-	if goodbyeAction.config.Thing != "one" {
-		t.Fatal("Expected one, got ", goodbyeAction.config.Thing)
+	if goodbyeAction.connection.Thing != "one" {
+		t.Fatal("Expected one, got ", goodbyeAction.connection.Thing)
 	}
 }
 
