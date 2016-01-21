@@ -7,10 +7,9 @@ build:
 matrix:
   BUILD:
     # TODO: add other plugin sdk builds here
-    - go
+    - go/plugin
 notify:
   slack:
-    webhook_url: https://hooks.slack.com/services/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  
+    webhook_url: https://hooks.slack.com/services/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
     channel: dev
     username: drone
-
