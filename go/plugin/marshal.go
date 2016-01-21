@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/orcalabs/plugin-sdk/go/messages"
+	"github.com/orcalabs/plugin-sdk/go/plugin/messages"
 )
 
 func MarshalMessage(msgtype string, body interface{}) ([]byte, error) {

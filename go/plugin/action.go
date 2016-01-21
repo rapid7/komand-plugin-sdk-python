@@ -3,11 +3,12 @@ package plugin
 import (
 	"encoding/json"
 	"fmt"
-	uuid "github.com/satori/go.uuid"
 	"io"
 	"os"
 
-	"github.com/orcalabs/plugin-sdk/go/messages"
+	uuid "github.com/satori/go.uuid"
+
+	"github.com/orcalabs/plugin-sdk/go/plugin/messages"
 )
 
 type Action struct {

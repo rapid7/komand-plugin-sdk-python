@@ -8,7 +8,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/orcalabs/plugin-sdk/go/messages"
+	"github.com/orcalabs/plugin-sdk/go/plugin/messages"
 
 	"github.com/satori/go.uuid"
 )
