@@ -7,30 +7,32 @@ import (
 	"github.com/orcalabs/plugin-sdk/go/messages"
 )
 
+// Trigger is any event that starts a workflow
 type Trigger struct {
 	TriggerID     int
 	DispatcherURL string
 
+	name       string
 	connection interface{}
 	input      interface{}
-	trigger    string
 }
 
-type TriggerVars interface {
-	// Connection for the plugin
-	Connection() interface{}
+// TriggerVars is an interface that must be implemented by any Trigger within a Plugin.
+type TriggerVars struct {
 	// Name of trigger
-	Name() string
+	Name string
+	// Connection for the plugin
+	Connection interface{}
 	// Input struct for the trigger
-	Input() interface{}
+	Input interface{}
 }
 
 // Init will initialize the trigger and set all of its internal vars
 // to pointers to the implementations of the connection and input.
 func (tp *Trigger) Init(vars TriggerVars) {
-	tp.connection = vars.Connection()
-	tp.input = vars.Input()
-	tp.trigger = vars.Name()
+	tp.name = vars.Name
+	tp.connection = vars.Connection
+	tp.input = vars.Input
 }
 
 // Send will dispatch a trigger event
@@ -50,8 +52,8 @@ func (tp *Trigger) ReadStart() error {
 	tp.TriggerID = startMessage.TriggerID
 	tp.DispatcherURL = startMessage.DispatcherURL
 
-	if startMessage.Trigger != tp.trigger {
-		return fmt.Errorf("Expected trigger %s but got %s", tp.trigger, startMessage.Trigger)
+	if startMessage.Trigger != tp.name {
+		return fmt.Errorf("Expected trigger %s but got %s", tp.name, startMessage.Trigger)
 	}
 
 	if tp.DispatcherURL == "" {
