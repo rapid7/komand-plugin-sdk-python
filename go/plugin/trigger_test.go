@@ -10,8 +10,8 @@ var badTriggerStartMessage = `
   "version": "v1",
   "type": "not_trigger_start",
   "meta": {
-	"channel": "xyz-abc-123" 
-  }, 
+	"channel": "xyz-abc-123"
+  },
   "body": {
 	 "trigger": "hello",
 	 "input": { "person": "Bob"},
@@ -25,8 +25,8 @@ var triggerStartMessage = `
   "version": "v1",
   "type": "trigger_start",
   "meta": {
-	"channel": "xyz-abc-123" 
-  }, 
+	"channel": "xyz-abc-123"
+  },
   "body": {
      "dispatcher_url": "http://localhost:8000/blah",
 	 "trigger": "hello",
@@ -64,8 +64,9 @@ func (ht *HelloTrigger) Connection() interface{} {
 
 func TestWorkingTrigger(t *testing.T) {
 	Stdin = NewParamSet(strings.NewReader(triggerStartMessage))
+	vars := &TriggerVars{}
 	helloTrigger := &HelloTrigger{}
-	helloTrigger.Init(helloTrigger)
+	helloTrigger.Init(vars)
 	err := helloTrigger.ReadStart()
 
 	if err != nil {
@@ -83,8 +84,9 @@ func TestWorkingTrigger(t *testing.T) {
 
 func TestTriggerWithBadMsgType(t *testing.T) {
 	Stdin = NewParamSet(strings.NewReader(badTriggerStartMessage))
+	vars := &TriggerVars{}
 	helloTrigger := &HelloTrigger{}
-	helloTrigger.Init(helloTrigger)
+	helloTrigger.Init(vars)
 	err := helloTrigger.ReadStart()
 	if err == nil {
 		t.Fatal("Expected error parsing")

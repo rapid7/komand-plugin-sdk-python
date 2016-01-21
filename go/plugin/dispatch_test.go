@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/orcalabs/plugin-sdk/go/messages"
+	"github.com/orcalabs/plugin-sdk/go/plugin/messages"
 )
 
 type TestEvent struct {
@@ -14,8 +14,9 @@ type TestEvent struct {
 
 func TestTriggerFormatting(t *testing.T) {
 	Stdin = NewParamSet(strings.NewReader(triggerStartMessage))
+	vars := &TriggerVars{}
 	helloTrigger := &HelloTrigger{}
-	helloTrigger.Init(helloTrigger)
+	helloTrigger.Init(vars)
 	err := helloTrigger.ReadStart()
 
 	if err != nil {

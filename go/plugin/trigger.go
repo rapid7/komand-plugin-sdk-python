@@ -29,7 +29,7 @@ type TriggerVars struct {
 
 // Init will initialize the trigger and set all of its internal vars
 // to pointers to the implementations of the connection and input.
-func (tp *Trigger) Init(vars TriggerVars) {
+func (tp *Trigger) Init(vars *TriggerVars) {
 	tp.name = vars.Name
 	tp.connection = vars.Connection
 	tp.input = vars.Input
