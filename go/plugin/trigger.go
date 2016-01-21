@@ -17,22 +17,22 @@ type Trigger struct {
 	input      interface{}
 }
 
-// TriggerVars is an interface that must be implemented by any Trigger within a Plugin.
-type TriggerVars struct {
+// Triggerable is an interface that must be implemented for a Trigger to work in a Plugin.
+type Triggerable interface {
 	// Name of trigger
-	Name string
+	Name() string
 	// Connection for the plugin
-	Connection interface{}
+	Connection() interface{}
 	// Input struct for the trigger
-	Input interface{}
+	Input() interface{}
 }
 
 // Init will initialize the trigger and set all of its internal vars
 // to pointers to the implementations of the connection and input.
-func (tp *Trigger) Init(vars *TriggerVars) {
-	tp.name = vars.Name
-	tp.connection = vars.Connection
-	tp.input = vars.Input
+func (tp *Trigger) Init(vars Triggerable) {
+	tp.name = vars.Name()
+	tp.connection = vars.Connection()
+	tp.input = vars.Input()
 }
 
 // Send will dispatch a trigger event
@@ -44,7 +44,6 @@ func (tp *Trigger) Send(event interface{}) error {
 func (tp *Trigger) ReadStart() error {
 	startMessage := &messages.TriggerStart{}
 	_, err := UnmarshalMessage("trigger_start", &startMessage)
-
 	if err != nil {
 		return err
 	}

@@ -14,9 +14,8 @@ type TestEvent struct {
 
 func TestTriggerFormatting(t *testing.T) {
 	Stdin = NewParamSet(strings.NewReader(triggerStartMessage))
-	vars := &TriggerVars{}
 	helloTrigger := &HelloTrigger{}
-	helloTrigger.Init(vars)
+	helloTrigger.Init(helloTrigger)
 	err := helloTrigger.ReadStart()
 
 	if err != nil {

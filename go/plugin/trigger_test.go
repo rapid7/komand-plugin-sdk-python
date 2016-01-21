@@ -64,29 +64,27 @@ func (ht *HelloTrigger) Connection() interface{} {
 
 func TestWorkingTrigger(t *testing.T) {
 	Stdin = NewParamSet(strings.NewReader(triggerStartMessage))
-	vars := &TriggerVars{}
 	helloTrigger := &HelloTrigger{}
-	helloTrigger.Init(vars)
-	err := helloTrigger.ReadStart()
+	helloTrigger.Init(helloTrigger)
 
+	err := helloTrigger.ReadStart()
 	if err != nil {
-		t.Fatal("Unable to parse", err)
+		t.Fatal("Unable to parse:", err)
 	}
 
 	if helloTrigger.input.Person != "Bob" {
-		t.Fatal("Expected Bob, got ", helloTrigger.input.Person)
+		t.Fatal("Expected Bob, got", helloTrigger.input.Person)
 	}
 
 	if helloTrigger.connection.Thing != "one" {
-		t.Fatal("Expected one, got ", helloTrigger.connection.Thing)
+		t.Fatal("Expected one, got", helloTrigger.connection.Thing)
 	}
 }
 
 func TestTriggerWithBadMsgType(t *testing.T) {
 	Stdin = NewParamSet(strings.NewReader(badTriggerStartMessage))
-	vars := &TriggerVars{}
 	helloTrigger := &HelloTrigger{}
-	helloTrigger.Init(vars)
+	helloTrigger.Init(helloTrigger)
 	err := helloTrigger.ReadStart()
 	if err == nil {
 		t.Fatal("Expected error parsing")
