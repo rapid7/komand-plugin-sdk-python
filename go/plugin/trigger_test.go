@@ -10,8 +10,8 @@ var badTriggerStartMessage = `
   "version": "v1",
   "type": "not_trigger_start",
   "meta": {
-	"channel": "xyz-abc-123" 
-  }, 
+	"channel": "xyz-abc-123"
+  },
   "body": {
 	 "trigger": "hello",
 	 "input": { "person": "Bob"},
@@ -25,8 +25,8 @@ var triggerStartMessage = `
   "version": "v1",
   "type": "trigger_start",
   "meta": {
-	"channel": "xyz-abc-123" 
-  }, 
+	"channel": "xyz-abc-123"
+  },
   "body": {
      "dispatcher_url": "http://localhost:8000/blah",
 	 "trigger": "hello",
@@ -66,18 +66,18 @@ func TestWorkingTrigger(t *testing.T) {
 	Stdin = NewParamSet(strings.NewReader(triggerStartMessage))
 	helloTrigger := &HelloTrigger{}
 	helloTrigger.Init(helloTrigger)
-	err := helloTrigger.ReadStart()
 
+	err := helloTrigger.ReadStart()
 	if err != nil {
-		t.Fatal("Unable to parse", err)
+		t.Fatal("Unable to parse:", err)
 	}
 
 	if helloTrigger.input.Person != "Bob" {
-		t.Fatal("Expected Bob, got ", helloTrigger.input.Person)
+		t.Fatal("Expected Bob, got", helloTrigger.input.Person)
 	}
 
 	if helloTrigger.connection.Thing != "one" {
-		t.Fatal("Expected one, got ", helloTrigger.connection.Thing)
+		t.Fatal("Expected one, got", helloTrigger.connection.Thing)
 	}
 }
 

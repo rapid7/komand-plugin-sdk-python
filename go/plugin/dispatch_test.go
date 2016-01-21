@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/orcalabs/plugin-sdk/go/messages"
+	"github.com/orcalabs/plugin-sdk/go/plugin/messages"
 )
 
 type TestEvent struct {
