@@ -51,7 +51,7 @@ func (m *Message) Marshal(msgType string, body interface{}) ([]byte, error) {
 		return nil, err
 	}
 
-	m.Body = bodyBytes
+	m.Body.RawMessage = bodyBytes
 
 	return json.Marshal(&m)
 }
