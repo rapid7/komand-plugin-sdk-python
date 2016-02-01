@@ -1,5 +1,4 @@
-// plugin package
-package plugin
+package message
 
 import (
 	"bytes"
@@ -9,7 +8,9 @@ import (
 	"os"
 )
 
-// much of this code is taken from the Drone (drone.io) project
+// Much of this code is taken from the Drone (drone.io) project
+
+// Stdin holds the ParamSet given when the command is run
 var Stdin *ParamSet
 
 func init() {
@@ -28,11 +29,13 @@ func init() {
 	}
 }
 
+// ParamSet holds the parameters given in the command line
 type ParamSet struct {
 	reader io.Reader
 	params map[string]interface{}
 }
 
+// NewParamSet creates a new instance of ParamSet
 func NewParamSet(reader io.Reader) *ParamSet {
 	var p = new(ParamSet)
 	p.reader = reader
@@ -89,7 +92,7 @@ func Unmarshal(v interface{}) error {
 	return Stdin.Unmarshal(v)
 }
 
-// Unmarshal parses the JSON payload from the command
+// MustUnmarshal parses the JSON payload from the command
 // arguments and unmarshal into a value pointed to by v.
 func MustUnmarshal(v interface{}) error {
 	return Stdin.Unmarshal(v)

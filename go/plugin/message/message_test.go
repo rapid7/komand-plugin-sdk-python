@@ -1,4 +1,4 @@
-package messages
+package message
 
 import (
 	"encoding/json"
@@ -17,16 +17,19 @@ var triggerStartMessage = `
 }
 `
 
-func TestMessageEnvelope(t *testing.T) {
-	m := MessageEnvelope{}
+func TestMessage(t *testing.T) {
+	m := Message{}
+
 	err := json.Unmarshal([]byte(triggerStartMessage), &m)
 	if err != nil {
-		t.Fatal("Error unmarshalling:", err)
+		t.Error("Error unmarshalling:", err)
 	}
+
 	if m.Version != "v1" {
 		t.Error("Version is wrong, expected v1 but got", m.Version)
 	}
 	if m.Type != "trigger_start" {
 		t.Error("Type is wrong, expected trigger_start but got", m.Type)
 	}
+
 }

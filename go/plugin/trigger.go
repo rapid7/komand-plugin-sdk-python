@@ -4,73 +4,70 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/orcalabs/plugin-sdk/go/plugin/messages"
+	"github.com/orcalabs/plugin-sdk/go/plugin/message"
 )
 
-// Trigger is any event that starts a workflow
-type Trigger struct {
-	TriggerID     int
-	DispatcherURL string
-
-	name       string
-	connection interface{}
-	input      interface{}
-}
-
-// Triggerable is an interface that must be implemented for a Trigger to work in a Plugin.
+// Triggerable is an interface that any Trigger must implement
 type Triggerable interface {
-	// Name of trigger
-	Name() string
-	// Connection for the plugin
-	Connection() interface{}
-	// Input struct for the trigger
-	Input() interface{}
+	Runner
+	Connection() *Connection // Connection for the trigger
+	Input() *message.Input   // Input for the trigger
 }
 
-// Init will initialize the trigger and set all of its internal vars
-// to pointers to the implementations of the connection and input.
-func (tp *Trigger) Init(vars Triggerable) {
-	tp.name = vars.Name()
-	tp.connection = vars.Connection()
-	tp.input = vars.Input()
+// Trigger defines a struct that can be embedded within any implemented Trigger
+type Trigger struct {
+	ID            int
+	DispatcherURL string
+	Name          string
+	connection    Connection
+	input         message.Input
 }
 
-// Send will dispatch a trigger event
-func (tp *Trigger) Send(event interface{}) error {
-	return DispatchTriggerEvent(tp.DispatcherURL, event)
+// Connection returns the connection for the Trigger
+func (t Trigger) Connection() *Connection {
+	return &t.connection
 }
 
-// ReadStart will read the start for the trigger
-func (tp *Trigger) ReadStart() error {
-	startMessage := &messages.TriggerStart{}
-	_, err := UnmarshalMessage("trigger_start", &startMessage)
+// Input returns the input for the Trigger
+func (t Trigger) Input() *message.Input {
+	return &t.input
+}
+
+// Run returns the default run behavior for the Trigger
+func (t Trigger) Run() error {
+	return t.ReadStartMessage()
+}
+
+// ReadStartMessage reads the start message for the trigger
+func (t Trigger) ReadStartMessage() error {
+	startMessage := message.TriggerStart{}
+	startMessage.Init()
+
+	_, err := startMessage.Unmarshal()
 	if err != nil {
 		return err
 	}
 
-	tp.TriggerID = startMessage.TriggerID
-	tp.DispatcherURL = startMessage.DispatcherURL
+	t.ID = startMessage.TriggerID
+	t.DispatcherURL = startMessage.DispatcherURL
 
-	if startMessage.Trigger != tp.name {
-		return fmt.Errorf("Expected trigger %s but got %s", tp.name, startMessage.Trigger)
+	if startMessage.Trigger != t.Name {
+		return fmt.Errorf("Expected trigger %s but got %s", t.Name, startMessage.Trigger)
 	}
 
-	if tp.DispatcherURL == "" {
+	if t.DispatcherURL == "" {
 		return fmt.Errorf("Expected required dispatcher_url but nothing found: %+v", startMessage)
 	}
 
-	err = json.Unmarshal(startMessage.Connection, tp.connection)
-
+	err = json.Unmarshal(startMessage.Connection, t.connection)
 	if err != nil {
 		return fmt.Errorf("Unable to parse connection %s", err)
 	}
 
-	err = json.Unmarshal(startMessage.Input, tp.input)
-
+	err = json.Unmarshal(startMessage.Input.RawMessage, t.input)
 	if err != nil {
 		return fmt.Errorf("Unable to parse input %s", err)
 	}
 
 	return nil
-
 }
