@@ -28,8 +28,8 @@ type Pluginable interface {
 type Plugin struct {
 	PluginID int
 	Name     string
-	triggers map[string]Trigger
-	actions  map[string]Action
+	triggers map[string]Triggerable
+	actions  map[string]Actionable
 }
 
 // New creates a new instance of a Plugin
@@ -50,7 +50,7 @@ func (p *Plugin) Test() error {
 }
 
 // Triggers returns the Triggers for a Plugin
-func (p *Plugin) Triggers() map[string]Trigger {
+func (p *Plugin) Triggers() map[string]Triggerable {
 	return p.triggers
 }
 
@@ -64,8 +64,13 @@ func (p *Plugin) Trigger(trigger string) (Triggerable, bool) {
 	return nil, false
 }
 
+// AddTrigger adds a Trigger to the Plugin's map of Triggers
+func (p *Plugin) AddTrigger(name string, trigger Triggerable) {
+	p.triggers[name] = trigger
+}
+
 // Actions returns the Actions for a Plugin
-func (p *Plugin) Actions() map[string]Action {
+func (p *Plugin) Actions() map[string]Actionable {
 	return p.actions
 }
 
@@ -77,4 +82,9 @@ func (p *Plugin) Action(action string) (Actionable, bool) {
 		return t, ok
 	}
 	return nil, false
+}
+
+// AddAction adds an Action to the Plugin's map of Actions
+func (p *Plugin) AddAction(name string, action Actionable) {
+	p.actions[name] = action
 }
