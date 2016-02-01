@@ -67,9 +67,9 @@ func (m *Message) Unmarshal() (*Message, error) {
 		return nil, err
 	}
 
-	// if _, err := m.Body.Unmarshal(); err != nil {
-	// 	return nil, fmt.Errorf("Unable to unmarshal Message.Body: %+v", err)
-	// }
+	if _, err := m.Body.Unmarshal(); err != nil {
+		return nil, fmt.Errorf("Unable to unmarshal Message.Body: %+v", err)
+	}
 
 	return m, nil
 }

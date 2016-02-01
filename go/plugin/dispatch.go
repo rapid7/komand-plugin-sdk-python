@@ -25,7 +25,7 @@ func DispatchTriggerEvent(url string, output interface{}) error {
 	}
 	e.Output.RawMessage = eventBytes
 
-	jsonStr, err := e.Marshal("trigger_event")
+	jsonStr, err := e.MarshalJSON()
 	if err != nil {
 		return err
 	}
