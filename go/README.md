@@ -1,21 +1,7 @@
-# Orca Plugin SDK
-To create the skeleton for a new plugin, run the code generator.
-To make a plugin compatible with the system implement the methods defined in the interfaces of Pluginable: `Connect() and Test()`
-```go
+# Go (golang) Orca Plugin SDK
+Note: Code generation for plugin, trigger, and action skeletons are coming!
 
-// Connector is an interface that a type must satisfy if it wants to create a connection within a Plugin
-type Connector interface {
-	Connect() error
-}
-
-// Tester is an interface that a type must satisfy if it wants to be testable within a Plugin
-type Tester interface {
-	Test() error
-}
-
-// Pluginable is an interface that all plugins should implemented
-type Pluginable interface {
-	Connector
-	Tester
-}
-```
+- To create the skeleton for a new plugin, follow the example for now.
+- To make a plugin compatible with the system, implement the methods defined in the Pluginable interface.
+- To make a trigger compatible with a plugin, implement the methods defined in the Triggerable interface.
+- To make an action compatible with a plugin, implement the methods defined in the Actionable interface.
