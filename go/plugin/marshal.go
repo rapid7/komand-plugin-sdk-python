@@ -4,20 +4,20 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/orcalabs/plugin-sdk/go/plugin/messages"
+	"github.com/orcalabs/plugin-sdk/go/plugin/message"
 )
 
+// MarshalMessage marshals a message of type msgtype out of the body interface
 func MarshalMessage(msgtype string, body interface{}) ([]byte, error) {
 
-	m := messages.Message{
-		MessageEnvelope: messages.MessageEnvelope{
+	m := message.Message{
+		Header: message.Header{
 			Type:    msgtype,
-			Version: messages.Version,
+			Version: message.Version,
 		},
 	}
 
 	bodyBytes, err := json.Marshal(body)
-
 	if err != nil {
 		return nil, err
 	}
@@ -27,8 +27,9 @@ func MarshalMessage(msgtype string, body interface{}) ([]byte, error) {
 	return json.Marshal(&m)
 }
 
-func UnmarshalMessage(msgtype string, body interface{}) (*messages.Message, error) {
-	m := messages.Message{}
+// UnmarshalMessage unmarshals a message of type msgtype into the body interface
+func UnmarshalMessage(msgtype string, body interface{}) (*message.Message, error) {
+	m := message.Message{}
 
 	if err := Unmarshal(&m); err != nil {
 		return nil, err

@@ -1,38 +1,23 @@
-// plugin package
 package plugin
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
-	"os"
 )
 
 // much of this code is taken from the Drone (drone.io) project
+
+// Stdin is the parameter set taken in from the command line
 var Stdin *ParamSet
 
-func init() {
-	// defaults to stdin
-	Stdin = NewParamSet(os.Stdin)
-
-	// check for params after the double dash
-	// in the command string
-	for i, argv := range os.Args {
-		if argv == "--" {
-			arg := os.Args[i+1]
-			buf := bytes.NewBufferString(arg)
-			Stdin = NewParamSet(buf)
-			break
-		}
-	}
-}
-
+// ParamSet holds a list of parameters passed in on the composed io.Reader
 type ParamSet struct {
 	reader io.Reader
 	params map[string]interface{}
 }
 
+// NewParamSet creates a new ParamSet for the given io.Reader
 func NewParamSet(reader io.Reader) *ParamSet {
 	var p = new(ParamSet)
 	p.reader = reader
@@ -70,6 +55,9 @@ func (p ParamSet) Parse() error {
 // Unmarshal parses the JSON payload from the command
 // arguments and unmarshal into a value pointed to by v.
 func (p ParamSet) Unmarshal(v interface{}) error {
+	for k, v := range p.params {
+		fmt.Println(k, v)
+	}
 	return json.NewDecoder(p.reader).Decode(v)
 }
 
@@ -89,10 +77,15 @@ func Unmarshal(v interface{}) error {
 	return Stdin.Unmarshal(v)
 }
 
-// Unmarshal parses the JSON payload from the command
+// MustUnmarshal parses the JSON payload from the command
 // arguments and unmarshal into a value pointed to by v.
-func MustUnmarshal(v interface{}) error {
-	return Stdin.Unmarshal(v)
+// If there is an error, it will panic instead of returning
+// the error.
+func MustUnmarshal(v interface{}) {
+	err := Stdin.Unmarshal(v)
+	if err != nil {
+		panic(err)
+	}
 }
 
 // MustParse parses parameter definitions from the map

@@ -10,12 +10,12 @@ var badTriggerStartMessage = `
   "version": "v1",
   "type": "not_trigger_start",
   "meta": {
-	"channel": "xyz-abc-123"
+	  "channel": "xyz-abc-123"
   },
   "body": {
-	 "trigger": "hello",
-	 "input": { "person": "Bob"},
-	 "connection": { "thing": "one"}
+	  "trigger": "hello_trigger",
+	  "input": { "person": "Bob"},
+	  "connection": { "thing": "one"}
   }
 }
 `
@@ -25,13 +25,13 @@ var triggerStartMessage = `
   "version": "v1",
   "type": "trigger_start",
   "meta": {
-	"channel": "xyz-abc-123"
+	  "channel": "xyz-abc-123"
   },
   "body": {
-     "dispatcher_url": "http://localhost:8000/blah",
-	 "trigger": "hello",
-	 "input": { "person": "Bob"},
-	 "connection": { "thing": "one"}
+    "dispatcher_url": "http://localhost:8000/blah",
+	  "trigger": "hello_trigger",
+	  "input": { "person": "Bob"},
+	  "connection": { "thing": "one"}
   }
 }
 `
@@ -50,8 +50,9 @@ type HelloTrigger struct {
 	input      HelloInput
 }
 
+// New creates a new Received trigger
 func (ht *HelloTrigger) Name() string {
-	return "hello"
+	return "hello_trigger"
 }
 
 func (ht *HelloTrigger) Input() interface{} {
@@ -64,20 +65,20 @@ func (ht *HelloTrigger) Connection() interface{} {
 
 func TestWorkingTrigger(t *testing.T) {
 	Stdin = NewParamSet(strings.NewReader(triggerStartMessage))
+
 	helloTrigger := &HelloTrigger{}
 	helloTrigger.Init(helloTrigger)
-
-	err := helloTrigger.ReadStart()
+	err := helloTrigger.Run()
 	if err != nil {
-		t.Fatal("Unable to parse:", err)
+		t.Fatal("Unable to parse", err)
 	}
 
 	if helloTrigger.input.Person != "Bob" {
-		t.Fatal("Expected Bob, got", helloTrigger.input.Person)
+		t.Fatal("Expected Bob, got ", helloTrigger.input.Person)
 	}
 
 	if helloTrigger.connection.Thing != "one" {
-		t.Fatal("Expected one, got", helloTrigger.connection.Thing)
+		t.Fatal("Expected one, got ", helloTrigger.connection.Thing)
 	}
 }
 
@@ -85,14 +86,14 @@ func TestTriggerWithBadMsgType(t *testing.T) {
 	Stdin = NewParamSet(strings.NewReader(badTriggerStartMessage))
 	helloTrigger := &HelloTrigger{}
 	helloTrigger.Init(helloTrigger)
-	err := helloTrigger.ReadStart()
+
+	err := helloTrigger.Run()
 	if err == nil {
 		t.Fatal("Expected error parsing")
 	}
 
 	msg := "Unexpected message type, wanted: trigger_start but got not_trigger_start"
 	if err.Error() != msg {
-		t.Fatal("Expected '%s' but got %s", msg, err)
+		t.Fatalf("Expected '%s' but got %s", msg, err)
 	}
-
 }

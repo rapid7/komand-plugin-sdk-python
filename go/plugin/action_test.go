@@ -10,8 +10,8 @@ var badActionStartMessage = `
   "version": "v1",
   "type": "not_action_start",
   "meta": {
-	"channel": "xyz-abc-123" 
-  }, 
+	"channel": "xyz-abc-123"
+  },
   "body": {
 	 "action": "goodbye",
 	 "input": { "person": "Bob"},
@@ -25,8 +25,8 @@ var actionStartMessage = `
   "version": "v1",
   "type": "action_start",
   "meta": {
-	"channel": "xyz-abc-123" 
-  }, 
+	"channel": "xyz-abc-123"
+  },
   "body": {
      "action_id": 1,
 	 "action": "goodbye",
@@ -66,7 +66,7 @@ func TestWorkingAction(t *testing.T) {
 	Stdin = NewParamSet(strings.NewReader(actionStartMessage))
 	goodbyeAction := &GoodbyeAction{}
 	goodbyeAction.Init(goodbyeAction)
-	err := goodbyeAction.ReadStart()
+	err := goodbyeAction.Run()
 
 	if err != nil {
 		t.Fatal("Unable to parse", err)
@@ -85,14 +85,14 @@ func TestActionWithBadMsgType(t *testing.T) {
 	Stdin = NewParamSet(strings.NewReader(badActionStartMessage))
 	goodbyeAction := &GoodbyeAction{}
 	goodbyeAction.Init(goodbyeAction)
-	err := goodbyeAction.ReadStart()
+	err := goodbyeAction.Run()
 	if err == nil {
 		t.Fatal("Expected error parsing")
 	}
 
 	msg := "Unexpected message type, wanted: action_start but got not_action_start"
 	if err.Error() != msg {
-		t.Fatal("Expected '%s' but got %s", msg, err)
+		t.Fatalf("Expected '%s' but got %s", msg, err)
 	}
 
 }
