@@ -19,13 +19,9 @@ func DispatchTriggerEvent(url string, output interface{}) error {
 	}
 
 	e := message.TriggerEvent{}
-	err = e.Init()
-	if err != nil {
-		log.Fatal("Could not initialize Trigger Event")
-	}
-	e.Output.RawMessage = eventBytes
+	e.Output = eventBytes
 
-	jsonStr, err := e.MarshalJSON()
+	jsonStr, err := MarshalMessage("trigger_event", &e)
 	if err != nil {
 		return err
 	}

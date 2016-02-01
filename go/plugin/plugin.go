@@ -2,24 +2,19 @@ package plugin
 
 import "fmt"
 
+// Runner is an interface that a trigger or action must satisfy if it wants to run
+type Runner interface {
+	Run() error
+}
+
 // Connector is an interface that a type must satisfy if it wants to create a connection within a Plugin
 type Connector interface {
 	Connect() error
 }
 
-// Runner is an interface that a Plugin must satisfy if it wants to run
-type Runner interface {
-	Run() error
-}
-
 // Tester is an interface that a type must satisfy if it wants to be testable within a Plugin
 type Tester interface {
 	Test() error
-}
-
-// Processor is an interface that a type must satisfy if it wants to process within a Plugin
-type Processor interface {
-	Process() error
 }
 
 // Pluginable is an interface that all plugins should implemented
@@ -47,11 +42,6 @@ func New(name string) (*Plugin, error) {
 // Connect connects the Plugin
 func (p *Plugin) Connect() error {
 	return fmt.Errorf("Failed to connect: Connect() method not implemented.")
-}
-
-// Run runs the Plugin
-func (p *Plugin) Run() error {
-	return fmt.Errorf("Failed to run: Run() method not implemented.")
 }
 
 // Test tests the Plugin

@@ -10,12 +10,12 @@ var badTriggerStartMessage = `
   "version": "v1",
   "type": "not_trigger_start",
   "meta": {
-	"channel": "xyz-abc-123"
+	  "channel": "xyz-abc-123"
   },
   "body": {
-	 "trigger": "hello",
-	 "input": { "person": "Bob"},
-	 "connection": { "thing": "one"}
+	  "trigger": "hello_trigger",
+	  "input": { "person": "Bob"},
+	  "connection": { "thing": "one"}
   }
 }
 `
@@ -25,13 +25,13 @@ var triggerStartMessage = `
   "version": "v1",
   "type": "trigger_start",
   "meta": {
-	"channel": "xyz-abc-123"
+	  "channel": "xyz-abc-123"
   },
   "body": {
-     "dispatcher_url": "http://localhost:8000/blah",
-	 "trigger": "hello",
-	 "input": { "person": "Bob"},
-	 "connection": { "thing": "one"}
+    "dispatcher_url": "http://localhost:8000/blah",
+	  "trigger": "hello_trigger",
+	  "input": { "person": "Bob"},
+	  "connection": { "thing": "one"}
   }
 }
 `
@@ -50,8 +50,9 @@ type HelloTrigger struct {
 	input      HelloInput
 }
 
+// New creates a new Received trigger
 func (ht *HelloTrigger) Name() string {
-	return "hello"
+	return "hello_trigger"
 }
 
 func (ht *HelloTrigger) Input() interface{} {
@@ -64,10 +65,10 @@ func (ht *HelloTrigger) Connection() interface{} {
 
 func TestWorkingTrigger(t *testing.T) {
 	Stdin = NewParamSet(strings.NewReader(triggerStartMessage))
+
 	helloTrigger := &HelloTrigger{}
 	helloTrigger.Init(helloTrigger)
-	err := helloTrigger.ReadStart()
-
+	err := helloTrigger.Run()
 	if err != nil {
 		t.Fatal("Unable to parse", err)
 	}
@@ -85,7 +86,8 @@ func TestTriggerWithBadMsgType(t *testing.T) {
 	Stdin = NewParamSet(strings.NewReader(badTriggerStartMessage))
 	helloTrigger := &HelloTrigger{}
 	helloTrigger.Init(helloTrigger)
-	err := helloTrigger.ReadStart()
+
+	err := helloTrigger.Run()
 	if err == nil {
 		t.Fatal("Expected error parsing")
 	}
@@ -94,5 +96,4 @@ func TestTriggerWithBadMsgType(t *testing.T) {
 	if err.Error() != msg {
 		t.Fatalf("Expected '%s' but got %s", msg, err)
 	}
-
 }
