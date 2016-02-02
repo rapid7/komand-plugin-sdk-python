@@ -33,8 +33,8 @@ type Plugin struct {
 }
 
 // New creates a new instance of a Plugin
-func New(name string) (*Plugin, error) {
-	return &Plugin{
+func New(name string) (Pluginable, error) {
+	return Plugin{
 		Name:     name,
 		triggers: map[string]Triggerable{},
 		actions:  map[string]Actionable{},
@@ -42,12 +42,12 @@ func New(name string) (*Plugin, error) {
 }
 
 // Connect connects the Plugin
-func (p *Plugin) Connect() error {
+func (p Plugin) Connect() error {
 	return fmt.Errorf("Failed to connect: Connect() method not implemented.")
 }
 
 // Test tests the Plugin
-func (p *Plugin) Test() error {
+func (p Plugin) Test() error {
 	return fmt.Errorf("Failed to test: Test() method not implemented.")
 }
 
