@@ -35,7 +35,9 @@ type Plugin struct {
 // New creates a new instance of a Plugin
 func New(name string) (*Plugin, error) {
 	return &Plugin{
-		Name: name,
+		Name:     name,
+		triggers: map[string]Triggerable{},
+		actions:  map[string]Actionable{},
 	}, nil
 }
 
