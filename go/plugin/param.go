@@ -1,15 +1,33 @@
 package plugin
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
+	"os"
 )
 
 // much of this code is taken from the Drone (drone.io) project
 
 // Stdin is the parameter set taken in from the command line
 var Stdin *ParamSet
+
+func init() {
+	// defaults to stdin
+	Stdin = NewParamSet(os.Stdin)
+
+	// check for params after the double dash
+	// in the command string
+	for i, argv := range os.Args {
+		if argv == "--" {
+			arg := os.Args[i+1]
+			buf := bytes.NewBufferString(arg)
+			Stdin = NewParamSet(buf)
+			break
+		}
+	}
+}
 
 // ParamSet holds a list of parameters passed in on the composed io.Reader
 type ParamSet struct {
