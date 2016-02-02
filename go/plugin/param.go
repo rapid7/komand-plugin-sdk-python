@@ -17,8 +17,8 @@ func init() {
 	// defaults to stdin
 	Stdin = NewParamSet(os.Stdin)
 
-	// check for params after the double dash		 +// Stdin is the parameter set taken in from the command line
-	// in the command string		 +var Stdin *ParamSet
+	// check for params after the double dash
+	// in the command string
 	for i, argv := range os.Args {
 		if argv == "--" {
 			arg := os.Args[i+1]
