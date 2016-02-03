@@ -3,6 +3,7 @@ package plugin
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 
@@ -38,7 +39,7 @@ func init() {
 // Pluginable is the interface all Plugins must implement
 type Pluginable interface {
 	Run() error
-	Connect(c connect.Connectable) error
+	Connect() error
 	Trigger(t Triggerable) error
 	Act(a Actionable) error
 }
@@ -46,7 +47,7 @@ type Pluginable interface {
 // Plugin holds the common Plugin information
 type Plugin struct {
 	Name       string
-	connection connect.Connectable
+	Connection connect.Connectable
 	triggers   map[string]Triggerable
 	actions    map[string]Actionable
 }
@@ -91,8 +92,8 @@ func (p Plugin) Run() error {
 }
 
 // Connect connects a Plugin to its connection.  This should be implemented by Plugin developers.
-func (p Plugin) Connect(c connect.Connectable) error {
-	return c.Connect()
+func (p Plugin) Connect() error {
+	return errors.New("Failed to connect: Connect() not implemented.")
 }
 
 // AddTrigger adds triggers to the map of Plugins triggers
