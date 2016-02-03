@@ -49,12 +49,25 @@ type TriggerEvent struct {
 
 // Dispatch dispatches a trigger event
 func (e *TriggerEvent) Dispatch(url string) error {
-	jsonStr, err := json.Marshal(&e)
+
+	outputBytes, err := json.Marshal(&e.Output.Contents)
+	if err != nil {
+		return err
+	}
+	e.Output.RawMessage = outputBytes
+
+	m := Message{
+		Header: Header{
+			Version: Version,
+			Type:    "trigger_event",
+		},
+	}
+	messageBytes, err := m.Marshal(&e)
 	if err != nil {
 		return err
 	}
 
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonStr))
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(messageBytes))
 	if err != nil {
 		log.Fatal("Could not create POST request:", err)
 	}
