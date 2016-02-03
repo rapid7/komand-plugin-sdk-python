@@ -74,15 +74,21 @@ func (p Plugin) Run() error {
 	switch string(typ) {
 	case TriggerStart:
 		start := message.TriggerStart{}
-		json.Unmarshal(b.RawMessage, &start)
-		err = p.Trigger(start.Trigger)
+		err = json.Unmarshal(b.RawMessage, &start)
+		if err != nil {
+			return err
+		}
+		return p.Trigger(start.Trigger)
 	case ActionStart:
 		start := message.ActionStart{}
-		fmt.Println(string(b.RawMessage))
-		json.Unmarshal(b.RawMessage, &start)
-		err = p.Act(start.Action)
+		err = json.Unmarshal(b.RawMessage, &start)
+		if err != nil {
+			return err
+		}
+		return p.Act(start.Action)
+	default:
+		return fmt.Errorf("Unexpected message type: %s", string(typ))
 	}
-	return err
 }
 
 // Connect connects a Plugin to its connection.  This should be implemented by Plugin developers.
@@ -115,7 +121,7 @@ func (p Plugin) AddAction(name string, action Actionable) {
 
 // Act acts on the given action if it exists
 func (p Plugin) Act(action string) error {
-	if a, ok := p.actions[action]; !ok {
+	if a, ok := p.actions[action]; ok {
 		return a.Act()
 	}
 	return fmt.Errorf("Failed to Act() with action: %s. Action not valid with plugin: %s.", action, p.Name)
