@@ -1,92 +1,133 @@
 package plugin
 
-import "fmt"
+import (
+	"bytes"
+	"encoding/json"
+	"errors"
+	"fmt"
+	"os"
 
-// Runner is an interface that a trigger or action must satisfy if it wants to run
-type Runner interface {
-	Run() error
-}
+	"github.com/orcalabs/plugin-sdk/go/plugin/connect"
+	"github.com/orcalabs/plugin-sdk/go/plugin/message"
+	"github.com/orcalabs/plugin-sdk/go/plugin/parameter"
+)
 
-// Connector is an interface that a type must satisfy if it wants to create a connection within a Plugin
-type Connector interface {
-	Connect() error
-}
+// Types of Start Messages
+const (
+	TriggerStart = "trigger_start"
+	ActionStart  = "action_start"
+)
 
-// Tester is an interface that a type must satisfy if it wants to be testable within a Plugin
-type Tester interface {
-	Test() error
-}
+// init initializes the plugin package, collecting parameters from the command line
+// Functionality comes from param.go
+func init() {
+	// defaults to stdin
+	parameter.Stdin = parameter.NewParamSet(os.Stdin)
 
-// Pluginable is an interface that all plugins should implemented
-type Pluginable interface {
-	Connector
-	Tester
-}
-
-// Plugin provides a piece of functionality to a workflow.
-// When developing a new plugin, this struct should be embedded within it.
-type Plugin struct {
-	PluginID int
-	Name     string
-	triggers map[string]Triggerable
-	actions  map[string]Actionable
-}
-
-// New creates a new instance of a Plugin
-func New(name string) (*Plugin, error) {
-	return &Plugin{
-		Name:     name,
-		triggers: map[string]Triggerable{},
-		actions:  map[string]Actionable{},
-	}, nil
-}
-
-// Connect connects the Plugin
-func (p *Plugin) Connect() error {
-	return fmt.Errorf("Failed to connect: Connect() method not implemented.")
-}
-
-// Test tests the Plugin
-func (p *Plugin) Test() error {
-	return fmt.Errorf("Failed to test: Test() method not implemented.")
-}
-
-// Triggers returns the Triggers for a Plugin
-func (p *Plugin) Triggers() map[string]Triggerable {
-	return p.triggers
-}
-
-// Trigger tries to retrieve the Trigger from the Plugin's list of Triggers
-// If the Trigger exists, it will return the Trigger and a boolean true
-// If the Trigger does not exist, it will return nil and a boolean false
-func (p *Plugin) Trigger(trigger string) (Triggerable, bool) {
-	if t, ok := p.triggers[trigger]; ok {
-		return t, ok
+	// check for params after the double dash
+	// in the command string
+	for i, argv := range os.Args {
+		if argv == "--" {
+			arg := os.Args[i+1]
+			buf := bytes.NewBufferString(arg)
+			parameter.Stdin = parameter.NewParamSet(buf)
+			break
+		}
 	}
-	return nil, false
 }
 
-// AddTrigger adds a Trigger to the Plugin's map of Triggers
-func (p *Plugin) AddTrigger(name string, trigger Triggerable) {
+// Pluginable is the interface all Plugins must implement
+type Pluginable interface {
+	Run() error
+	Connect(c connect.Connectable) error
+	Trigger(t Triggerable) error
+	Act(a Actionable) error
+}
+
+// Plugin holds the common Plugin information
+type Plugin struct {
+	Name       string
+	connection connect.Connectable
+	triggers   map[string]Triggerable
+	actions    map[string]Actionable
+}
+
+// Init initializes a Plugin
+func (p *Plugin) Init() {
+	p.triggers = map[string]Triggerable{}
+	p.actions = map[string]Actionable{}
+}
+
+// Run runs a Plugin
+func (p Plugin) Run() error {
+	var typ string
+	var version string
+	m := message.Message{}
+	b := m.Body
+
+	parameter.Param("type", &typ)
+	parameter.Param("version", &version)
+	parameter.Param("body", &b)
+	parameter.Parse()
+
+	var err error
+	switch string(typ) {
+	case TriggerStart:
+		start := message.TriggerStart{}
+		err = json.Unmarshal(b.RawMessage, &start)
+		if err != nil {
+			return err
+		}
+		return p.Trigger(start.Trigger)
+	case ActionStart:
+		start := message.ActionStart{}
+		err = json.Unmarshal(b.RawMessage, &start)
+		if err != nil {
+			return err
+		}
+		return p.Act(start.Action)
+	default:
+		return fmt.Errorf("Unexpected message type: %s", string(typ))
+	}
+}
+
+// Connect connects a Plugin to its connection.  This should be implemented by Plugin developers.
+func (p Plugin) Connect() error {
+	return errors.New("Failed to connect: Connect() not implemented.")
+}
+
+// AddTrigger adds triggers to the map of Plugins triggers
+func (p Plugin) AddTrigger(name string, trigger Triggerable) {
 	p.triggers[name] = trigger
 }
 
-// Actions returns the Actions for a Plugin
-func (p *Plugin) Actions() map[string]Actionable {
-	return p.actions
-}
-
-// Action tries to retrieve the Action from the Plugin's list of Actions
-// If the Action exists, it will return the Action and a boolean true
-// If the Action does not exist, it will return nil and a boolean false
-func (p *Plugin) Action(action string) (Actionable, bool) {
-	if t, ok := p.actions[action]; ok {
-		return t, ok
+// Trigger triggers on the given trigger if it exists
+func (p Plugin) Trigger(trigger string) error {
+	if t, ok := p.triggers[trigger]; ok {
+		return t.Trigger()
 	}
-	return nil, false
+	return fmt.Errorf("Failed to Trigger() with %s. Trigger not valid with plugin: %s.", trigger, p.Name)
 }
 
-// AddAction adds an Action to the Plugin's map of Actions
-func (p *Plugin) AddAction(name string, action Actionable) {
+// Triggers returns the map of Triggerables in the Plugin
+func (p Plugin) Triggers() map[string]Triggerable {
+	return p.triggers
+}
+
+// AddAction adds triggers to the map of Plugins triggers
+func (p Plugin) AddAction(name string, action Actionable) {
 	p.actions[name] = action
+}
+
+// Act acts on the given action if it exists
+func (p Plugin) Act(action string) error {
+	if a, ok := p.actions[action]; ok {
+		return a.Act()
+	}
+	return fmt.Errorf("Failed to Act() with action: %s. Action not valid with plugin: %s.", action, p.Name)
+}
+
+// Actions returns the map of Actionables in the Plugin
+func (p Plugin) Actions() map[string]Actionable {
+	return p.actions
 }

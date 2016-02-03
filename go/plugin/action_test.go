@@ -3,96 +3,63 @@ package plugin
 import (
 	"strings"
 	"testing"
-)
 
-var badActionStartMessage = `
-{
-  "version": "v1",
-  "type": "not_action_start",
-  "meta": {
-	"channel": "xyz-abc-123"
-  },
-  "body": {
-	 "action": "goodbye",
-	 "input": { "person": "Bob"},
-	 "connection": { "thing": "one"}
-  }
-}
-`
+	"github.com/orcalabs/plugin-sdk/go/plugin/parameter"
+)
 
 var actionStartMessage = `
 {
   "version": "v1",
   "type": "action_start",
-  "meta": {
-	"channel": "xyz-abc-123"
-  },
   "body": {
-     "action_id": 1,
-	 "action": "goodbye",
-	 "connection": { "thing": "one"},
-	 "input": { "person": "Bob"}
+    "action_id": 14,
+	  "action": "hello_action",
+	  "connection": { "thing": "one"},
+    "input": { "person": "Bob"}
   }
 }
 `
 
-type Goodbyeconnection struct {
-	Thing string `json:"thing"`
+var invalidTypeActionStartMessage = `
+{
+  "version": "v1",
+  "type": "not_action_start",
+  "body": {
+    "action_id": 14,
+	  "action": "hello_action",
+	  "connection": { "thing": "one"},
+    "input": { "person": "Bob"}
+  }
 }
+`
 
-type GoodbyeInput struct {
-	Person string `json:"person"`
-}
+type HelloAction struct{}
 
-type GoodbyeAction struct {
-	Action
-	connection Goodbyeconnection
-	input      GoodbyeInput
-}
-
-func (ht *GoodbyeAction) Name() string {
-	return "goodbye"
-}
-
-func (ht *GoodbyeAction) Input() interface{} {
-	return &ht.input
-}
-
-func (ht *GoodbyeAction) Connection() interface{} {
-	return &ht.connection
+func (a HelloAction) Act() error {
+	return nil
 }
 
 func TestWorkingAction(t *testing.T) {
-	Stdin = NewParamSet(strings.NewReader(actionStartMessage))
-	goodbyeAction := &GoodbyeAction{}
-	goodbyeAction.Init(goodbyeAction)
-	err := goodbyeAction.Run()
+	parameter.Stdin = parameter.NewParamSet(strings.NewReader(actionStartMessage))
 
+	p := New()
+	err := p.Run()
 	if err != nil {
-		t.Fatal("Unable to parse", err)
-	}
-
-	if goodbyeAction.input.Person != "Bob" {
-		t.Fatal("Expected Bob, got ", goodbyeAction.input.Person)
-	}
-
-	if goodbyeAction.connection.Thing != "one" {
-		t.Fatal("Expected one, got ", goodbyeAction.connection.Thing)
+		t.Fatalf("Unable to run %s: %v", p.Name, err)
 	}
 }
 
-func TestActionWithBadMsgType(t *testing.T) {
-	Stdin = NewParamSet(strings.NewReader(badActionStartMessage))
-	goodbyeAction := &GoodbyeAction{}
-	goodbyeAction.Init(goodbyeAction)
-	err := goodbyeAction.Run()
+func TestActionWithInvalidMessageType(t *testing.T) {
+	parameter.Stdin = parameter.NewParamSet(strings.NewReader(invalidTypeActionStartMessage))
+
+	p := New()
+	err := p.Run()
 	if err == nil {
-		t.Fatal("Expected error parsing")
+		t.Fatal("Expected error running")
 	}
 
-	msg := "Unexpected message type, wanted: action_start but got not_action_start"
+	msg := "Unexpected message type: not_action_start"
 	if err.Error() != msg {
 		t.Fatalf("Expected '%s' but got %s", msg, err)
 	}
-
 }

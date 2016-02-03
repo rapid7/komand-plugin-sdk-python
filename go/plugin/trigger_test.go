@@ -3,22 +3,9 @@ package plugin
 import (
 	"strings"
 	"testing"
-)
 
-var badTriggerStartMessage = `
-{
-  "version": "v1",
-  "type": "not_trigger_start",
-  "meta": {
-	  "channel": "xyz-abc-123"
-  },
-  "body": {
-	  "trigger": "hello_trigger",
-	  "input": { "person": "Bob"},
-	  "connection": { "thing": "one"}
-  }
-}
-`
+	"github.com/orcalabs/plugin-sdk/go/plugin/parameter"
+)
 
 var triggerStartMessage = `
 {
@@ -36,63 +23,45 @@ var triggerStartMessage = `
 }
 `
 
-type HelloConnection struct {
-	Thing string `json:"thing"`
+var invalidTypeTriggerStartMessage = `
+{
+  "version": "v1",
+  "type": "not_trigger_start",
+  "meta": {
+	  "channel": "xyz-abc-123"
+  },
+  "body": {
+    "dispatcher_url": "http://localhost:8000/blah",
+	  "trigger": "hello_trigger",
+	  "input": { "person": "Bob"},
+	  "connection": { "thing": "one"}
+  }
 }
+`
 
-type HelloInput struct {
-	Person string `json:"person"`
-}
+type HelloTrigger struct{}
 
-type HelloTrigger struct {
-	Trigger
-	connection HelloConnection
-	input      HelloInput
-}
-
-// New creates a new Received trigger
-func (ht *HelloTrigger) Name() string {
-	return "hello_trigger"
-}
-
-func (ht *HelloTrigger) Input() interface{} {
-	return &ht.input
-}
-
-func (ht *HelloTrigger) Connection() interface{} {
-	return &ht.connection
+func (t HelloTrigger) Trigger() error {
+	return nil
 }
 
 func TestWorkingTrigger(t *testing.T) {
-	Stdin = NewParamSet(strings.NewReader(triggerStartMessage))
+	parameter.Stdin = parameter.NewParamSet(strings.NewReader(triggerStartMessage))
 
-	helloTrigger := &HelloTrigger{}
-	helloTrigger.Init(helloTrigger)
-	err := helloTrigger.Run()
+	p := New()
+	err := p.Run()
 	if err != nil {
-		t.Fatal("Unable to parse", err)
-	}
-
-	if helloTrigger.input.Person != "Bob" {
-		t.Fatal("Expected Bob, got ", helloTrigger.input.Person)
-	}
-
-	if helloTrigger.connection.Thing != "one" {
-		t.Fatal("Expected one, got ", helloTrigger.connection.Thing)
+		t.Fatalf("Unable to run %s: %v", p.Name, err)
 	}
 }
 
-func TestTriggerWithBadMsgType(t *testing.T) {
-	Stdin = NewParamSet(strings.NewReader(badTriggerStartMessage))
-	helloTrigger := &HelloTrigger{}
-	helloTrigger.Init(helloTrigger)
+func TestInvalidTriggerStartMessageType(t *testing.T) {
+	parameter.Stdin = parameter.NewParamSet(strings.NewReader(invalidTypeTriggerStartMessage))
 
-	err := helloTrigger.Run()
-	if err == nil {
-		t.Fatal("Expected error parsing")
-	}
+	p := New()
+	err := p.Run()
 
-	msg := "Unexpected message type, wanted: trigger_start but got not_trigger_start"
+	msg := "Unexpected message type: not_trigger_start"
 	if err.Error() != msg {
 		t.Fatalf("Expected '%s' but got %s", msg, err)
 	}

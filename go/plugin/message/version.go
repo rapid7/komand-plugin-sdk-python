@@ -1,4 +1,4 @@
 package message
 
-// Version declares the current version of the message package
-var Version = "v1"
+// Version the version of the messages
+const Version = "v1"

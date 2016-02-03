@@ -1,21 +1,19 @@
 package message
 
-import "encoding/json"
+import "github.com/orcalabs/plugin-sdk/go/plugin/connect"
 
 // ActionStart is the format of the message that starts an Action
 type ActionStart struct {
-	UID        string          `json:"uid"`
-	ActionID   int             `json:"action_id"`  // ActionId identifies the action in the system
-	Connection json.RawMessage `json:"connection"` // Connection is the global connection for the plugin
-	Action     string          `json:"action"`     // Action is the name of the action
-	Input      json.RawMessage `json:"input"`      // Input are the input passed to action start
+	ActionID   int                `json:"action_id"`  // ActionId identifies the action in the system
+	Action     string             `json:"action"`     // Action is the name of the action
+	Connection connect.Connection `json:"connection"` // Connection is the global connection for the plugin
+	Input      Input              `json:"input"`      // Input are the input passed to action start
 }
 
 // ActionResult is the format of the message from an Actions result
 type ActionResult struct {
-	UID      string          `json:"uid"`
-	ActionID int             `json:"action_id"` // ActionId identifies the action in the system
-	Status   string          `json:"status"`    // Status identifies the result status from the Action
-	Error    string          `json:"error"`     // Error identifies any error that occured during the Action
-	Output   json.RawMessage `json:"output"`    // Output contains the output of the Action
+	ActionID int    `json:"action_id"` // ActionId identifies the action in the system
+	Status   string `json:"status"`    // Status identifies the result status from the Action
+	Error    string `json:"error"`     // Error identifies any error that occured during the Action
+	Output   Output `json:"output"`    // Output contains the output of the Action
 }
