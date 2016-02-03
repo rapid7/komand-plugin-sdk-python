@@ -48,7 +48,7 @@ type TriggerEvent struct {
 }
 
 // Dispatch dispatches a trigger event
-func (e *TriggerEvent) Dispatch(url string) error {
+func (e TriggerEvent) Dispatch(url string) error {
 
 	outputBytes, err := json.Marshal(&e.Output.Contents)
 	if err != nil {
