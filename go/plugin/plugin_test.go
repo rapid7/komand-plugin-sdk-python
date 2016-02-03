@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/orcalabs/plugin-sdk/go/plugin/message"
+	"github.com/orcalabs/plugin-sdk/go/plugin/connect"
 	"github.com/orcalabs/plugin-sdk/go/plugin/parameter"
 )
 
@@ -74,7 +74,7 @@ func (p HelloPlugin) Run() error {
 	return nil
 }
 
-func (p HelloPlugin) Connect(c message.Connectable) error {
+func (p HelloPlugin) Connect(c connect.Connectable) error {
 	return nil
 }
 
