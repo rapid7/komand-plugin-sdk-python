@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/orcalabs/plugin-sdk/go/plugin/connect"
 	"github.com/orcalabs/plugin-sdk/go/plugin/message"
 	"github.com/orcalabs/plugin-sdk/go/plugin/parameter"
 )
@@ -38,7 +39,7 @@ func init() {
 // Pluginable is the interface all Plugins must implement
 type Pluginable interface {
 	Run() error
-	Connect(c message.Connectable) error
+	Connect(c connect.Connectable) error
 	Trigger(t Triggerable) error
 	Act(a Actionable) error
 }
@@ -46,7 +47,7 @@ type Pluginable interface {
 // Plugin holds the common Plugin information
 type Plugin struct {
 	Name       string
-	connection *message.Connectable
+	connection connect.Connectable
 	triggers   map[string]Triggerable
 	actions    map[string]Actionable
 }
