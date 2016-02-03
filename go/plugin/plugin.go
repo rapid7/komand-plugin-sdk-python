@@ -39,7 +39,7 @@ func init() {
 // Pluginable is the interface all Plugins must implement
 type Pluginable interface {
 	Run() error
-	Connect(c connect.Connectable) error
+	Connect() error
 	Trigger(t Triggerable) error
 	Act(a Actionable) error
 }
@@ -47,7 +47,7 @@ type Pluginable interface {
 // Plugin holds the common Plugin information
 type Plugin struct {
 	Name       string
-	connection connect.Connectable
+	Connection connect.Connectable
 	triggers   map[string]Triggerable
 	actions    map[string]Actionable
 }
