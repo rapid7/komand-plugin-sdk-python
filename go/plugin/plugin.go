@@ -3,6 +3,7 @@ package plugin
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 
@@ -91,8 +92,8 @@ func (p Plugin) Run() error {
 }
 
 // Connect connects a Plugin to its connection.  This should be implemented by Plugin developers.
-func (p Plugin) Connect(c connect.Connectable) error {
-	return c.Connect()
+func (p Plugin) Connect() error {
+	return errors.New("Failed to connect: Connect() not implemented.")
 }
 
 // AddTrigger adds triggers to the map of Plugins triggers
