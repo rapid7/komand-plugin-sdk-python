@@ -20,3 +20,15 @@ type Connection struct {
 func (c Connection) Connect() error {
 	return fmt.Errorf("Failed to connect, Connect() not implemented.")
 }
+
+func (c *Connection) MarshalJSON() ([]byte, error) {
+	if c.RawMessage == nil || len(c.RawMessage) == 0 {
+		msg, err := json.Marshal(&c.Contents)
+		if err != nil {
+			return nil, err
+		}
+		c.RawMessage = msg
+	}
+
+	return c.RawMessage, nil
+}
