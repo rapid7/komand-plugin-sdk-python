@@ -28,11 +28,14 @@ func (m *Message) Validate() error {
 
 // Marshal marshals a Message object into JSON
 func (m *Message) Marshal(v interface{}) ([]byte, error) {
-	bodyBytes, err := m.Body.MarshalJSON()
-	if err != nil {
-		return nil, err
+
+	if m.Body.RawMessage == nil || len(m.Body.RawMessage) == 0 {
+		bodyBytes, err := m.Body.MarshalJSON()
+		if err != nil {
+			return nil, err
+		}
+		m.Body.RawMessage = bodyBytes
 	}
-	m.Body.RawMessage = bodyBytes
 	return json.Marshal(&m)
 }
 

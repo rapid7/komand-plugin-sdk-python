@@ -18,7 +18,7 @@ type TriggerStart struct {
 	Connection    connect.Connection `json:"connection"`     // Connection is the global connection for the plugin
 	DispatcherURL string             `json:"dispatcher_url"` // Dispatcher URL is the url for the channel
 	Trigger       string             `json:"trigger"`        // Trigger is the name of the trigger
-	Input         Input              // Input are the parameters passed to trigger start
+	Input         Input              `json:"input"`          // Input are the parameters passed to trigger start
 }
 
 // Read reads the start message for the Plugin
@@ -50,11 +50,13 @@ type TriggerEvent struct {
 // Dispatch dispatches a trigger event
 func (e TriggerEvent) Dispatch(url string) error {
 
-	outputBytes, err := json.Marshal(&e.Output.Contents)
-	if err != nil {
-		return err
+	if e.Output.RawMessage == nil || len(e.Output.RawMessage) == 0 {
+		outputBytes, err := json.Marshal(&e.Output.Contents)
+		if err != nil {
+			return err
+		}
+		e.Output.RawMessage = outputBytes
 	}
-	e.Output.RawMessage = outputBytes
 
 	m := Message{
 		Header: Header{
