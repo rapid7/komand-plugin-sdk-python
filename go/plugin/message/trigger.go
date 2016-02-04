@@ -50,11 +50,13 @@ type TriggerEvent struct {
 // Dispatch dispatches a trigger event
 func (e TriggerEvent) Dispatch(url string) error {
 
-	outputBytes, err := json.Marshal(&e.Output.Contents)
-	if err != nil {
-		return err
+	if e.Output.RawMessage == nil || len(e.Output.RawMessage) == 0 {
+		outputBytes, err := json.Marshal(&e.Output.Contents)
+		if err != nil {
+			return err
+		}
+		e.Output.RawMessage = outputBytes
 	}
-	e.Output.RawMessage = outputBytes
 
 	m := Message{
 		Header: Header{
