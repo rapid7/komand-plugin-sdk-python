@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"testing"
 )
-
 import "github.com/orcalabs/plugin-sdk/go/plugin/connect"
 
 func TestMarshalTriggerStart(t *testing.T) {
@@ -47,7 +46,7 @@ func TestMarshalTriggerStart(t *testing.T) {
 		t.Fatal("Unable to marshal: ", err)
 	}
 
-	if str != expected {
+	if string(str) != expected {
 		t.Fatalf("Got %s but expected %s", str, expected)
 	}
 }
