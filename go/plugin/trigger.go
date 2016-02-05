@@ -1,30 +1,30 @@
 package plugin
 
-import (
-	"errors"
-
-	"github.com/orcalabs/plugin-sdk/go/plugin/message"
-)
-
-// Triggerable is the interface for a Trigger within a Plugin
+// Triggerable must be implemented by a plugin trigger.
 type Triggerable interface {
-	Trigger() error
+	RunTrigger() error // RunTrigger will run the trigger.
+	Name() string      // Name is the trigger name
 }
 
-// Trigger defines a struct that can be embedded within any implemented Trigger
+// Trigger defines a struct that should be embedded within any
+// implemented Trigger.
 type Trigger struct {
-	ID            int
-	Name          string
-	DispatcherURL string
-	Input         *message.Input
+	name string
+	sendQueue
 }
 
-// Trigger triggers the trigger
-func (t Trigger) Trigger() error {
-	return errors.New("Failed to trigger, Trigger() not implemented.")
+// Init initializes the trigger with the trigger name.
+func (t *Trigger) Init(name string) {
+	t.name = name
+	t.sendQueue.InitQueue()
 }
 
-// Send will dispatch a trigger event
-func (t *Trigger) Send(d message.Dispatchable) error {
-	return d.Dispatch(t.DispatcherURL)
+// Name of the trigger
+func (t *Trigger) Name() string {
+	return t.name
+}
+
+// Send emits an event
+func (t *Trigger) Send(event Output) error {
+	return t.sendQueue.Send(event)
 }

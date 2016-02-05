@@ -13,8 +13,8 @@ var actionStartMessage = `
   "type": "action_start",
   "body": {
     "action_id": 14,
-	  "action": "hello_action",
-	  "connection": { "thing": "one"},
+	"action": "hello_action",
+	"connection": { "thing": "one"},
     "input": { "person": "Bob"}
   }
 }
@@ -26,26 +26,66 @@ var invalidTypeActionStartMessage = `
   "type": "not_action_start",
   "body": {
     "action_id": 14,
-	  "action": "hello_action",
-	  "connection": { "thing": "one"},
+    "action": "hello_action",
+    "connection": { "thing": "one"},
     "input": { "person": "Bob"}
   }
 }
 `
 
-type HelloAction struct{}
+type HelloAction struct {
+	Action
+	output HelloActionOutput
+}
 
-func (a HelloAction) Act() error {
+func (h *HelloAction) Name() string {
+	return "hello_action"
+}
+
+func (h *HelloAction) Output() Output {
+	return &h.output
+}
+
+type HelloActionOutput struct {
+	Greeting string `json:"greeting"`
+}
+
+// Validate
+func (h *HelloActionOutput) Validate() []error {
+	return nil
+}
+
+type HelloActionInput struct {
+	Person string `json:"person"`
+}
+
+// Validate
+func (h *HelloActionInput) Validate() []error {
+	return nil
+}
+
+// Act
+func (h *HelloAction) Act() error {
+	h.output.Greeting = "good day to you"
 	return nil
 }
 
 func TestWorkingAction(t *testing.T) {
 	parameter.Stdin = parameter.NewParamSet(strings.NewReader(actionStartMessage))
+	expectedOutputEvent := `{"version":"v1","type":"action_event","body":{"action_id":14,"status":"ok","error":"","output":{"greeting":"good day to you"}}}`
+	dispatcher := &mockDispatcher{}
+
+	// mock dispatcher to test dispatch works
+	defaultActionDispatcher = dispatcher
 
 	p := New()
 	err := p.Run()
 	if err != nil {
 		t.Fatalf("Unable to run %s: %v", p.Name, err)
+	}
+
+	if dispatcher.result != expectedOutputEvent {
+		t.Fatalf("Unexpected event output, got %s but expected %s", dispatcher.result, expectedOutputEvent)
 	}
 }
 

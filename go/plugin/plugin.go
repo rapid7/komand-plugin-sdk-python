@@ -2,12 +2,9 @@ package plugin
 
 import (
 	"bytes"
-	"encoding/json"
-	"errors"
 	"fmt"
 	"os"
 
-	"github.com/orcalabs/plugin-sdk/go/plugin/connect"
 	"github.com/orcalabs/plugin-sdk/go/plugin/message"
 	"github.com/orcalabs/plugin-sdk/go/plugin/parameter"
 )
@@ -36,77 +33,90 @@ func init() {
 	}
 }
 
-// Pluginable is the interface all Plugins must implement
-type Pluginable interface {
-	Run() error
-	Connect() error
-	Trigger(t Triggerable) error
-	Act(a Actionable) error
-}
-
 // Plugin holds the common Plugin information
 type Plugin struct {
-	Name       string
-	Connection connect.Connectable
-	triggers   map[string]Triggerable
-	actions    map[string]Actionable
+	Name     string
+	triggers map[string]Triggerable
+	actions  map[string]Actionable
 }
 
 // Init initializes a Plugin
-func (p *Plugin) Init() {
+func (p *Plugin) Init(name string) {
+	p.Name = name
 	p.triggers = map[string]Triggerable{}
 	p.actions = map[string]Actionable{}
 }
 
 // Run runs a Plugin
-func (p Plugin) Run() error {
-	var typ string
-	var version string
+func (p *Plugin) Run() error {
 	m := message.Message{}
-	b := m.Body
 
-	parameter.Param("type", &typ)
-	parameter.Param("version", &version)
-	parameter.Param("body", &b)
-	parameter.Parse()
+	parameter.Param("type", &m.Type)
+	parameter.Param("version", &m.Version)
+	parameter.Param("body", &m.Body)
+	err := parameter.Parse()
 
-	var err error
-	switch string(typ) {
+	if err != nil {
+		return fmt.Errorf("Unable to deserialize message: %+v", err)
+	}
+
+	switch m.Type {
 	case TriggerStart:
 		start := message.TriggerStart{}
-		err = json.Unmarshal(b.RawMessage, &start)
+		err = m.UnmarshalBody(&start)
 		if err != nil {
 			return err
 		}
-		return p.Trigger(start.Trigger)
+
+		// lookup the trigger that matches
+		trigger, err := p.LookupTrigger(start.Trigger)
+
+		if err != nil {
+			return err
+		}
+
+		task := &triggerTask{
+			message:    &start,
+			trigger:    trigger,
+			dispatcher: triggerDispatcher(),
+		}
+		return task.Run()
 	case ActionStart:
 		start := message.ActionStart{}
-		err = json.Unmarshal(b.RawMessage, &start)
+		err = m.UnmarshalBody(&start)
 		if err != nil {
 			return err
 		}
-		return p.Act(start.Action)
-	default:
-		return fmt.Errorf("Unexpected message type: %s", string(typ))
-	}
-}
 
-// Connect connects a Plugin to its connection.  This should be implemented by Plugin developers.
-func (p Plugin) Connect() error {
-	return errors.New("Failed to connect: Connect() not implemented.")
+		// lookup the Action that matches
+		action, err := p.LookupAction(start.Action)
+
+		if err != nil {
+			return err
+		}
+
+		task := &actionTask{
+			message:    &start,
+			action:     action,
+			dispatcher: actionDispatcher(),
+		}
+		return task.Run()
+	default:
+		return fmt.Errorf("Unexpected message type: %s", m.Type)
+	}
 }
 
 // AddTrigger adds triggers to the map of Plugins triggers
-func (p Plugin) AddTrigger(name string, trigger Triggerable) {
-	p.triggers[name] = trigger
+func (p Plugin) AddTrigger(trigger Triggerable) {
+	p.triggers[trigger.Name()] = trigger
 }
 
-// Trigger triggers on the given trigger if it exists
-func (p Plugin) Trigger(trigger string) error {
+// LookupTrigger triggers on the given trigger if it exists
+func (p Plugin) LookupTrigger(trigger string) (Triggerable, error) {
 	if t, ok := p.triggers[trigger]; ok {
-		return t.Trigger()
+		return t, nil
 	}
-	return fmt.Errorf("Failed to Trigger() with %s. Trigger not valid with plugin: %s.", trigger, p.Name)
+	return nil, fmt.Errorf("Failed to LookupTrigger() with %s. Trigger not valid with plugin: %s.", trigger, p.Name)
 }
 
 // Triggers returns the map of Triggerables in the Plugin
@@ -115,16 +125,16 @@ func (p Plugin) Triggers() map[string]Triggerable {
 }
 
 // AddAction adds triggers to the map of Plugins triggers
-func (p Plugin) AddAction(name string, action Actionable) {
-	p.actions[name] = action
+func (p Plugin) AddAction(action Actionable) {
+	p.actions[action.Name()] = action
 }
 
-// Act acts on the given action if it exists
-func (p Plugin) Act(action string) error {
+// LookupAction will fetch the given action if it exists
+func (p Plugin) LookupAction(action string) (Actionable, error) {
 	if a, ok := p.actions[action]; ok {
-		return a.Act()
+		return a, nil
 	}
-	return fmt.Errorf("Failed to Act() with action: %s. Action not valid with plugin: %s.", action, p.Name)
+	return nil, fmt.Errorf("Failed to LookupAction() with action: %s. Action not valid with plugin: %s.", action, p.Name)
 }
 
 // Actions returns the map of Actionables in the Plugin
