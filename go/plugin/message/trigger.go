@@ -64,6 +64,7 @@ func (e TriggerEvent) Dispatch(url string) error {
 			Type:    "trigger_event",
 		},
 	}
+
 	messageBytes, err := m.Marshal(&e)
 	if err != nil {
 		return err

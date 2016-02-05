@@ -26,17 +26,34 @@ func (m *Message) Validate() error {
 	return nil
 }
 
-// Marshal marshals a Message object into JSON
-func (m *Message) Marshal(v interface{}) ([]byte, error) {
+// MarshalJSON marshals a Message object.
+func (m *Message) MarshalJSON() ([]byte, error) {
 
-	if m.Body.RawMessage == nil || len(m.Body.RawMessage) == 0 {
-		bodyBytes, err := m.Body.MarshalJSON()
-		if err != nil {
-			return nil, err
-		}
-		m.Body.RawMessage = bodyBytes
+	bodyBytes, err := json.Marshal(m.Body)
+	if err != nil {
+		return nil, err
 	}
-	return json.Marshal(&m)
+	msg := struct {
+		Header
+		Body json.RawMessage `json:"body"`
+	}{
+		Header: m.Header,
+		Body:   json.RawMessage(bodyBytes),
+	}
+	return json.Marshal(&msg)
+}
+
+// Marshal marshals a Message object into JSON
+func (m *Message) Marshal(body interface{}) ([]byte, error) {
+
+	// if body is provided, set it here.
+	if body != nil {
+		m.Body = Body{
+			Contents: body,
+		}
+	}
+
+	return json.Marshal(m)
 }
 
 // Unmarshal unmarshals a Message object
