@@ -171,3 +171,10 @@ func (p Plugin) LookupAction(action string) (Actionable, error) {
 func (p Plugin) Actions() map[string]Actionable {
 	return p.actions
 }
+
+// SetDebug mode will use a debuggable dispatcher.
+// TODO: right now it logs to stdout, maybe make this configurable
+func (p Plugin) SetDebug() {
+	defaultTriggerDispatcher = &StdoutDispatcher{}
+	defaultActionDispatcher = &StdoutDispatcher{}
+}
