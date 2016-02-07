@@ -48,6 +48,12 @@ func (p *Plugin) Init(name string) {
 	p.actions = map[string]Actionable{}
 }
 
+// Test tests a Plugin
+func (p *Plugin) Test() error {
+	// TODO
+	return nil
+}
+
 // Run runs a Plugin
 func (p *Plugin) Run() error {
 	m := message.Message{}
