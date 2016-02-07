@@ -15,19 +15,19 @@ type actionTask struct {
 func (a *actionTask) Test() error {
 
 	// unpack the action connection and input configurations
-	if err := t.unpack(); err != nil {
+	if err := a.unpack(); err != nil {
 		return err
 	}
 
 	// connect the connection
-	if connectable, ok := t.action.(Connectable); ok {
+	if connectable, ok := a.action.(Connectable); ok {
 		if err := connectable.Connection().Connect(); err != nil {
 			return err
 		}
 	}
 
 	// if the action supports a test, run a test.
-	if testable, ok := t.action.(Testable); ok {
+	if testable, ok := a.action.(Testable); ok {
 		return testable.Test()
 	}
 
