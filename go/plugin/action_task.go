@@ -123,5 +123,21 @@ func (a *actionTask) unpack() error {
 	// configure the dispatcher
 	msg.Dispatcher.Contents = a.dispatcher
 
-	return msg.Unpack()
+	if err := msg.Unpack(); err != nil {
+		return err
+	}
+
+	if connectable, ok := a.action.(Connectable); ok {
+		if err := clean(connectable.Connection().Validate()); err != nil {
+			return fmt.Errorf("Connection validation failed: %s", joinErrors(err))
+		}
+	}
+
+	if inputable, ok := a.action.(Inputable); ok {
+		if err := clean(inputable.Input().Validate()); err != nil {
+			return fmt.Errorf("Input validation failed: %s", joinErrors(err))
+		}
+	}
+
+	return nil
 }

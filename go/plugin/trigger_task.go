@@ -3,6 +3,7 @@ package plugin
 import (
 	"errors"
 	"fmt"
+	"os"
 
 	"github.com/orcalabs/plugin-sdk/go/plugin/message"
 )
@@ -82,7 +83,25 @@ func (t *triggerTask) unpack() error {
 
 	t.message.Dispatcher.Contents = t.dispatcher
 
-	return t.message.Unpack()
+	if err := t.message.Unpack(); err != nil {
+		return err
+	}
+
+	if connectable, ok := t.trigger.(Connectable); ok {
+		if err := clean(connectable.Connection().Validate()); err != nil {
+			return fmt.Errorf("Connection validation failed: %s", joinErrors(err))
+
+		}
+	}
+
+	if inputable, ok := t.trigger.(Inputable); ok {
+		if err := clean(inputable.Input().Validate()); err != nil {
+			return fmt.Errorf("Input validation failed: %s", joinErrors(err))
+
+		}
+	}
+
+	return nil
 }
 
 // triggerEventCollector will continuously collect events from the trigger queue
@@ -92,6 +111,8 @@ type triggerEventCollector struct {
 	sender     queueable
 	dispatcher Dispatcher
 	triggerID  int
+
+	errors chan error
 }
 
 func newTriggerEventCollector(triggerID int, trigger Triggerable, dispatcher Dispatcher) (*triggerEventCollector, error) {
@@ -104,6 +125,7 @@ func newTriggerEventCollector(triggerID int, trigger Triggerable, dispatcher Dis
 			stopped:    make(chan bool, 1),
 			sender:     queueable,
 			dispatcher: dispatcher,
+			errors:     make(chan error),
 		}, nil
 	}
 	return nil, errors.New("Trigger does not implement Send() interface. Did you compose with plugin.Trigger?")
@@ -113,21 +135,17 @@ func (t *triggerEventCollector) start() {
 	for {
 		output := t.sender.Read()
 		if output != nil {
-			err := t.send(output)
-			if err != nil {
-
-				// TODO: drop any errors now
-				// log them for later?
-				break
+			if err := t.send(output); err != nil {
+				// TODO: remove this and figure out how to handle.
+				fmt.Fprintf(os.Stderr, "Receieved error sending trigger message: %s", err)
+				t.errors <- err
 			}
-
 		} else {
 			break
 		}
 	}
 	t.stopped <- true
 }
-
 func (t *triggerEventCollector) stop() {
 	t.sender.Stop()
 	<-t.stopped
