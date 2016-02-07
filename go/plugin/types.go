@@ -6,6 +6,11 @@ import (
 	"github.com/orcalabs/plugin-sdk/go/plugin/message"
 )
 
+// Testable must be implemented by a trigger or action if it accepts a test
+type Testable interface {
+	Test() error
+}
+
 // Input defines input parameters
 type Input message.Input
 
@@ -70,4 +75,9 @@ type Connection message.Connection
 // Connectable is implemented by a trigger or action that has a connection
 type Connectable interface {
 	Connection() Connection // Connection will return the actual connection to populate
+}
+
+type task interface {
+	Run() error
+	Test() error
 }

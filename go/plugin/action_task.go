@@ -11,6 +11,29 @@ type actionTask struct {
 	action     Actionable
 }
 
+// Test the task
+func (t *actionTask) Test() error {
+
+	// unpack the action connection and input configurations
+	if err := t.unpack(); err != nil {
+		return err
+	}
+
+	// connect the connection
+	if connectable, ok := t.action.(Connectable); ok {
+		if err := connectable.Connection().Connect(); err != nil {
+			return err
+		}
+	}
+
+	// if the action supports a test, run a test.
+	if testable, ok := t.action.(Testable); ok {
+		return testable.Test()
+	}
+
+	return nil
+}
+
 // Run will start the action
 func (a *actionTask) Run() error {
 	// unpack the action connection and input configurations

@@ -13,6 +13,29 @@ type triggerTask struct {
 	trigger    Triggerable
 }
 
+// Test the task
+func (t *triggerTask) Test() error {
+
+	// unpack the trigger connection and input configurations
+	if err := t.unpack(); err != nil {
+		return err
+	}
+
+	// connect the connection
+	if connectable, ok := t.trigger.(Connectable); ok {
+		if err := connectable.Connection().Connect(); err != nil {
+			return err
+		}
+	}
+
+	// if the trigger supports a test, run a test.
+	if testable, ok := t.trigger.(Testable); ok {
+		return testable.Test()
+	}
+
+	return nil
+}
+
 // Run the task
 func (t *triggerTask) Run() error {
 
