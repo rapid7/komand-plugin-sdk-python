@@ -173,8 +173,23 @@ func (p Plugin) Actions() map[string]Actionable {
 }
 
 // SetDebug mode will use a debuggable dispatcher.
-// TODO: right now it logs to stdout, maybe make this configurable
 func (p Plugin) SetDebug() {
 	defaultTriggerDispatcher = &StdoutDispatcher{}
 	defaultActionDispatcher = &StdoutDispatcher{}
+}
+
+// SetDebugLog mode will log all events to a debug log file.
+func (p Plugin) SetDebugLog(logfile string) error {
+	if logfile == "" {
+		logfile = "event.log"
+	}
+
+	fd, err := NewFileDispatcher(logfile)
+
+	if err != nil {
+		return err
+	}
+	defaultTriggerDispatcher = fd
+	defaultActionDispatcher = fd
+	return nil
 }

@@ -89,3 +89,32 @@ func (d *HTTPDispatcher) Send(event *message.Message) error {
 	log.Println("response Body:", string(body))
 	return nil
 }
+
+// FileDispatcher will dispatch event to a file
+type FileDispatcher struct {
+	fd *os.File
+}
+
+// NewFileDispatcher creates a dispatcher that logs events to a file.
+func NewFileDispatcher(filename string) (*FileDispatcher, error) {
+	f, err := os.OpenFile(filename, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0600)
+	if err != nil {
+		return nil, err
+	}
+	return &FileDispatcher{fd: f}, nil
+}
+
+// Send dispatches a trigger event
+func (d *FileDispatcher) Send(event *message.Message) error {
+	messageBytes, err := json.Marshal(event)
+
+	if err != nil {
+		return err
+	}
+
+	if _, err = d.fd.Write(messageBytes); err != nil {
+		return err
+	}
+
+	return nil
+}
