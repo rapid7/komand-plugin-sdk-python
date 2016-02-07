@@ -12,7 +12,7 @@ type actionTask struct {
 }
 
 // Test the task
-func (t *actionTask) Test() error {
+func (a *actionTask) Test() error {
 
 	// unpack the action connection and input configurations
 	if err := t.unpack(); err != nil {
