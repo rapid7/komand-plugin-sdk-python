@@ -9,19 +9,7 @@ type Triggerable interface {
 // Trigger defines a struct that should be embedded within any
 // implemented Trigger.
 type Trigger struct {
-	name string
 	sendQueue
-}
-
-// Init initializes the trigger with the trigger name.
-func (t *Trigger) Init(name string) {
-	t.name = name
-	t.sendQueue.InitQueue()
-}
-
-// Name of the trigger
-func (t *Trigger) Name() string {
-	return t.name
 }
 
 // Send emits an event

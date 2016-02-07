@@ -111,7 +111,7 @@ func (p *Plugin) Run() error {
 func (p Plugin) AddTrigger(trigger Triggerable) error {
 
 	if trigger.Name() == "" {
-		return errors.New("No Name() was found for the trigger. Did you run .Init()?")
+		return errors.New("No Name() was found for the trigger.")
 	}
 
 	p.triggers[trigger.Name()] = trigger
@@ -134,7 +134,7 @@ func (p Plugin) Triggers() map[string]Triggerable {
 // AddAction adds triggers to the map of Plugins triggers
 func (p Plugin) AddAction(action Actionable) error {
 	if action.Name() == "" {
-		return errors.New("No Name() was found for the action. Did you run .Init()?")
+		return errors.New("No Name() was found for the action.")
 	}
 
 	p.actions[action.Name()] = action

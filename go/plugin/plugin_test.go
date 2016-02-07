@@ -10,6 +10,10 @@ type TriggerNoName struct {
 	Trigger
 }
 
+func (t *TriggerNoName) Name() string {
+	return ""
+}
+
 func (t *TriggerNoName) RunTrigger() error {
 	return nil
 }
@@ -27,7 +31,7 @@ func TestEmptyTriggerNameReturnsError(t *testing.T) {
 	h.Init("Hello")
 	err := h.AddTrigger(&TriggerNoName{})
 
-	expected := `No Name() was found for the trigger. Did you run .Init()?`
+	expected := `No Name() was found for the trigger.`
 	if err == nil {
 		t.Fatal("Expected an error")
 	}

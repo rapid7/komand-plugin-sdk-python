@@ -8,16 +8,4 @@ type Actionable interface {
 
 // Action defines a struct that should be embedded within any
 // implemented Action.
-type Action struct {
-	name string
-}
-
-// Init initializes the action with the action name.
-func (t *Action) Init(name string) {
-	t.name = name
-}
-
-// Name of  the action
-func (t *Action) Name() string {
-	return t.name
-}
+type Action struct{}
