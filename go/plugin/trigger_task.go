@@ -83,7 +83,23 @@ func (t *triggerTask) unpack() error {
 
 	t.message.Dispatcher.Contents = t.dispatcher
 
-	return t.message.Unpack()
+	if err := t.message.Unpack(); err != nil {
+		return err
+	}
+
+	if connectable, ok := t.trigger.(Connectable); ok {
+		if err := connectable.Connection().Validate(); err != nil && len(err) > 0 {
+			return joinErrors(err)
+		}
+	}
+
+	if inputable, ok := t.trigger.(Inputable); ok {
+		if err := inputable.Input().Validate(); err != nil && len(err) > 0 {
+			return joinErrors(err)
+		}
+	}
+
+	return nil
 }
 
 // triggerEventCollector will continuously collect events from the trigger queue

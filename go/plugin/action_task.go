@@ -1,7 +1,9 @@
 package plugin
 
 import (
+	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/orcalabs/plugin-sdk/go/plugin/message"
 )
@@ -123,5 +125,29 @@ func (a *actionTask) unpack() error {
 	// configure the dispatcher
 	msg.Dispatcher.Contents = a.dispatcher
 
-	return msg.Unpack()
+	if err := msg.Unpack(); err != nil {
+		return err
+	}
+
+	if connectable, ok := a.action.(Connectable); ok {
+		if err := connectable.Connection().Validate(); err != nil && len(err) > 0 {
+			return joinErrors(err)
+		}
+	}
+
+	if inputable, ok := a.action.(Inputable); ok {
+		if err := inputable.Input().Validate(); err != nil && len(err) > 0 {
+			return joinErrors(err)
+		}
+	}
+
+	return nil
+}
+
+func joinErrors(errs []error) error {
+	mega := make([]string, 0)
+	for _, e := range errs {
+		mega = append(mega, e.Error())
+	}
+	return errors.New(strings.Join(mega, "\n"))
 }
