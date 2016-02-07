@@ -48,14 +48,7 @@ func (p *Plugin) Init(name string) {
 	p.actions = map[string]Actionable{}
 }
 
-// Test tests a Plugin
-func (p *Plugin) Test() error {
-	// TODO
-	return nil
-}
-
-// Run runs a Plugin
-func (p *Plugin) Run() error {
+func (p *Plugin) setup() (task, error) {
 	m := message.Message{}
 
 	parameter.Param("type", &m.Type)
@@ -64,7 +57,7 @@ func (p *Plugin) Run() error {
 	err := parameter.Parse()
 
 	if err != nil {
-		return fmt.Errorf("Unable to deserialize message: %+v", err)
+		return nil, fmt.Errorf("Unable to deserialize message: %+v", err)
 	}
 
 	switch m.Type {
@@ -72,14 +65,14 @@ func (p *Plugin) Run() error {
 		start := message.TriggerStart{}
 		err = m.UnmarshalBody(&start)
 		if err != nil {
-			return err
+			return nil, err
 		}
 
 		// lookup the trigger that matches
 		trigger, err := p.LookupTrigger(start.Trigger)
 
 		if err != nil {
-			return err
+			return nil, err
 		}
 
 		task := &triggerTask{
@@ -87,19 +80,18 @@ func (p *Plugin) Run() error {
 			trigger:    trigger,
 			dispatcher: triggerDispatcher(),
 		}
-		return task.Run()
+		return task, nil
 	case ActionStart:
 		start := message.ActionStart{}
 		err = m.UnmarshalBody(&start)
 		if err != nil {
-			return err
+			return nil, err
 		}
 
 		// lookup the Action that matches
 		action, err := p.LookupAction(start.Action)
-
 		if err != nil {
-			return err
+			return nil, err
 		}
 
 		task := &actionTask{
@@ -107,10 +99,30 @@ func (p *Plugin) Run() error {
 			action:     action,
 			dispatcher: actionDispatcher(),
 		}
-		return task.Run()
+		return task, nil
 	default:
-		return fmt.Errorf("Unexpected message type: %s", m.Type)
+		return nil, fmt.Errorf("Unexpected message type: %s", m.Type)
 	}
+}
+
+// Run runs a Plugin
+func (p *Plugin) Run() error {
+	task, err := p.setup()
+
+	if err != nil {
+		return err
+	}
+	return task.Run()
+}
+
+// Test tests a Plugin
+func (p *Plugin) Test() error {
+	task, err := p.setup()
+
+	if err != nil {
+		return err
+	}
+	return task.Test()
 }
 
 // AddTrigger adds triggers to the map of Plugins triggers
@@ -158,4 +170,11 @@ func (p Plugin) LookupAction(action string) (Actionable, error) {
 // Actions returns the map of Actionables in the Plugin
 func (p Plugin) Actions() map[string]Actionable {
 	return p.actions
+}
+
+// SetDebug mode will use a debuggable dispatcher.
+// TODO: right now it logs to stdout, maybe make this configurable
+func (p Plugin) SetDebug() {
+	defaultTriggerDispatcher = &StdoutDispatcher{}
+	defaultActionDispatcher = &StdoutDispatcher{}
 }

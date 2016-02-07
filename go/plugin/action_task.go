@@ -1,6 +1,8 @@
 package plugin
 
 import (
+	"fmt"
+
 	"github.com/orcalabs/plugin-sdk/go/plugin/message"
 )
 
@@ -9,6 +11,29 @@ type actionTask struct {
 	dispatcher Dispatcher
 	message    *message.ActionStart
 	action     Actionable
+}
+
+// Test the task
+func (a *actionTask) Test() error {
+
+	// unpack the action connection and input configurations
+	if err := a.unpack(); err != nil {
+		return err
+	}
+
+	// connect the connection
+	if connectable, ok := a.action.(Connectable); ok {
+		if err := connectable.Connection().Connect(); err != nil {
+			return fmt.Errorf("Connection test failed: %s", err)
+		}
+	}
+
+	// if the action supports a test, run a test.
+	if testable, ok := a.action.(Testable); ok {
+		return testable.Test()
+	}
+
+	return nil
 }
 
 // Run will start the action

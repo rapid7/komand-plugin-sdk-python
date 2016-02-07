@@ -2,12 +2,29 @@ package plugin
 
 import (
 	"encoding/json"
+	"errors"
 	"strings"
 	"testing"
 
 	"github.com/orcalabs/plugin-sdk/go/plugin/message"
 	"github.com/orcalabs/plugin-sdk/go/plugin/parameter"
 )
+
+var triggerTestStartMessage = `
+{
+  "version": "v1",
+  "type": "trigger_start",
+  "meta": {
+	  "channel": "xyz-abc-123"
+  },
+  "body": {
+	  "dispatcher": { "url": "http://localhost:8000/blah" },
+	  "trigger": "testable_trigger",
+	  "input": { "person": "Bob"},
+	  "connection": { "thing": "one"}
+  }
+}
+`
 
 var triggerStartMessage = `
 {
@@ -45,6 +62,8 @@ type HelloTrigger struct {
 	Trigger
 	connection HelloConnection
 	input      HelloInput
+
+	testRan bool
 }
 
 func (t *HelloTrigger) Name() string {
@@ -69,10 +88,6 @@ func (t *HelloTrigger) Input() Input {
 	return &t.input
 }
 
-type HelloConnection struct {
-	Thing string `json:"thing"`
-}
-
 type HelloInput struct {
 	Person string `json:"person"`
 }
@@ -81,13 +96,19 @@ func (c *HelloInput) Validate() []error {
 	return nil
 }
 
+type HelloConnection struct {
+	Thing     string `json:"thing"`
+	connected bool
+}
+
+// validate the connection parameters
 func (c *HelloConnection) Validate() []error {
-	// It would actually connect
 	return nil
 }
 
 // Connect will implement the connection interface
-func (c HelloConnection) Connect() error {
+func (c *HelloConnection) Connect() error {
+	c.connected = true
 	// It would actually connect
 	return nil
 }
@@ -135,6 +156,10 @@ func TestWorkingTrigger(t *testing.T) {
 		t.Fatal("Expected one, got ", trigger.connection.Thing)
 	}
 
+	if !trigger.connection.connected {
+		t.Fatal("Expected trigger connection to connect")
+	}
+
 	if dispatcher.URL != "http://localhost:8000/blah" {
 		t.Fatal("Expected dispatcher url to be http://localhost:8000/blah, got ", dispatcher.URL)
 	}
@@ -153,5 +178,135 @@ func TestInvalidTriggerStartMessageType(t *testing.T) {
 	msg := "Unexpected message type: not_trigger_start"
 	if err.Error() != msg {
 		t.Fatalf("Expected '%s' but got %s", msg, err)
+	}
+}
+
+type TestableTrigger struct {
+	Trigger
+	testRan bool
+}
+
+func (t *TestableTrigger) Name() string {
+	return "testable_trigger"
+}
+
+func (t *TestableTrigger) RunTrigger() error {
+	t.testRan = false
+	return nil
+}
+
+func (t *TestableTrigger) Test() error {
+	t.testRan = true
+	return nil
+}
+
+func TestRunPluginTriggerWithTestRunsTest(t *testing.T) {
+
+	trigger := &TestableTrigger{}
+	parameter.Stdin = parameter.NewParamSet(strings.NewReader(triggerTestStartMessage))
+
+	dispatcher := &mockDispatcher{}
+	// mock dispatcher to test dispatch works
+	defaultTriggerDispatcher = dispatcher
+
+	p := &HelloPlugin{}
+	p.Init("hello")
+	p.AddTrigger(trigger)
+
+	err := p.Test()
+
+	if err != nil {
+		t.Fatalf("Unable to test %s: %v", p.Name, err)
+	}
+
+	if trigger.testRan != true {
+		t.Fatal("The testable trigger test did not run")
+	}
+
+}
+
+func TestRunPluginTriggerWithoutTestDoesNothing(t *testing.T) {
+
+	trigger := &HelloTrigger{}
+	parameter.Stdin = parameter.NewParamSet(strings.NewReader(triggerStartMessage))
+
+	dispatcher := &mockDispatcher{}
+	// mock dispatcher to test dispatch works
+	defaultTriggerDispatcher = dispatcher
+
+	p := &HelloPlugin{}
+	p.Init("hello")
+	p.AddTrigger(trigger)
+
+	err := p.Test()
+
+	if err != nil {
+		t.Fatalf("Unable to test %s: %v", p.Name, err)
+	}
+
+	if trigger.testRan != false {
+		t.Fatal("Expected testRan to be false because this trigger has no test")
+	}
+}
+
+type BadConnection struct {
+	Thing     string `json:"thing"`
+	connected bool
+}
+
+// validate the connection parameters
+func (c *BadConnection) Validate() []error {
+	return nil
+}
+
+// Connect will implement the connection interface
+func (c *BadConnection) Connect() error {
+	return errors.New("Connection failed")
+}
+
+type HelloTriggerWithBadConnection struct {
+	Trigger
+	connection BadConnection
+	input      HelloInput
+	testRan    bool
+}
+
+func (t *HelloTriggerWithBadConnection) Name() string {
+	return "hello_trigger"
+}
+
+func (t *HelloTriggerWithBadConnection) RunTrigger() error {
+	return t.Send(&HelloOutput{Goodbye: "bob"})
+}
+
+// Connection() implements the Connectable interface
+func (t *HelloTriggerWithBadConnection) Connection() Connection {
+	return &t.connection
+}
+
+// Input() will implemnent the Inputable interface
+func (t *HelloTriggerWithBadConnection) Input() Input {
+	return &t.input
+}
+
+func TestBadConnectionWillFailTest(t *testing.T) {
+	trigger := &HelloTriggerWithBadConnection{}
+	parameter.Stdin = parameter.NewParamSet(strings.NewReader(triggerStartMessage))
+
+	dispatcher := &mockDispatcher{}
+	// mock dispatcher to test dispatch works
+	defaultTriggerDispatcher = dispatcher
+
+	p := &HelloPlugin{}
+	p.Init("hello")
+	p.AddTrigger(trigger)
+
+	err := p.Test()
+	if err == nil {
+		t.Fatal("Expected error from test")
+	}
+	expected := "Connection test failed: Connection failed"
+	if err.Error() != expected {
+		t.Fatalf("Expected error %s but got %s", expected, err)
 	}
 }
