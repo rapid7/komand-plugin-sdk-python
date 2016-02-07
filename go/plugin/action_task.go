@@ -131,13 +131,13 @@ func (a *actionTask) unpack() error {
 
 	if connectable, ok := a.action.(Connectable); ok {
 		if err := connectable.Connection().Validate(); err != nil && len(err) > 0 {
-			return joinErrors(err)
+			return fmt.Errorf("Connection validation failed: %s", joinErrors(err))
 		}
 	}
 
 	if inputable, ok := a.action.(Inputable); ok {
 		if err := inputable.Input().Validate(); err != nil && len(err) > 0 {
-			return joinErrors(err)
+			return fmt.Errorf("Input validation failed: %s", joinErrors(err))
 		}
 	}
 
@@ -145,9 +145,11 @@ func (a *actionTask) unpack() error {
 }
 
 func joinErrors(errs []error) error {
-	mega := make([]string, 0)
+	mega := make([]string, 1)
 	for _, e := range errs {
-		mega = append(mega, e.Error())
+		if e != nil {
+			mega = append(mega, e.Error())
+		}
 	}
 	return errors.New(strings.Join(mega, "\n"))
 }
