@@ -3,13 +3,11 @@ package message
 import (
 	"encoding/json"
 	"testing"
-
-	"github.com/orcalabs/plugin-sdk/go/plugin/connect"
 )
 
 func TestMarshalTriggerStartWithMessageEnvelope(t *testing.T) {
 
-	expected := `{"version":"v1","type":"trigger_start","body":{"trigger_id":1,"connection":{"username":"hello","password":"blah"},"dispatcher_url":"http://abc123","trigger":"hello","input":{"param":"ok","param2":"blah"}}}`
+	expected := `{"version":"v1","type":"trigger_start","body":{"trigger_id":1,"trigger":"hello","connection":{"username":"hello","password":"blah"},"dispatcher":{"url":"http://abc123"},"input":{"param":"ok","param2":"blah"}}}`
 
 	connJSON := `
 	{
@@ -18,7 +16,7 @@ func TestMarshalTriggerStartWithMessageEnvelope(t *testing.T) {
 	}
 	`
 	msg := json.RawMessage([]byte(connJSON))
-	conn := connect.Connection{
+	conn := ConnectionConfig{
 		RawMessage: msg,
 		Contents:   nil,
 	}
@@ -30,17 +28,31 @@ func TestMarshalTriggerStartWithMessageEnvelope(t *testing.T) {
 	}
 	`
 	msg = json.RawMessage([]byte(inputJSON))
-	input := Input{
+	input := InputConfig{
+		msg,
+		nil,
+	}
+
+	dispatcherJSON := `
+	{
+		"url": "http://abc123"
+	}
+	`
+
+	msg = json.RawMessage([]byte(dispatcherJSON))
+	dispatcher := DispatcherConfig{
 		msg,
 		nil,
 	}
 
 	trig := &TriggerStart{
-		Connection:    conn,
-		TriggerID:     1,
-		DispatcherURL: "http://abc123",
-		Trigger:       "hello",
-		Input:         input,
+		TriggerID: 1,
+		Trigger:   "hello",
+		startMessage: startMessage{
+			Connection: conn,
+			Dispatcher: dispatcher,
+			Input:      input,
+		},
 	}
 
 	m := Message{
@@ -63,7 +75,7 @@ func TestMarshalTriggerStartWithMessageEnvelope(t *testing.T) {
 }
 
 func TestMarshalTriggerStart(t *testing.T) {
-	expected := `{"trigger_id":1,"connection":{"username":"hello","password":"blah"},"dispatcher_url":"http://abc123","trigger":"hello","input":{"param":"ok","param2":"blah"}}`
+	expected := `{"trigger_id":1,"trigger":"hello","connection":{"username":"hello","password":"blah"},"dispatcher":{"url":"http://abc123"},"input":{"param":"ok","param2":"blah"}}`
 
 	connJSON := `
 	{
@@ -72,7 +84,7 @@ func TestMarshalTriggerStart(t *testing.T) {
 	}
 	`
 	msg := json.RawMessage([]byte(connJSON))
-	conn := connect.Connection{
+	conn := ConnectionConfig{
 		RawMessage: msg,
 		Contents:   nil,
 	}
@@ -84,17 +96,33 @@ func TestMarshalTriggerStart(t *testing.T) {
 	}
 	`
 	msg = json.RawMessage([]byte(inputJSON))
-	input := Input{
+	input := InputConfig{
+		msg,
+		nil,
+	}
+
+	dispatcherJSON := `
+	{
+		"url": "http://abc123"
+	}
+	`
+
+	msg = json.RawMessage([]byte(dispatcherJSON))
+	dispatcher := DispatcherConfig{
 		msg,
 		nil,
 	}
 
 	trig := &TriggerStart{
-		Connection:    conn,
-		TriggerID:     1,
-		DispatcherURL: "http://abc123",
-		Trigger:       "hello",
-		Input:         input,
+		TriggerID: 1,
+		Trigger:   "hello",
+		startMessage: startMessage{
+			Connection: conn,
+			Dispatcher: dispatcher,
+			Input:      input,
+		},
+		// Dispatcher: dispatcher,
+		// Input:      input,
 	}
 	str, err := json.Marshal(trig)
 

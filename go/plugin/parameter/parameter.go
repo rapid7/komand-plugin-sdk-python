@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 )
 
 // much of this code is taken from the Drone (drone.io) project
@@ -56,9 +55,6 @@ func (p ParamSet) Parse() error {
 // Unmarshal parses the JSON payload from the command
 // arguments and unmarshal into a value pointed to by v.
 func (p ParamSet) Unmarshal(v interface{}) error {
-	for k, v := range p.params {
-		log.Println(k, v)
-	}
 	return json.NewDecoder(p.reader).Decode(v)
 }
 
@@ -94,6 +90,6 @@ func MustUnmarshal(v interface{}) {
 func MustParse() {
 	err := Parse()
 	if err != nil {
-		panic(err)
 	}
+	panic(err)
 }

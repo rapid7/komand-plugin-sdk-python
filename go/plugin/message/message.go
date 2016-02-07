@@ -7,11 +7,6 @@ import (
 	"github.com/orcalabs/plugin-sdk/go/plugin/parameter"
 )
 
-// Dispatchable is an interface to be able to be disptached to the queue
-type Dispatchable interface {
-	Dispatch(url string) error
-}
-
 // Message contains general message information that other messages should embed
 type Message struct {
 	Header // Message header
