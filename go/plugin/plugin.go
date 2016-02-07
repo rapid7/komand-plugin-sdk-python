@@ -2,6 +2,7 @@ package plugin
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"os"
 
@@ -107,8 +108,14 @@ func (p *Plugin) Run() error {
 }
 
 // AddTrigger adds triggers to the map of Plugins triggers
-func (p Plugin) AddTrigger(trigger Triggerable) {
+func (p Plugin) AddTrigger(trigger Triggerable) error {
+
+	if trigger.Name() == "" {
+		return errors.New("No Name() was found for the trigger. Did you run .Init()?")
+	}
+
 	p.triggers[trigger.Name()] = trigger
+	return nil
 }
 
 // LookupTrigger triggers on the given trigger if it exists
@@ -125,8 +132,13 @@ func (p Plugin) Triggers() map[string]Triggerable {
 }
 
 // AddAction adds triggers to the map of Plugins triggers
-func (p Plugin) AddAction(action Actionable) {
+func (p Plugin) AddAction(action Actionable) error {
+	if action.Name() == "" {
+		return errors.New("No Name() was found for the action. Did you run .Init()?")
+	}
+
 	p.actions[action.Name()] = action
+	return nil
 }
 
 // LookupAction will fetch the given action if it exists
