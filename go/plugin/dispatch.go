@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -85,7 +84,7 @@ func (d *HTTPDispatcher) Send(event *message.Message) error {
 	// TODO: check for good response status
 	// log.Println("response Status:", resp.Status)
 	// log.Println("response Headers:", resp.Header)
-	body, _ := ioutil.ReadAll(resp.Body)
+	// body, _ := ioutil.ReadAll(resp.Body)
 	// log.Println("response Body:", string(body))
 	return nil
 }
