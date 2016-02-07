@@ -2,6 +2,7 @@ package plugin
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/orcalabs/plugin-sdk/go/plugin/message"
 )
@@ -24,7 +25,7 @@ func (t *triggerTask) Test() error {
 	// connect the connection
 	if connectable, ok := t.trigger.(Connectable); ok {
 		if err := connectable.Connection().Connect(); err != nil {
-			return err
+			return fmt.Errorf("Connection test failed: %s", err)
 		}
 	}
 
