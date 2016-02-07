@@ -97,7 +97,7 @@ type FileDispatcher struct {
 
 // NewFileDispatcher creates a dispatcher that logs events to a file.
 func NewFileDispatcher(filename string) (*FileDispatcher, error) {
-	f, err := os.OpenFile(filename, os.O_APPEND|os.O_WRONLY, 0600)
+	f, err := os.OpenFile(filename, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0600)
 	if err != nil {
 		return nil, err
 	}
