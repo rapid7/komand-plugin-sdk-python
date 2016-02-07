@@ -88,14 +88,14 @@ func (t *triggerTask) unpack() error {
 	}
 
 	if connectable, ok := t.trigger.(Connectable); ok {
-		if err := connectable.Connection().Validate(); err != nil && len(err) > 0 {
+		if err := clean(connectable.Connection().Validate()); err != nil {
 			return fmt.Errorf("Connection validation failed: %s", joinErrors(err))
 
 		}
 	}
 
 	if inputable, ok := t.trigger.(Inputable); ok {
-		if err := inputable.Input().Validate(); err != nil && len(err) > 0 {
+		if err := clean(inputable.Input().Validate()); err != nil {
 			return fmt.Errorf("Input validation failed: %s", joinErrors(err))
 
 		}

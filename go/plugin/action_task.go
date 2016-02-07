@@ -1,9 +1,7 @@
 package plugin
 
 import (
-	"errors"
 	"fmt"
-	"strings"
 
 	"github.com/orcalabs/plugin-sdk/go/plugin/message"
 )
@@ -130,26 +128,16 @@ func (a *actionTask) unpack() error {
 	}
 
 	if connectable, ok := a.action.(Connectable); ok {
-		if err := connectable.Connection().Validate(); err != nil && len(err) > 0 {
+		if err := clean(connectable.Connection().Validate()); err != nil {
 			return fmt.Errorf("Connection validation failed: %s", joinErrors(err))
 		}
 	}
 
 	if inputable, ok := a.action.(Inputable); ok {
-		if err := inputable.Input().Validate(); err != nil && len(err) > 0 {
+		if err := clean(inputable.Input().Validate()); err != nil {
 			return fmt.Errorf("Input validation failed: %s", joinErrors(err))
 		}
 	}
 
 	return nil
-}
-
-func joinErrors(errs []error) error {
-	mega := make([]string, 1)
-	for _, e := range errs {
-		if e != nil {
-			mega = append(mega, e.Error())
-		}
-	}
-	return errors.New(strings.Join(mega, "\n"))
 }
