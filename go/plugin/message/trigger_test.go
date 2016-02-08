@@ -62,7 +62,7 @@ func TestMarshalTriggerStartWithMessageEnvelope(t *testing.T) {
 		},
 	}
 
-	str, err := m.Marshal(trig)
+	str, err := m.MarshalBody(trig)
 
 	if err != nil {
 		t.Fatal("Unable to marshal: ", err)

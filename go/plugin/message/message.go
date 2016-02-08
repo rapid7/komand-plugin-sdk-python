@@ -38,8 +38,8 @@ func (m *Message) MarshalJSON() ([]byte, error) {
 	return json.Marshal(&msg)
 }
 
-// Marshal marshals a Message object into JSON
-func (m *Message) Marshal(body interface{}) ([]byte, error) {
+// MarshalBody marshals a Message object with the provided body into JSON
+func (m *Message) MarshalBody(body interface{}) ([]byte, error) {
 
 	// if body is provided, set it here.
 	if body != nil {
@@ -52,17 +52,17 @@ func (m *Message) Marshal(body interface{}) ([]byte, error) {
 }
 
 // Unmarshal unmarshals a Message object
-func (m *Message) Unmarshal(body interface{}) error {
-	if err := parameter.Unmarshal(&m); err != nil {
+func (m *Message) Unmarshal(p *parameter.ParamSet) error {
+	p.Param("type", &m.Type)
+	p.Param("version", &m.Version)
+	p.Param("body", &m.Body)
+
+	if err := p.Parse(); err != nil {
 		return err
 	}
 
 	if err := m.Validate(); err != nil {
 		return err
-	}
-
-	if err := m.UnmarshalBody(body); err != nil {
-		return fmt.Errorf("Unable to marshal Message.Body: %+v", err)
 	}
 
 	return nil
