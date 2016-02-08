@@ -195,9 +195,9 @@ func (t *TestableTrigger) RunTrigger() error {
 	return nil
 }
 
-func (t *TestableTrigger) Test() error {
+func (t *TestableTrigger) Test() (Output, error) {
 	t.testRan = true
-	return nil
+	return &HelloOutput{Goodbye: "friend"}, nil
 }
 
 func TestRunPluginTriggerWithTestRunsTest(t *testing.T) {
@@ -222,7 +222,6 @@ func TestRunPluginTriggerWithTestRunsTest(t *testing.T) {
 	if trigger.testRan != true {
 		t.Fatal("The testable trigger test did not run")
 	}
-
 }
 
 func TestRunPluginTriggerWithoutTestDoesNothing(t *testing.T) {

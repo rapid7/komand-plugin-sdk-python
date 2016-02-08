@@ -7,8 +7,9 @@ import (
 )
 
 // Testable must be implemented by a trigger or action if it accepts a test
+// If it works, it should emit a sample output event.
 type Testable interface {
-	Test() error
+	Test() (Output, error)
 }
 
 // Input defines input parameters
