@@ -51,19 +51,15 @@ func (p *Plugin) Init(name string) {
 func (p *Plugin) setup() (task, error) {
 	m := message.Message{}
 
-	parameter.Param("type", &m.Type)
-	parameter.Param("version", &m.Version)
-	parameter.Param("body", &m.Body)
-	err := parameter.Parse()
-
-	if err != nil {
+	// unmarshal message from stdin
+	if err := m.Unmarshal(parameter.Stdin); err != nil {
 		return nil, fmt.Errorf("Unable to deserialize message: %+v", err)
 	}
 
 	switch m.Type {
 	case TriggerStart:
 		start := message.TriggerStart{}
-		err = m.UnmarshalBody(&start)
+		err := m.UnmarshalBody(&start)
 		if err != nil {
 			return nil, err
 		}
@@ -83,7 +79,7 @@ func (p *Plugin) setup() (task, error) {
 		return task, nil
 	case ActionStart:
 		start := message.ActionStart{}
-		err = m.UnmarshalBody(&start)
+		err := m.UnmarshalBody(&start)
 		if err != nil {
 			return nil, err
 		}
