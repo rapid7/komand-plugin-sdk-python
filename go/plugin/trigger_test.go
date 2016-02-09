@@ -309,3 +309,41 @@ func TestBadConnectionWillFailTest(t *testing.T) {
 		t.Fatalf("Expected error %s but got %s", expected, err)
 	}
 }
+
+var sampleMsg = `{
+   "version": "v1",
+   "type": "trigger_start",
+   "body": {
+     "trigger_id": 0,
+     "trigger": "hello_trigger",
+     "connection": {
+       "thing": ""
+     },
+     "dispatcher": {
+       "url": "http://example.com/trigger/id/event"
+     },
+     "input": {
+       "person": ""
+     }
+   }
+ }`
+
+func TestGenerateSampleTriggerStartMessage(t *testing.T) {
+
+	trigger := &HelloTrigger{}
+	parameter.Stdin = parameter.NewParamSet(strings.NewReader(triggerStartMessage))
+
+	dispatcher := &mockDispatcher{}
+	// mock dispatcher to test dispatch works
+	defaultTriggerDispatcher = dispatcher
+
+	// p := &HelloPlugin{}
+	// p.Init("hello")
+	// p.AddTrigger(trigger)
+
+	p, _ := GenerateSampleTriggerStart(trigger)
+	if p != sampleMsg {
+		t.Fatal("Expected trigger start to be equal: %s, %s", p, sampleMsg)
+	}
+
+}

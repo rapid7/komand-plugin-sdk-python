@@ -168,6 +168,19 @@ func (p Plugin) Actions() map[string]Actionable {
 	return p.actions
 }
 
+// GenerateSampleStartMessage codegens the message start samples
+func (p Plugin) GenerateSampleStartMessage(name string) (string, error) {
+	action, _ := p.LookupAction(name)
+	if action != nil {
+		return GenerateSampleActionStart(action)
+	}
+	trig, err := p.LookupTrigger(name)
+	if trig != nil {
+		return GenerateSampleTriggerStart(trig)
+	}
+	return "", err
+}
+
 // SetDebug mode will use a debuggable dispatcher.
 func (p Plugin) SetDebug() {
 	defaultTriggerDispatcher = &StdoutDispatcher{}
