@@ -32,7 +32,18 @@ func (t *triggerTask) Test() error {
 
 	// if the trigger supports a test, run a test.
 	if testable, ok := t.trigger.(Testable); ok {
-		return testable.Test()
+		output, err := testable.Test()
+		if err != nil {
+			return err
+		}
+
+		if output != nil {
+			m := makeTriggerEvent(t.message.TriggerID, output)
+			err := t.dispatcher.Send(m)
+			if err != nil {
+				return err
+			}
+		}
 	}
 
 	return nil
@@ -53,7 +64,8 @@ func (t *triggerTask) Run() error {
 		}
 	}
 
-	collector, err := newTriggerEventCollector(
+	// start event collection
+	collector, err := makeTriggerEventCollector(
 		t.message.TriggerID,
 		t.trigger,
 		t.dispatcher,
@@ -73,11 +85,14 @@ func (t *triggerTask) Run() error {
 // unpack unpacks the message into the trigger task object
 func (t *triggerTask) unpack() error {
 
-	if connectable, ok := t.trigger.(Connectable); ok {
+	connectable, _ := t.trigger.(Connectable)
+	inputable, _ := t.trigger.(Inputable)
+
+	if connectable != nil {
 		t.message.Connection.Contents = connectable.Connection()
 	}
 
-	if inputable, ok := t.trigger.(Inputable); ok {
+	if inputable != nil {
 		t.message.Input.Contents = inputable.Input()
 	}
 
@@ -87,20 +102,19 @@ func (t *triggerTask) unpack() error {
 		return err
 	}
 
-	if connectable, ok := t.trigger.(Connectable); ok {
+	if connectable != nil {
 		if err := clean(connectable.Connection().Validate()); err != nil {
 			return fmt.Errorf("Connection validation failed: %s", joinErrors(err))
 
 		}
 	}
 
-	if inputable, ok := t.trigger.(Inputable); ok {
+	if inputable != nil {
 		if err := clean(inputable.Input().Validate()); err != nil {
 			return fmt.Errorf("Input validation failed: %s", joinErrors(err))
 
 		}
 	}
-
 	return nil
 }
 
@@ -115,7 +129,7 @@ type triggerEventCollector struct {
 	errors chan error
 }
 
-func newTriggerEventCollector(triggerID int, trigger Triggerable, dispatcher Dispatcher) (*triggerEventCollector, error) {
+func makeTriggerEventCollector(triggerID int, trigger Triggerable, dispatcher Dispatcher) (*triggerEventCollector, error) {
 	if queueable, ok := trigger.(queueable); ok {
 
 		queueable.InitQueue()
@@ -153,7 +167,11 @@ func (t *triggerEventCollector) stop() {
 
 // send will dispatch an output event
 func (t *triggerEventCollector) send(event message.Output) error {
+	m := makeTriggerEvent(t.triggerID, event)
+	return t.dispatcher.Send(m)
+}
 
+func makeTriggerEvent(id int, output message.Output) *message.Message {
 	m := message.Message{
 		Header: message.Header{
 			Version: message.Version,
@@ -162,12 +180,12 @@ func (t *triggerEventCollector) send(event message.Output) error {
 	}
 
 	e := message.TriggerEvent{
-		TriggerID: t.triggerID,
+		TriggerID: id,
 		Output: message.OutputMessage{
-			Contents: event,
+			Contents: output,
 		},
 	}
 
 	m.Body.Contents = &e
-	return t.dispatcher.Send(&m)
+	return &m
 }

@@ -30,7 +30,18 @@ func (a *actionTask) Test() error {
 
 	// if the action supports a test, run a test.
 	if testable, ok := a.action.(Testable); ok {
-		return testable.Test()
+
+		output, err := testable.Test()
+		if err != nil {
+			return err
+		}
+
+		if output != nil {
+			err := a.success(output)
+			if err != nil {
+				return err
+			}
+		}
 	}
 
 	return nil

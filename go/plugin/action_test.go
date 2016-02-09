@@ -35,11 +35,21 @@ var invalidTypeActionStartMessage = `
 
 type HelloAction struct {
 	Action
-	output HelloActionOutput
+	output     HelloActionOutput
+	input      HelloInput
+	connection HelloConnection
 }
 
 func (h *HelloAction) Name() string {
 	return "hello_action"
+}
+
+func (h *HelloAction) Input() Input {
+	return &h.input
+}
+
+func (h *HelloAction) Connection() Connection {
+	return &h.connection
 }
 
 func (h *HelloAction) Output() Output {
@@ -102,4 +112,35 @@ func TestActionWithInvalidMessageType(t *testing.T) {
 	if err.Error() != msg {
 		t.Fatalf("Expected '%s' but got %s", msg, err)
 	}
+}
+
+func TestGenerateSampleActionStartMessage(t *testing.T) {
+	action := &HelloAction{}
+
+	sample := `{
+   "version": "v1",
+   "type": "action_start",
+   "body": {
+     "action_id": 0,
+     "action": "hello_action",
+     "connection": {
+       "thing": ""
+     },
+     "dispatcher": {},
+     "input": {
+       "person": ""
+     }
+   }
+ }`
+	defaultActionDispatcher = &StdoutDispatcher{}
+	p, err := GenerateSampleActionStart(action)
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if p != sample {
+		t.Fatal("Expected action start to be equal: %s, %s", p, sampleMsg)
+	}
+
 }

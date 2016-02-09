@@ -195,9 +195,9 @@ func (t *TestableTrigger) RunTrigger() error {
 	return nil
 }
 
-func (t *TestableTrigger) Test() error {
+func (t *TestableTrigger) Test() (Output, error) {
 	t.testRan = true
-	return nil
+	return &HelloOutput{Goodbye: "friend"}, nil
 }
 
 func TestRunPluginTriggerWithTestRunsTest(t *testing.T) {
@@ -222,7 +222,6 @@ func TestRunPluginTriggerWithTestRunsTest(t *testing.T) {
 	if trigger.testRan != true {
 		t.Fatal("The testable trigger test did not run")
 	}
-
 }
 
 func TestRunPluginTriggerWithoutTestDoesNothing(t *testing.T) {
@@ -309,4 +308,42 @@ func TestBadConnectionWillFailTest(t *testing.T) {
 	if err.Error() != expected {
 		t.Fatalf("Expected error %s but got %s", expected, err)
 	}
+}
+
+var sampleMsg = `{
+   "version": "v1",
+   "type": "trigger_start",
+   "body": {
+     "trigger_id": 0,
+     "trigger": "hello_trigger",
+     "connection": {
+       "thing": ""
+     },
+     "dispatcher": {
+       "url": "http://example.com/trigger/id/event"
+     },
+     "input": {
+       "person": ""
+     }
+   }
+ }`
+
+func TestGenerateSampleTriggerStartMessage(t *testing.T) {
+
+	trigger := &HelloTrigger{}
+	parameter.Stdin = parameter.NewParamSet(strings.NewReader(triggerStartMessage))
+
+	dispatcher := &mockDispatcher{}
+	// mock dispatcher to test dispatch works
+	defaultTriggerDispatcher = dispatcher
+
+	// p := &HelloPlugin{}
+	// p.Init("hello")
+	// p.AddTrigger(trigger)
+
+	p, _ := GenerateSampleTriggerStart(trigger)
+	if p != sampleMsg {
+		t.Fatal("Expected trigger start to be equal: %s, %s", p, sampleMsg)
+	}
+
 }
