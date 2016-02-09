@@ -25,7 +25,7 @@ func init() {
 	// check for params after the double dash
 	// in the command string
 	for i, argv := range os.Args {
-		if argv == "--" {
+		if argv == "--" && len(os.Args) > (i+1) {
 			arg := os.Args[i+1]
 			buf := bytes.NewBufferString(arg)
 			parameter.Stdin = parameter.NewParamSet(buf)
