@@ -70,6 +70,10 @@ func (t *HelloTrigger) Name() string {
 	return "hello_trigger"
 }
 
+func (t *HelloTrigger) Description() string {
+	return "it says hello"
+}
+
 type HelloOutput struct {
 	Goodbye string
 }
@@ -139,7 +143,13 @@ func TestWorkingTrigger(t *testing.T) {
 	defaultTriggerDispatcher = dispatcher
 
 	p := &HelloPlugin{}
-	p.Plugin.Init("hello")
+	p.Plugin.Init(Meta{
+		Name:        "Hello",
+		Description: "",
+		Vendor:      "",
+		Version:     "",
+	})
+
 	p.AddTrigger(trigger)
 
 	err := p.Run()
@@ -190,6 +200,10 @@ func (t *TestableTrigger) Name() string {
 	return "testable_trigger"
 }
 
+func (t *TestableTrigger) Description() string {
+	return "testable_trigger desc"
+}
+
 func (t *TestableTrigger) RunTrigger() error {
 	t.testRan = false
 	return nil
@@ -210,7 +224,14 @@ func TestRunPluginTriggerWithTestRunsTest(t *testing.T) {
 	defaultTriggerDispatcher = dispatcher
 
 	p := &HelloPlugin{}
-	p.Init("hello")
+
+	p.Init(Meta{
+		Name:        "Hello",
+		Description: "",
+		Vendor:      "",
+		Version:     "",
+	})
+
 	p.AddTrigger(trigger)
 
 	err := p.Test()
@@ -234,7 +255,14 @@ func TestRunPluginTriggerWithoutTestDoesNothing(t *testing.T) {
 	defaultTriggerDispatcher = dispatcher
 
 	p := &HelloPlugin{}
-	p.Init("hello")
+
+	p.Init(Meta{
+		Name:        "Hello",
+		Description: "",
+		Vendor:      "",
+		Version:     "",
+	})
+
 	p.AddTrigger(trigger)
 
 	err := p.Test()
@@ -274,6 +302,10 @@ func (t *HelloTriggerWithBadConnection) Name() string {
 	return "hello_trigger"
 }
 
+func (t *HelloTriggerWithBadConnection) Description() string {
+	return "hello_trigger desc"
+}
+
 func (t *HelloTriggerWithBadConnection) RunTrigger() error {
 	return t.Send(&HelloOutput{Goodbye: "bob"})
 }
@@ -297,7 +329,13 @@ func TestBadConnectionWillFailTest(t *testing.T) {
 	defaultTriggerDispatcher = dispatcher
 
 	p := &HelloPlugin{}
-	p.Init("hello")
+	p.Init(Meta{
+		Name:        "Hello",
+		Description: "",
+		Vendor:      "",
+		Version:     "",
+	})
+
 	p.AddTrigger(trigger)
 
 	err := p.Test()

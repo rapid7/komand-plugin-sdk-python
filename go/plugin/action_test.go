@@ -44,6 +44,10 @@ func (h *HelloAction) Name() string {
 	return "hello_action"
 }
 
+func (h *HelloAction) Description() string {
+	return "hello_action description"
+}
+
 func (h *HelloAction) Input() Input {
 	return &h.input
 }
