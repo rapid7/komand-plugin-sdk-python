@@ -6,11 +6,19 @@ type HelloPlugin struct {
 	Plugin
 }
 
+func (t HelloPlugin) Vendor() string {
+	return "orcasoft"
+}
+
 type TriggerNoName struct {
 	Trigger
 }
 
 func (t *TriggerNoName) Name() string {
+	return ""
+}
+
+func (t *TriggerNoName) Description() string {
 	return ""
 }
 
@@ -20,7 +28,12 @@ func (t *TriggerNoName) RunTrigger() error {
 
 func New() *HelloPlugin {
 	h := &HelloPlugin{}
-	h.Init("Hello")
+	h.Init(Meta{
+		Name:        "",
+		Description: "",
+		Vendor:      "",
+		Version:     "",
+	})
 	h.AddTrigger(&HelloTrigger{})
 	h.AddAction(&HelloAction{})
 	return h
@@ -28,7 +41,14 @@ func New() *HelloPlugin {
 
 func TestEmptyTriggerNameReturnsError(t *testing.T) {
 	h := &HelloPlugin{}
-	h.Init("Hello")
+
+	h.Init(Meta{
+		Name:        "Hello",
+		Description: "",
+		Vendor:      "",
+		Version:     "",
+	})
+
 	err := h.AddTrigger(&TriggerNoName{})
 
 	expected := `No Name() was found for the trigger.`

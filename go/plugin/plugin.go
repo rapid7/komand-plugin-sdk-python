@@ -10,6 +10,28 @@ import (
 	"github.com/orcalabs/plugin-sdk/go/plugin/parameter"
 )
 
+// Pluginable is what plugins implement.
+type Pluginable interface {
+	Name() string        // Name is the plugin name
+	Vendor() string      // Vendor is the plugin vendor name
+	Version() string     // Version is the plugin version
+	Description() string // Description is the plugin description
+
+	Run() error  // Run runs the plugin
+	Test() error // Test runs a test
+
+	Triggers() map[string]Triggerable
+	Actions() map[string]Actionable
+}
+
+// Meta information for a plugin
+type Meta struct {
+	Name        string
+	Vendor      string
+	Version     string
+	Description string
+}
+
 // Types of Start Messages
 const (
 	TriggerStart = "trigger_start"
@@ -36,14 +58,34 @@ func init() {
 
 // Plugin holds the common Plugin information
 type Plugin struct {
-	Name     string
+	Meta
 	triggers map[string]Triggerable
 	actions  map[string]Actionable
 }
 
+// Name of plugin
+func (p *Plugin) Name() string {
+	return p.Meta.Name
+}
+
+// Description of plugin
+func (p *Plugin) Description() string {
+	return p.Meta.Description
+}
+
+// Vendor of plugin
+func (p *Plugin) Vendor() string {
+	return p.Meta.Vendor
+}
+
+// Version of plugin
+func (p *Plugin) Version() string {
+	return p.Meta.Version
+}
+
 // Init initializes a Plugin
-func (p *Plugin) Init(name string) {
-	p.Name = name
+func (p *Plugin) Init(meta Meta) {
+	p.Meta = meta
 	p.triggers = map[string]Triggerable{}
 	p.actions = map[string]Actionable{}
 }
@@ -137,7 +179,7 @@ func (p Plugin) LookupTrigger(trigger string) (Triggerable, error) {
 	if t, ok := p.triggers[trigger]; ok {
 		return t, nil
 	}
-	return nil, fmt.Errorf("Failed to LookupTrigger() with %s. Trigger not valid with plugin: %s.", trigger, p.Name)
+	return nil, fmt.Errorf("Failed to LookupTrigger() with %s. Trigger not valid with plugin: %s.", trigger, p.Name())
 }
 
 // Triggers returns the map of Triggerables in the Plugin
@@ -160,7 +202,7 @@ func (p Plugin) LookupAction(action string) (Actionable, error) {
 	if a, ok := p.actions[action]; ok {
 		return a, nil
 	}
-	return nil, fmt.Errorf("Failed to LookupAction() with action: %s. Action not valid with plugin: %s.", action, p.Name)
+	return nil, fmt.Errorf("Failed to LookupAction() with action: %s. Action not valid with plugin: %s.", action, p.Name())
 }
 
 // Actions returns the map of Actionables in the Plugin
@@ -168,8 +210,8 @@ func (p Plugin) Actions() map[string]Actionable {
 	return p.actions
 }
 
-// GenerateSampleStartMessage codegens the message start samples
-func (p Plugin) GenerateSampleStartMessage(name string) (string, error) {
+// SampleStartMessage codegens the message start samples
+func (p Plugin) SampleStartMessage(name string) (string, error) {
 	action, _ := p.LookupAction(name)
 	if action != nil {
 		return GenerateSampleActionStart(action)

@@ -27,7 +27,7 @@ func GenerateSampleActionStart(action Actionable) (string, error) {
 	env := message.Message{
 		Header: message.Header{
 			Version: message.Version,
-			Type:    "action_start",
+			Type:    ActionStart,
 		},
 		Body: message.Body{
 			Contents: &m,
@@ -63,7 +63,7 @@ func GenerateSampleTriggerStart(trigger Triggerable) (string, error) {
 	env := message.Message{
 		Header: message.Header{
 			Version: message.Version,
-			Type:    "trigger_start",
+			Type:    TriggerStart,
 		},
 		Body: message.Body{
 			Contents: &m,
