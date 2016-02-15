@@ -92,6 +92,13 @@ func (c *cli) Run() {
 	sampleOpt := sample.Arg("trigger or action", "Trigger or action name to generate sample message for.").Required().String()
 	run := app.Command("run", "Run the plugin (default command). You must supply the start message on stdin.")
 
+	for i, argv := range c.Args {
+		if argv == "--" {
+			c.Args = c.Args[0:(i)]
+			break
+		}
+	}
+
 	if len(c.Args) < 1 || (len(c.Args) == 1 && strings.HasSuffix(c.Args[0], "debug")) {
 		c.Args = append(c.Args, "run")
 	}
