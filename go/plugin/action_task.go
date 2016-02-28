@@ -100,6 +100,7 @@ func (a *actionTask) emit(err string, out Output) error {
 	if err != "" {
 		e = message.ActionResult{
 			ActionID: a.message.ActionID,
+			StepUID:  a.message.StepUID,
 			Status:   "error",
 			Error:    err,
 		}
@@ -107,6 +108,7 @@ func (a *actionTask) emit(err string, out Output) error {
 	} else {
 		e = message.ActionResult{
 			ActionID: a.message.ActionID,
+			StepUID:  a.message.StepUID,
 			Status:   "ok",
 			Output: message.OutputMessage{
 				Contents: out,

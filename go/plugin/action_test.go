@@ -13,6 +13,7 @@ var actionStartMessage = `
   "type": "action_start",
   "body": {
     "action_id": 14,
+	"step_uid": "abc-123-4444",
 	"action": "hello_action",
 	"connection": { "thing": "one"},
     "input": { "person": "Bob"}
@@ -86,7 +87,7 @@ func (h *HelloAction) Act() error {
 
 func TestWorkingAction(t *testing.T) {
 	parameter.Stdin = parameter.NewParamSet(strings.NewReader(actionStartMessage))
-	expectedOutputEvent := `{"version":"v1","type":"action_event","body":{"action_id":14,"status":"ok","error":"","output":{"greeting":"good day to you"}}}`
+	expectedOutputEvent := `{"version":"v1","type":"action_event","body":{"action_id":14,"step_uid":"abc-123-4444","status":"ok","error":"","output":{"greeting":"good day to you"}}}`
 	dispatcher := &mockDispatcher{}
 
 	// mock dispatcher to test dispatch works
@@ -126,6 +127,7 @@ func TestGenerateSampleActionStartMessage(t *testing.T) {
    "type": "action_start",
    "body": {
      "action_id": 0,
+     "step_uid": "",
      "action": "hello_action",
      "connection": {
        "thing": ""
@@ -144,7 +146,7 @@ func TestGenerateSampleActionStartMessage(t *testing.T) {
 	}
 
 	if p != sample {
-		t.Fatal("Expected action start to be equal: %s, %s", p, sampleMsg)
+		t.Fatalf("Expected action start to be equal: %s, expected: %s", p, sample)
 	}
 
 }
