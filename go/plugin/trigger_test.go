@@ -14,10 +14,10 @@ var triggerTestStartMessage = `
 {
   "version": "v1",
   "type": "trigger_start",
+  "body": {
   "meta": {
 	  "channel": "xyz-abc-123"
   },
-  "body": {
 	  "dispatcher": { "url": "http://localhost:8000/blah" },
 	  "trigger": "testable_trigger",
 	  "input": { "person": "Bob"},
@@ -30,10 +30,11 @@ var triggerStartMessage = `
 {
   "version": "v1",
   "type": "trigger_start",
+  "body": {
   "meta": {
 	  "channel": "xyz-abc-123"
   },
-  "body": {
+
 	  "dispatcher": { "url": "http://localhost:8000/blah" },
 	  "trigger": "hello_trigger",
 	  "input": { "person": "Bob"},
@@ -46,10 +47,11 @@ var invalidTypeTriggerStartMessage = `
 {
   "version": "v1",
   "type": "not_trigger_start",
+  "body": {
   "meta": {
 	  "channel": "xyz-abc-123"
   },
-  "body": {
+
 	  "dispatcher": { "url": "http://localhost:8000/blah" },
 	  "trigger": "hello_trigger",
 	  "input": { "person": "Bob"},
@@ -134,7 +136,7 @@ func TestWorkingTrigger(t *testing.T) {
 
 	trigger := &HelloTrigger{}
 
-	expectedOutputEvent := `{"version":"v1","type":"trigger_event","body":{"trigger_id":0,"output":{"Goodbye":"bob"}}}`
+	expectedOutputEvent := `{"version":"v1","type":"trigger_event","body":{"meta":{"channel":"xyz-abc-123"},"output":{"Goodbye":"bob"}}}`
 	parameter.Stdin = parameter.NewParamSet(strings.NewReader(triggerStartMessage))
 
 	dispatcher := &mockDispatcher{}
@@ -352,7 +354,7 @@ var sampleMsg = `{
    "version": "v1",
    "type": "trigger_start",
    "body": {
-     "trigger_id": 0,
+     "meta": null,
      "trigger": "hello_trigger",
      "connection": {
        "thing": ""

@@ -1,6 +1,7 @@
 package plugin
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
@@ -38,7 +39,7 @@ func (t *triggerTask) Test() error {
 		}
 
 		if output != nil {
-			m := makeTriggerEvent(t.message.TriggerID, output)
+			m := makeTriggerEvent(t.message.Meta, output)
 			err := t.dispatcher.Send(m)
 			if err != nil {
 				return err
@@ -66,7 +67,7 @@ func (t *triggerTask) Run() error {
 
 	// start event collection
 	collector, err := makeTriggerEventCollector(
-		t.message.TriggerID,
+		t.message,
 		t.trigger,
 		t.dispatcher,
 	)
@@ -124,18 +125,18 @@ type triggerEventCollector struct {
 	stopped    chan bool
 	sender     queueable
 	dispatcher Dispatcher
-	triggerID  int
+	message    *message.TriggerStart
 
 	errors chan error
 }
 
-func makeTriggerEventCollector(triggerID int, trigger Triggerable, dispatcher Dispatcher) (*triggerEventCollector, error) {
+func makeTriggerEventCollector(message *message.TriggerStart, trigger Triggerable, dispatcher Dispatcher) (*triggerEventCollector, error) {
 	if queueable, ok := trigger.(queueable); ok {
 
 		queueable.InitQueue()
 
 		return &triggerEventCollector{
-			triggerID:  triggerID,
+			message:    message,
 			stopped:    make(chan bool, 1),
 			sender:     queueable,
 			dispatcher: dispatcher,
@@ -167,11 +168,11 @@ func (t *triggerEventCollector) stop() {
 
 // send will dispatch an output event
 func (t *triggerEventCollector) send(event message.Output) error {
-	m := makeTriggerEvent(t.triggerID, event)
+	m := makeTriggerEvent(t.message.Meta, event)
 	return t.dispatcher.Send(m)
 }
 
-func makeTriggerEvent(id int, output message.Output) *message.Message {
+func makeTriggerEvent(meta *json.RawMessage, output message.Output) *message.Message {
 	m := message.Message{
 		Header: message.Header{
 			Version: message.Version,
@@ -180,7 +181,7 @@ func makeTriggerEvent(id int, output message.Output) *message.Message {
 	}
 
 	e := message.TriggerEvent{
-		TriggerID: id,
+		Meta: meta,
 		Output: message.OutputMessage{
 			Contents: output,
 		},
