@@ -99,17 +99,15 @@ func (a *actionTask) emit(err string, out Output) error {
 	var e message.ActionResult
 	if err != "" {
 		e = message.ActionResult{
-			ActionID: a.message.ActionID,
-			StepUID:  a.message.StepUID,
-			Status:   "error",
-			Error:    err,
+			Meta:   a.message.Meta,
+			Status: "error",
+			Error:  err,
 		}
 
 	} else {
 		e = message.ActionResult{
-			ActionID: a.message.ActionID,
-			StepUID:  a.message.StepUID,
-			Status:   "ok",
+			Meta:   a.message.Meta,
+			Status: "ok",
 			Output: message.OutputMessage{
 				Contents: out,
 			},
