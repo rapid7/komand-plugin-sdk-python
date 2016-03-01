@@ -148,7 +148,7 @@ func TestGenerateSampleActionStartMessage(t *testing.T) {
 	}
 
 	if p != sample {
-		t.Fatal("Expected action start to be equal: %s, %s", p, sampleMsg)
+		t.Fatalf("Expected action start to be equal: %s, expected: %s", p, sample)
 	}
 
 }
