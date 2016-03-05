@@ -1,4 +1,5 @@
-# Go (golang) Orca Plugin SDK
+# Go (golang) Komand Plugin SDK
+
 Note: Code generation for plugin, trigger, and action skeletons are coming!
 
 - To create the skeleton for a new plugin, follow the example for now.
