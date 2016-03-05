@@ -3,7 +3,7 @@ package plugin
 import (
 	"errors"
 
-	"github.com/orcalabs/plugin-sdk/go/plugin/message"
+	"github.com/komand/plugin-sdk/go/plugin/message"
 )
 
 // Testable must be implemented by a trigger or action if it accepts a test

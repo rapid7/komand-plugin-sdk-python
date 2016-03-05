@@ -3,7 +3,7 @@ package plugin
 import (
 	"fmt"
 
-	"github.com/orcalabs/plugin-sdk/go/plugin/message"
+	"github.com/komand/plugin-sdk/go/plugin/message"
 )
 
 // actionTask task runner

@@ -6,8 +6,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/orcalabs/plugin-sdk/go/plugin/message"
-	"github.com/orcalabs/plugin-sdk/go/plugin/parameter"
+	"github.com/komand/plugin-sdk/go/plugin/message"
+	"github.com/komand/plugin-sdk/go/plugin/parameter"
 )
 
 var triggerTestStartMessage = `

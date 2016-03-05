@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/orcalabs/plugin-sdk/go/plugin/parameter"
+	"github.com/komand/plugin-sdk/go/plugin/parameter"
 )
 
 var actionStartMessage = `

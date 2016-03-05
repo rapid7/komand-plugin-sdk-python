@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/orcalabs/plugin-sdk/go/plugin/parameter"
+	"github.com/komand/plugin-sdk/go/plugin/parameter"
 )
 
 // Message contains general message information that other messages should embed
