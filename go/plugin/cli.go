@@ -3,6 +3,7 @@ package plugin
 import (
 	"fmt"
 	"log"
+	"strings"
 
 	ansi "github.com/mgutz/ansi"
 
@@ -91,7 +92,14 @@ func (c *cli) Run() {
 	sampleOpt := sample.Arg("trigger or action", "Trigger or action name to generate sample message for.").Required().String()
 	run := app.Command("run", "Run the plugin (default command). You must supply the start message on stdin.")
 
-	if len(c.Args) < 1 {
+	for i, argv := range c.Args {
+		if argv == "--" {
+			c.Args = c.Args[0:(i)]
+			break
+		}
+	}
+
+	if len(c.Args) < 1 || (len(c.Args) == 1 && strings.HasSuffix(c.Args[0], "debug")) {
 		c.Args = append(c.Args, "run")
 	}
 
@@ -110,10 +118,17 @@ func (c *cli) Run() {
 	case info.FullCommand():
 		c.info()
 	case run.FullCommand():
-		plugin.Run()
+		if err := plugin.Run(); err != nil {
+			log.Fatalf("Run failed: %v", err)
+		}
 	case test.FullCommand():
-		plugin.Test()
+		if err := plugin.Test(); err != nil {
+			log.Fatalf("Test failed: %v", err)
+		}
 	default:
-		plugin.Run()
+		if err := plugin.Run(); err != nil {
+			log.Fatalf("Unable to execute: %s", err)
+		}
+
 	}
 }

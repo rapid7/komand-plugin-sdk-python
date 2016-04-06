@@ -7,7 +7,7 @@ type HelloPlugin struct {
 }
 
 func (t HelloPlugin) Vendor() string {
-	return "orcasoft"
+	return "komandsoft"
 }
 
 type TriggerNoName struct {

@@ -3,7 +3,7 @@ package plugin
 import (
 	"fmt"
 
-	"github.com/orcalabs/plugin-sdk/go/plugin/message"
+	"github.com/komand/plugin-sdk/go/plugin/message"
 )
 
 // actionTask task runner
@@ -99,15 +99,15 @@ func (a *actionTask) emit(err string, out Output) error {
 	var e message.ActionResult
 	if err != "" {
 		e = message.ActionResult{
-			ActionID: a.message.ActionID,
-			Status:   "error",
-			Error:    err,
+			Meta:   a.message.Meta,
+			Status: "error",
+			Error:  err,
 		}
 
 	} else {
 		e = message.ActionResult{
-			ActionID: a.message.ActionID,
-			Status:   "ok",
+			Meta:   a.message.Meta,
+			Status: "ok",
 			Output: message.OutputMessage{
 				Contents: out,
 			},
