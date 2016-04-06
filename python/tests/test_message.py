@@ -4,7 +4,7 @@ import sys, os
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-import orca.message 
+import komand.message 
 
 class TestMessage(unittest.TestCase):
 
@@ -12,7 +12,7 @@ class TestMessage(unittest.TestCase):
       sample = '{ "hello": "there" }'
       fd = StringIO(sample)
       with self.assertRaises(Exception):
-        orca.message.unmarshal(fd)
+        komand.message.unmarshal(fd)
 
 if __name__ == '__main__':
     unittest.main()
