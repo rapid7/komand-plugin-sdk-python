@@ -1,5 +1,12 @@
+# -*- coding: utf-8 -*- 
+
 import sys
 import argparse
+
+GREEN = '\033[92m'
+RESET = '\033[0m'
+
+ 
 
 class CLI(object):
     """ CLI is a cli for komand """
@@ -8,20 +15,37 @@ class CLI(object):
         self.args = args
 
     def test(self, args):
-        print("XXXX in test")
-        print(args)
+        self.plugin.test()
 
     def sample(self, args):
-        print("XXXX in sample")
-        print(args)
+        # TODO
+        print("Currently not implemented")
 
     def info(self, args):
-        print("XXXX in info")
-        print(args)
+        result = ''
+        result += ("Name:        %s%s%s\n") % (GREEN, self.plugin.name, RESET)
+        result += ("Vendor:      %s%s%s\n") % (GREEN, self.plugin.vendor, RESET)
+        result += ("Version:     %s%s%s\n") % (GREEN, self.plugin.version, RESET)
+        result += ("Description: %s%s%s\n") % (GREEN, self.plugin.description, RESET)
+
+        if len(self.plugin.triggers) > 0:
+            result += "\n"
+            result += ("Triggers (%s%d%s): \n") % (GREEN, len(self.plugin.triggers), RESET)
+
+            for name, item in self.plugin.triggers.iteritems():
+                result += ("└── %s%s%s (%s%s)\n") % (GREEN, name, RESET, item.description, RESET)
+
+        if len(self.plugin.actions) > 0:
+            result += "\n"
+            result += ("Actions (%s%d%s): \n") % (GREEN, len(self.plugin.actions), RESET)
+
+            for name, item in self.plugin.actions.iteritems():
+                result += ("└── %s%s%s (%s%s)\n") % (GREEN, name, RESET, item.description, RESET)
+
+        print(result)
 
     def run(self, args):
-        print("XXXX in run")
-        print(args)
+        self.plugin.run()
 
     def run(self):
         """Run the CLI tool"""
@@ -49,13 +73,15 @@ class CLI(object):
         args.func(args)
 
 
-class Plugin(object):
-    def __init__(self):
-        self.description = 'VirusTotal'
 
-if __name__ == '__main__':
-    cli = CLI(Plugin())
-    cli.run()
+#  import plugin
+#  class Plugin(plugin.Plugin):
+    #  def __init__(self):
+        #  super(self.__class__, self).__init__('hello', 'blah', '1234', 'VirusTotal')
+
+#  if __name__ == '__main__':
+    #  cli = CLI(Plugin())
+    #  cli.run()
 
       
         
