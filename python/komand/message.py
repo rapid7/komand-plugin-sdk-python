@@ -9,20 +9,46 @@ VERSION = 'v1'
 # types
 TRIGGER_START = 'trigger_start'
 ACTION_START = 'action_start'
+TRIGGER_EVENT = 'trigger_event'
+ACTION_EVENT = 'action_event'
 
 valid_types = [
     TRIGGER_START,
     ACTION_START,
 ]
 
+SUCCESS = 'ok';
+ERROR = 'error';
+
+def Envelope(msg_type, body={}):
+    return {
+            'body': body,
+            'type': msg_type,
+            'version': VERSION,
+            }
+
+def TriggerEvent(meta={}, output={}):
+    return Envelope(TRIGGER_EVENT, { 'meta': meta, 'output': output });
+
+def ActionSuccess(meta={}, output={}):
+    return Envelope(ACTION_EVENT, { 'meta': meta, 'output': output, 'status': SUCCESS });
+
+def ActionError(meta={}, error=''):
+    err = "%s" % error
+    return Envelope(ACTION_EVENT, { 'meta': meta, 'error': err, 'status': ERROR });
 
 def validateTriggerStart(body):
     if not body:
         raise Exception('No body: %s' % body)
     if not body.has_key('trigger'):
         raise Exception('Missing trigger in %s' % body)
-    if not body.has_key('trigger_id'):
-        raise Exception('Missing trigger_id in %s' % body)
+
+    if not body.has_key('connection'):
+        body['connection'] = {}
+    if not body.has_key('dispatcher'):
+        body['dispatcher'] = {}
+    if not body.has_key('input'):
+        body['input'] = {}
 
 
 def validateActionStart(body):
@@ -30,13 +56,27 @@ def validateActionStart(body):
         raise Exception('No body: %s' % body)
     if not body.has_key('action'):
         raise Exception('Missing action in %s' % body)
-    if not body.has_key('action_id'):
-        raise Exception('Missing action_id in %s' % body)
+
+    if not body.has_key('connection'):
+        body['connection'] = {}
+    if not body.has_key('dispatcher'):
+        body['dispatcher'] = {}
+    if not body.has_key('input'):
+        body['input'] = {}
+
 
 validators = {
     TRIGGER_START: validateTriggerStart,
     ACTION_START:  validateActionStart,
 }
+
+def marshal(msg, fd=sys.stdout):
+    """ Marshal a message to fd"""
+    return json.dump(msg, fd)
+
+def marshal_string(msg):
+    """ Marshal a message to a string"""
+    return json.dumps(msg)
 
 def unmarshal(fd=sys.stdin):
     """Unmarshals a message"""

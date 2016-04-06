@@ -8,6 +8,13 @@ import komand.message
 
 class TestMessage(unittest.TestCase):
 
+  def test_ok_message(self):
+      sample = '{ "meta": { "test": "this" }, "body": {"trigger": "hello123"}, "version": "v1", "type": "trigger_start" }'
+      fd = StringIO(sample)
+      m = komand.message.unmarshal(fd)
+      print(m)
+
+
   def test_invalid_message_fails(self):
       sample = '{ "hello": "there" }'
       fd = StringIO(sample)

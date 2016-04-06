@@ -1,7 +1,16 @@
 import unittest
 import test_message
+import test_action
 
 def komand_test_suite():
-    loader = unittest.TestLoader()
-    suite = loader.loadTestsFromModule(test_message)
+    testmodules = [
+            test_message,
+            test_action,
+            ]
+
+    suite = unittest.TestSuite()
+
+    for t in testmodules:
+        suite.addTest(unittest.defaultTestLoader.loadTestsFromName(t.__name__))
+
     return suite

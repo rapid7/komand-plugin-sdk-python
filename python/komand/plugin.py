@@ -1,11 +1,11 @@
 import message
-import actions
-import triggers
+import action
+import trigger
 
 class Plugin:
     """An Komand Plugin."""
 
-    def __init__(self, name, vendor, description, version):
+    def __init__(self, name="", vendor="", description="", version=""):
         self.name = ""
         self.vendor = ""
         self.description = ""
@@ -16,10 +16,10 @@ class Plugin:
     def _lookup(self, msg):
         if msg.Type == TRIGGER_START:
             trig = self._trigger(msg)
-            return triggers.Task(trig, msg) 
+            return trigger.Task(self, trig, msg) 
         elif msg.Type == ACTION_START:
             act = self._action(msg)
-            return actions.Task(trig, msg) 
+            return action.Task(self, trig, msg) 
         else:
             raise Exception("Invalid message type:" + msg.Type)
 
@@ -27,13 +27,17 @@ class Plugin:
         """Run the plugin."""
         msg = message.unmarshal(stdin)
         runner = self._lookup(msg)
-        runner.Run()
+        runner.run()
+
+    def connection(self):
+        """ Override to define a connection"""
+        raise NotImplementedError 
 
     def test(self):
         """Test the plugin."""
         msg = message.unmarshal(stdin)
         runner = self._lookup(msg)
-        runner.Test()
+        runner.test()
 
     def add_trigger(self, trigger):
         """ add a new trigger """
