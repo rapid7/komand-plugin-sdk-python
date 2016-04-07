@@ -1,7 +1,7 @@
 __all__ = ['message', 'plugin', 'connection', 'trigger', 'action', 'variables', 'cli']
 
 
-import plugin, action, trigger, connection
+import plugin, action, trigger, connection, cli
 
 Plugin = plugin.Plugin
 Action = action.Action
