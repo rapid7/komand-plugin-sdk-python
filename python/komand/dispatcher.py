@@ -14,10 +14,10 @@ class Http(object):
         if not config:
             raise ValueError('missing HTTP dispatcher config')
 
-        if not config.url:
+        if not config.get('url'):
             raise ValueError('missing HTTP dispatcher config url')
 
-        self.url = config.url
+        self.url = config['url']
 
         logging.info('Using dispatcher config: %s', config)
 

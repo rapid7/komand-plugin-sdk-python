@@ -4,20 +4,12 @@ import logging
 
 class Action(object):
     """A action"""
-    def __init__(self, name, description):
-        self.connection = None
+    def __init__(self, name, description, input, output):
         self.name = name
-        self.description = ''
-        self.inputs = {}
-
-
-    def input(self):
-        """ Return input schema for trigger """
-        raise NotImplementedError
-
-    def output(self):
-        """ Return output schema for trigger """
-        raise NotImplementedError
+        self.description = description 
+        self.input = input 
+        self.output = output
+        self.connection = None
 
     def run(self):
         """ Run a action, return output or raise error """
@@ -44,7 +36,7 @@ class Task(object):
             self._setup()
             output = self.action.test()
 
-            schema = self.action.output()
+            schema = self.action.output
     
             if schema:
                 schema.validate(output)
@@ -83,7 +75,7 @@ class Task(object):
 
 
     def _setup(self):
-        action_msg = self.msg.get('body')
+        action_msg = self.msg
 
         if not action_msg:
             raise ValueError('No action input to action task')
@@ -97,9 +89,8 @@ class Task(object):
             self.action.connection = self.connection
 
 
-        input = self.action.input()
+        input = self.action.input
 
         if input:
-            inputs = input.validate(action_msg.get('input'))
-            self.action.inputs = inputs
+            input.set(action_msg.get('input'))
 

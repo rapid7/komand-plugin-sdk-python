@@ -5,27 +5,20 @@ import variables
 
 class Trigger(object):
     """A trigger"""
-    def __init__(self, name, description):
+    def __init__(self, name, description, input, output):
         self.name = name 
         self.description = description 
-        self.inputs = {}
         self.connection = None
         self._sender = None
+        self.input = input
+        self.output = output
 
     def send(self, event):
-        schema = self.output()
+        schema = self.output
         if schema:
           event = schema.validate(event)
 
         self._sender.send(event)
-
-    def input(self):
-        """ Return input schema for trigger """
-        raise NotImplementedError
-
-    def output(self):
-        """ Return output schema for trigger """
-        raise NotImplementedError
 
     def run(self):
         """ Run a trigger. Returns nothing """
@@ -51,7 +44,7 @@ class Task(object):
 
     def test(self):
         """ Run test """
-        dispatcher = dispatcher.Stdout()
+        dispatch = dispatcher.Stdout()
 
         try:
             self._setup()
@@ -61,7 +54,7 @@ class Task(object):
             return False
 
         msg = message.TriggerEvent(meta=self.meta, output=output)
-        dispatcher.write(msg)
+        dispatch.write(msg)
         return True
 
     def run(self):
@@ -77,7 +70,7 @@ class Task(object):
 
 
     def _setup(self):
-        trigger_msg = self.msg.get('body')
+        trigger_msg = self.msg
 
         if not trigger_msg:
             raise ValueError('No trigger input to trigger task')
@@ -93,9 +86,8 @@ class Task(object):
             self.connection.connect()
             self.trigger.connection = self.connection
 
-        input = self.trigger.input()
+        input = self.trigger.input
 
         if input:
-            inputs = input.validate(trigger_msg.get('input'))
-            self.trigger.inputs = inputs
+            input.set(trigger_msg.get('input'))
 

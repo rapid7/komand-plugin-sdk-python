@@ -1,5 +1,7 @@
+#!/usr/bin/env python
+
 import komand
-from ..foobar import *
+from foobar import *
 
 Name        = 'foobar'
 Vendor      = "komand"
@@ -8,17 +10,22 @@ Description = "IMAP integration"
 
 class Foobar(komand.Plugin):
     def __init__(self):
-        super(self.__class__, self).__init__(name=Name, vendor=Vendor, version=Version,
-                description=Description)
+        super(self.__class__, self).__init__(
+                name=Name, 
+                vendor=Vendor, 
+                version=Version,
+                description=Description,
+                connection=connection.Connection()
+                )
 
         self.add_trigger(triggers.EmitGreeting())
         self.add_action(actions.Respond())
-
-    def connection(self):
-        return foobar.Connection()
 
 def main():
     """Run plugin"""
     cli = komand.CLI(Foobar())
     cli.run()
+
+if __name__== "__main__":
+    main()
 

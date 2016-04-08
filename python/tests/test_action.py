@@ -49,13 +49,12 @@ class StupidActionOutput(komand.Output):
 
 class StupidAction(action.Action):
     def __init__(self):
-        super(self.__class__, self).__init__('stupid', 'an action')
-   
-    def input(self):
-        return StupidActionInput()
-
-    def output(self):
-        return StupidActionOutput()
+        super(self.__class__, self).__init__(
+                'stupid', 
+                'an action',
+                StupidActionInput(), 
+                StupidActionOutput(),
+                )
 
     def run(self):
         return { 'price': 1100, 'name': 'Jon' }

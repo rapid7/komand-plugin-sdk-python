@@ -1,41 +1,46 @@
 import message
 import action
 import trigger
+import sys
+
 
 class Plugin(object):
     """An Komand Plugin."""
 
-    def __init__(self, name='', vendor='', description='', version=''):
+    def __init__(self, name='', vendor='', description='', version='', connection=None):
         self.name = name 
         self.vendor = vendor 
         self.description = description 
         self.version = version 
+        self.connection = connection
         self.triggers = {}
         self.actions = {}
 
     def _lookup(self, msg):
-        if msg.Type == TRIGGER_START:
-            trig = self._trigger(msg)
-            return trigger.Task(self, trig, msg) 
-        elif msg.Type == ACTION_START:
-            act = self._action(msg)
-            return action.Task(self, trig, msg) 
+        if msg['type'] == message.TRIGGER_START:
+            trig = self._trigger(msg['body'])
+            return trigger.Task(
+                    connection=self.connection, 
+                    trigger=trig, 
+                    msg=msg['body']) 
+        elif msg['type'] == message.ACTION_START:
+            act = self._action(msg['body'])
+            return action.Task(
+                    connection=self.connection, 
+                    action=act, 
+                    msg=msg['body']) 
         else:
             raise Exception("Invalid message type:" + msg.Type)
 
     def run(self):
         """Run the plugin."""
-        msg = message.unmarshal(stdin)
+        msg = message.unmarshal(sys.stdin)
         runner = self._lookup(msg)
         runner.run()
 
-    def connection(self):
-        """ Override to define a connection"""
-        raise NotImplementedError 
-
     def test(self):
         """Test the plugin."""
-        msg = message.unmarshal(stdin)
+        msg = message.unmarshal(sys.stdin)
         runner = self._lookup(msg)
         runner.test()
 
@@ -52,9 +57,11 @@ class Plugin(object):
         trig = self.triggers.get(msg['trigger'])
         if not trig:
             raise Exception("Trigger missing: %s" % msg['trigger'])
+        return trig
 
     def _action(self, msg):
         """Run the action"""
         act = self.actions.get(msg['action'])
-        if not trig:
+        if not act:
             raise Exception("Action missing: %s" % msg['action'])
+        return act
