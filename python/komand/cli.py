@@ -2,6 +2,7 @@
 
 import sys
 import argparse
+import message
 
 GREEN = '\033[92m'
 RESET = '\033[0m'
@@ -18,8 +19,48 @@ class CLI(object):
         self.plugin.test()
 
     def sample(self, args):
-        # TODO
-        print("Currently not implemented")
+        name = args.name
+        trig = self.plugin.triggers.get(name)
+        if trig:
+            conn = self.plugin.connection
+            input = trig.input
+            dispatcher = { 'url': 'http://localhost:8000' }
+
+            if conn:
+                conn = conn.sample()
+            if input:
+                input = input.sample()
+
+            msg = message.TriggerStart(
+                    trigger=trig.name,
+                    connection=conn,
+                    input=input,
+                    dispatcher=dispatcher)
+            
+            message.marshal(msg)
+            return
+
+        act = self.plugin.actions.get(name)
+        if act:
+            conn = self.plugin.connection
+            input = act.input
+            dispatcher = { 'url': 'http://localhost:8000' }
+
+            if conn:
+                conn = conn.sample()
+            if input:
+                input = input.sample()
+
+            msg = message.ActionStart(
+                    action=act.name,
+                    connection=conn,
+                    input=input)
+            
+            message.marshal(msg)
+            return
+
+
+        raise ValueError('Invalid trigger or action name.')
 
     def info(self, args):
         result = ''

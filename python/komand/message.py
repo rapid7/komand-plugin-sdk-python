@@ -20,22 +20,41 @@ valid_types = [
 SUCCESS = 'ok';
 ERROR = 'error';
 
-def Envelope(msg_type, body={}):
+def envelope(msg_type, body={}):
     return {
             'body': body,
             'type': msg_type,
             'version': VERSION,
             }
 
+def ActionStart(action='', meta={}, input={}, connection={}):
+     return envelope(ACTION_START, { 
+         'action': action,
+         'meta': meta,
+         'input': input,
+         'connection': connection,
+         }) 
+        
+
+def TriggerStart(trigger='', meta={}, dispatcher={}, input={}, connection={}):
+     return envelope(TRIGGER_START, { 
+         'trigger': trigger,
+         'meta': meta,
+         'input': input,
+         'dispatcher': dispatcher,
+         'connection': connection,
+         }) 
+        
+
 def TriggerEvent(meta={}, output={}):
-    return Envelope(TRIGGER_EVENT, { 'meta': meta, 'output': output });
+    return envelope(TRIGGER_EVENT, { 'meta': meta, 'output': output });
 
 def ActionSuccess(meta={}, output={}):
-    return Envelope(ACTION_EVENT, { 'meta': meta, 'output': output, 'status': SUCCESS });
+    return envelope(ACTION_EVENT, { 'meta': meta, 'output': output, 'status': SUCCESS });
 
 def ActionError(meta={}, error=''):
     err = "%s" % error
-    return Envelope(ACTION_EVENT, { 'meta': meta, 'error': err, 'status': ERROR });
+    return envelope(ACTION_EVENT, { 'meta': meta, 'error': err, 'status': ERROR });
 
 def validateTriggerStart(body):
     if not body:

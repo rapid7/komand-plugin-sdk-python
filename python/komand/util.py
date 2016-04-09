@@ -40,9 +40,7 @@ def sample(source):
     ns = builder.build_classes()
     Obj = ns.Example
     o = Obj(**defaults)
-    return o.serialize()
-
-
+    return o.as_dict()
 
 def trace(exception):
     """Returns the trace from an exception"""

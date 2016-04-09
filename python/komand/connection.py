@@ -19,3 +19,9 @@ class Connection(object):
     def connect(self):
         """ Connect """
         raise NotImplementedError
+
+    def sample(self):
+        """ Sample object """
+        return util.sample(self.schema)
+    
+
