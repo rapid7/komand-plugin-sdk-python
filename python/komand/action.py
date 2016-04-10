@@ -1,6 +1,7 @@
 import message
 import dispatcher
 import logging
+import sys
 
 class Action(object):
     """A action"""
@@ -42,7 +43,8 @@ class Task(object):
                 schema.validate(output)
     
 
-        except Exception as e:
+        except:
+            e = sys.exc_info()[0]
             logging.exception('Action test failure: %s', e)
             err = message.ActionError(
                     meta=self.meta,
@@ -64,8 +66,8 @@ class Task(object):
     
             if schema:
                 schema.validate(output)
-
-        except Error as e:
+        except:
+            e = sys.exc_info()[0]
             err = message.ActionError(meta=self.meta, error=e)
             self.dispatcher.write(err)
             return

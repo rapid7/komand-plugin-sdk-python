@@ -16,6 +16,9 @@ class CLI(object):
         self.args = args
 
     def test(self, args):
+        if args.debug:
+            self.plugin.debug = True
+
         self.plugin.test()
 
     def sample(self, args):
@@ -44,7 +47,6 @@ class CLI(object):
         if act:
             conn = self.plugin.connection
             input = act.input
-            dispatcher = { 'url': 'http://localhost:8000' }
 
             if conn:
                 conn = conn.sample()
@@ -64,35 +66,37 @@ class CLI(object):
 
     def info(self, args):
         result = ''
-        result += ("Name:        %s%s%s\n") % (GREEN, self.plugin.name, RESET)
-        result += ("Vendor:      %s%s%s\n") % (GREEN, self.plugin.vendor, RESET)
-        result += ("Version:     %s%s%s\n") % (GREEN, self.plugin.version, RESET)
-        result += ("Description: %s%s%s\n") % (GREEN, self.plugin.description, RESET)
+        result += ('Name:        %s%s%s\n') % (GREEN, self.plugin.name, RESET)
+        result += ('Vendor:      %s%s%s\n') % (GREEN, self.plugin.vendor, RESET)
+        result += ('Version:     %s%s%s\n') % (GREEN, self.plugin.version, RESET)
+        result += ('Description: %s%s%s\n') % (GREEN, self.plugin.description, RESET)
 
         if len(self.plugin.triggers) > 0:
-            result += "\n"
-            result += ("Triggers (%s%d%s): \n") % (GREEN, len(self.plugin.triggers), RESET)
+            result += '\n'
+            result += ('Triggers (%s%d%s): \n') % (GREEN, len(self.plugin.triggers), RESET)
 
             for name, item in self.plugin.triggers.iteritems():
-                result += ("└── %s%s%s (%s%s)\n") % (GREEN, name, RESET, item.description, RESET)
+                result += ('└── %s%s%s (%s%s)\n') % (GREEN, name, RESET, item.description, RESET)
 
         if len(self.plugin.actions) > 0:
-            result += "\n"
-            result += ("Actions (%s%d%s): \n") % (GREEN, len(self.plugin.actions), RESET)
+            result += '\n'
+            result += ('Actions (%s%d%s): \n') % (GREEN, len(self.plugin.actions), RESET)
 
             for name, item in self.plugin.actions.iteritems():
-                result += ("└── %s%s%s (%s%s)\n") % (GREEN, name, RESET, item.description, RESET)
+                result += ('└── %s%s%s (%s%s)\n') % (GREEN, name, RESET, item.description, RESET)
 
         print(result)
 
-    def run(self, args):
+    def _run(self, args):
+        if args.debug:
+            self.plugin.debug = True
         self.plugin.run()
 
     def run(self):
         """Run the CLI tool"""
         parser = argparse.ArgumentParser(description=self.plugin.description)
-        parser.add_argument('--version', help='Show version', default=False)
-        parser.add_argument('--debug', help='Log events to stdout', default=False)
+        parser.add_argument('--version', action='store_true', help='Show version', default=False)
+        parser.add_argument('--debug', action='store_true', help='Log events to stdout', default=False)
 
         subparsers = parser.add_subparsers(help='Commands')
 
@@ -108,22 +112,12 @@ class CLI(object):
         sample_command.set_defaults(func=self.sample)
 
         run_command = subparsers.add_parser('run', help='Run the plugin (default command). You must supply the start message on stdin.')
-        run_command.set_defaults(func=self.run)
+        run_command.set_defaults(func=self._run)
 
         args = parser.parse_args(self.args)
+
+        if not args.func:
+            args.func = self._run
+
         args.func(args)
 
-
-
-#  import plugin
-#  class Plugin(plugin.Plugin):
-    #  def __init__(self):
-        #  super(self.__class__, self).__init__('hello', 'blah', '1234', 'VirusTotal')
-
-#  if __name__ == '__main__':
-    #  cli = CLI(Plugin())
-    #  cli.run()
-
-      
-        
-        

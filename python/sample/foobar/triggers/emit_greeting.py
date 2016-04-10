@@ -1,5 +1,6 @@
 import komand
 import logging
+import time
 
 class EmitGreetingInput(komand.Input):
     schema = {
@@ -43,6 +44,9 @@ class EmitGreeting(komand.Trigger):
 
     def run(self):
         logging.info("RUNNING TRIGGER", self.input, self.output)
+        while True:
+            self.send({ 'greeting': 'howdy', 'name': 'friend' })
+            time.sleep(5)
             
 
     def test(self):

@@ -11,5 +11,5 @@ install:
 test:
 	python setup.py test
 
-docker_build:
+image:
 	docker build -t komand/python-plugin .

@@ -2,6 +2,7 @@ import message
 import action
 import trigger
 import sys
+import dispatcher
 
 
 class Plugin(object):
@@ -15,6 +16,7 @@ class Plugin(object):
         self.connection = connection
         self.triggers = {}
         self.actions = {}
+        self.debug = False
 
     def _lookup(self, msg):
         if msg['type'] == message.TRIGGER_START:
@@ -36,6 +38,9 @@ class Plugin(object):
         """Run the plugin."""
         msg = message.unmarshal(sys.stdin)
         runner = self._lookup(msg)
+        if self.debug:
+            runner.dispatcher = dispatcher.Stdout()
+
         runner.run()
 
     def test(self):

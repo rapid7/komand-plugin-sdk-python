@@ -2,6 +2,7 @@ import message
 import dispatcher
 import logging
 import variables
+import sys
 
 class Trigger(object):
     """A trigger"""
@@ -16,7 +17,7 @@ class Trigger(object):
     def send(self, event):
         schema = self.output
         if schema:
-          event = schema.validate(event)
+          schema.validate(event)
 
         self._sender.send(event)
 
@@ -38,7 +39,7 @@ class Task(object):
         self.dispatcher = dispatch
         self.meta = None
 
-    def send(self, msg):
+    def send(self, output):
         msg = message.TriggerEvent(meta=self.meta, output=output)
         self.dispatcher.write(msg)
 
@@ -49,7 +50,8 @@ class Task(object):
         try:
             self._setup()
             output = self.trigger.test()
-        except Exception as e:
+        except:
+            e = sys.exc_info()[0]
             logging.exception('trigger test failure: %s', e)
             return False
 
@@ -63,10 +65,11 @@ class Task(object):
             self._setup()
             self.trigger._sender = self
             self.trigger.run()
-        except Error as e:
-           logging.exception('trigger test failure: %s', e)
+        except:
+            e = sys.exc_info()[0]
+            logging.exception('trigger test failure: %s', e)
             # XXX: exit code??
-           return
+            return
 
 
     def _setup(self):

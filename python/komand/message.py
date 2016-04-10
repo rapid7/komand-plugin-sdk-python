@@ -91,7 +91,8 @@ validators = {
 
 def marshal(msg, fd=sys.stdout):
     """ Marshal a message to fd"""
-    return json.dump(msg, fd)
+    json.dump(msg, fd)
+    fd.flush()
 
 def marshal_string(msg):
     """ Marshal a message to a string"""
