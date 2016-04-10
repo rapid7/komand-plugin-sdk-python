@@ -3,11 +3,11 @@ build:
   build_image:
     image: docker:1.9
     commands:
-      - cd $$BUILD && docker build -t komand-plugin-$$BUILD .
+      - cd $$BUILD && docker build -t komand/$$BUILD-plugin .
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
   build_project:
-    image: komand-plugin-$$BUILD:latest
+    image: komand/$$BUILD-plugin:latest
     commands:
       - cd $$BUILD
       - make all
