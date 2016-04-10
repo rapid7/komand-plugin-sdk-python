@@ -12,4 +12,4 @@ test:
 	python setup.py test
 
 docker_build:
-	docker build -t komand-plugin-python .
+	docker build -t komand/python-plugin .
