@@ -1,13 +1,22 @@
 build:
-  image: komand-build:latest
-  commands:
-    - cd $$BUILD
-    - make all
-    - make test
+    # first, build the build image
+  build_image:
+    image: docker:1.9
+    commands:
+      - cd $$BUILD && docker build -t komand/$$BUILD-plugin .
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+  build_project:
+    image: komand/$$BUILD-plugin:latest
+    commands:
+      - cd $$BUILD
+      - make all
+      - make test
 matrix:
   BUILD:
     # TODO: add other plugin sdk builds here
-    - go/plugin
+    - go
+    - python
 notify:
   slack:
     webhook_url: https://hooks.slack.com/services/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
