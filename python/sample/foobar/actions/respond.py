@@ -46,6 +46,7 @@ class Respond(komand.Action):
 
     def run(self):
         logging.info("RUNNING ACTION", self.input, self.output)
+        return self.input.parameters 
             
 
     def test(self):
