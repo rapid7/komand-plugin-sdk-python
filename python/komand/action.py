@@ -62,12 +62,13 @@ class Task(object):
             self._setup()
             output = self.action.run()
 
-            schema = self.action.output()
+            schema = self.action.output
     
             if schema:
                 schema.validate(output)
         except:
             e = sys.exc_info()[0]
+            logging.exception('Action run failure: %s', e)
             err = message.ActionError(meta=self.meta, error=e)
             self.dispatcher.write(err)
             return
