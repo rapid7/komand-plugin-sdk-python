@@ -3,11 +3,10 @@
 import sys
 import argparse
 import message
+import logging
 
 GREEN = '\033[92m'
 RESET = '\033[0m'
-
- 
 
 class CLI(object):
     """ CLI is a cli for komand """
@@ -90,6 +89,7 @@ class CLI(object):
     def _run(self, args):
         if args.debug:
             self.plugin.debug = True
+
         self.plugin.run()
 
     def run(self):
@@ -115,6 +115,11 @@ class CLI(object):
         run_command.set_defaults(func=self._run)
 
         args = parser.parse_args(self.args)
+
+        if args.debug:
+            logging.basicConfig(level=logging.DEBUG)
+        else:
+            logging.basicConfig(level=logging.INFO)
 
         if not args.func:
             args.func = self._run
