@@ -100,14 +100,14 @@ func (a *actionTask) emit(err string, out Output) error {
 	if err != "" {
 		e = message.ActionResult{
 			Meta:   a.message.Meta,
-			Status: "error",
+			Status: message.ERROR,
 			Error:  err,
 		}
 
 	} else {
 		e = message.ActionResult{
 			Meta:   a.message.Meta,
-			Status: "ok",
+			Status: message.OK,
 			Output: message.OutputMessage{
 				Contents: out,
 			},
