@@ -1,11 +1,4 @@
-# mac
-.DS_Store
-
-# vim, emacs, sublime text
 *.sw*
-*~
-*.sublime-workspace
 
 python/build
 python/dist
-
