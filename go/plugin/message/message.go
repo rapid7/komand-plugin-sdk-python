@@ -13,6 +13,16 @@ type Message struct {
 	Body   // Message body
 }
 
+// StatusType contains the possible step return statuses
+type StatusType string
+
+const (
+	// OK everything worked
+	OK = StatusType("ok")
+	// ERROR something failed
+	ERROR = StatusType("error")
+)
+
 // Validate the msg against the provided msgtype.
 func (m *Message) Validate() error {
 	if m.Version != Version {
