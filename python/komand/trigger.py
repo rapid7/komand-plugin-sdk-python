@@ -50,8 +50,7 @@ class Task(object):
         try:
             self._setup()
             output = self.trigger.test()
-        except:
-            e = sys.exc_info()[0]
+        except Exception as e:
             logging.exception('trigger test failure: %s', e)
             return False
 
