@@ -14,7 +14,8 @@ class Connection(object):
 
     def _validate(self):
         """ Validate variables """
-        validate(self.parameters, self.schema)
+        if self.schema:
+            validate(self.parameters, self.schema)
 
     def connect(self):
         """ Connect """
@@ -22,6 +23,7 @@ class Connection(object):
 
     def sample(self):
         """ Sample object """
-        return util.sample(self.schema)
+        if self.schema:
+            return util.sample(self.schema)
     
 

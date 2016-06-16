@@ -43,12 +43,11 @@ class Task(object):
                 schema.validate(output)
     
 
-        except:
-            e = sys.exc_info()[0]
+        except Exception as e:
             logging.exception('Action test failure: %s', e)
             err = message.ActionError(
                     meta=self.meta,
-                    error=e)
+                    error=str(e))
             self.dispatcher.write(err)
             return
 
@@ -66,10 +65,9 @@ class Task(object):
     
             if schema:
                 schema.validate(output)
-        except:
-            e = sys.exc_info()[0]
+        except Exception as e:
             logging.exception('Action run failure: %s', e)
-            err = message.ActionError(meta=self.meta, error=e)
+            err = message.ActionError(meta=self.meta, error=str(e))
             self.dispatcher.write(err)
             return
 
