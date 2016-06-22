@@ -77,15 +77,18 @@ func (d *HTTPDispatcher) Send(event *message.Message) error {
 
 	resp, err := d.client.Do(req)
 	if err != nil {
-		return fmt.Errorf("Unable to send event to http dispatcher: %+v", err)
+		err := fmt.Errorf("Unable to send event to http dispatcher: %+v", err)
+		log.Printf("Unable to send to dispatcher: %s", err)
+		return err
 	}
 	defer resp.Body.Close()
 
-	// TODO: check for good response status
-	// log.Println("response Status:", resp.Status)
-	// log.Println("response Headers:", resp.Header)
-	// body, _ := ioutil.ReadAll(resp.Body)
-	// log.Println("response Body:", string(body))
+	if resp.StatusCode != 200 {
+		log.Println("response Status:", resp.Status)
+		log.Println("response Headers:", resp.Header)
+		log.Fatal("Response failed, stopping trigger")
+	}
+
 	return nil
 }
 
