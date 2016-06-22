@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 
@@ -70,23 +69,23 @@ func (d *HTTPDispatcher) Send(event *message.Message) error {
 	}
 
 	req, err := http.NewRequest("POST", d.URL, bytes.NewBuffer(messageBytes))
+
 	if err != nil {
-		log.Fatal("Could not create POST request:", err)
+		err := fmt.Errorf("Unable to POST to dispatcher: %+v", err)
+		return err
 	}
+
 	req.Header.Set("Content-Type", "application/json")
 
 	resp, err := d.client.Do(req)
 	if err != nil {
 		err := fmt.Errorf("Unable to send event to http dispatcher: %+v", err)
-		log.Printf("Unable to send to dispatcher: %s", err)
 		return err
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != 200 {
-		log.Println("response Status:", resp.Status)
-		log.Println("response Headers:", resp.Header)
-		log.Fatal("Response failed, stopping trigger")
+		return fmt.Errorf("Response failed, stopping trigger: %v %v", resp.Status, resp.Header)
 	}
 
 	return nil
