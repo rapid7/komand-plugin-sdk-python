@@ -8,3 +8,6 @@ plugin:
 
 test:
 	make -C plugin test
+
+image:
+	docker build -t komand/go-plugin .
