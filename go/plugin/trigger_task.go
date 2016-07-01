@@ -1,11 +1,12 @@
 package plugin
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
-	"os"
+	"log"
 
-	"github.com/orcalabs/plugin-sdk/go/plugin/message"
+	"github.com/komand/plugin-sdk/go/plugin/message"
 )
 
 // triggerTask runs a trigger
@@ -40,7 +41,7 @@ func (t *triggerTask) Test() error {
 		}
 
 		if output != nil {
-			m := makeTriggerEvent(t.message.TriggerID, output)
+			m := makeTriggerEvent(t.message.Meta, output)
 			err := t.dispatcher.Send(m)
 			if err != nil {
 				return err
@@ -68,7 +69,7 @@ func (t *triggerTask) Run() error {
 
 	// start event collection
 	collector, err := makeTriggerEventCollector(
-		t.message.TriggerID,
+		t.message,
 		t.trigger,
 		t.dispatcher,
 	)
@@ -78,7 +79,13 @@ func (t *triggerTask) Run() error {
 	}
 
 	defer collector.stop()
-	go collector.start()
+	go func() {
+		err := collector.start()
+		collector.stopped <- true
+		if err != nil {
+			log.Fatal("Stopping trigger, received error collecting events: ", err)
+		}
+	}()
 
 	// finally start the trigger
 	return t.trigger.RunTrigger()
@@ -126,41 +133,38 @@ type triggerEventCollector struct {
 	stopped    chan bool
 	sender     queueable
 	dispatcher Dispatcher
-	triggerID  int
-
-	errors chan error
+	message    *message.TriggerStart
 }
 
-func makeTriggerEventCollector(triggerID int, trigger Triggerable, dispatcher Dispatcher) (*triggerEventCollector, error) {
+func makeTriggerEventCollector(message *message.TriggerStart, trigger Triggerable, dispatcher Dispatcher) (*triggerEventCollector, error) {
 	if queueable, ok := trigger.(queueable); ok {
 
 		queueable.InitQueue()
 
 		return &triggerEventCollector{
-			triggerID:  triggerID,
+			message:    message,
 			stopped:    make(chan bool, 1),
 			sender:     queueable,
 			dispatcher: dispatcher,
-			errors:     make(chan error),
 		}, nil
 	}
 	return nil, errors.New("Trigger does not implement Send() interface. Did you compose with plugin.Trigger?")
 }
 
-func (t *triggerEventCollector) start() {
+func (t *triggerEventCollector) start() error {
 	for {
+
 		output := t.sender.Read()
+
 		if output != nil {
 			if err := t.send(output); err != nil {
-				// TODO: remove this and figure out how to handle.
-				fmt.Fprintf(os.Stderr, "Receieved error sending trigger message: %s", err)
-				t.errors <- err
+				log.Printf("Receieved error sending trigger message: %s", err)
+				return err
 			}
 		} else {
-			break
+			return nil
 		}
 	}
-	t.stopped <- true
 }
 func (t *triggerEventCollector) stop() {
 	t.sender.Stop()
@@ -169,11 +173,11 @@ func (t *triggerEventCollector) stop() {
 
 // send will dispatch an output event
 func (t *triggerEventCollector) send(event message.Output) error {
-	m := makeTriggerEvent(t.triggerID, event)
+	m := makeTriggerEvent(t.message.Meta, event)
 	return t.dispatcher.Send(m)
 }
 
-func makeTriggerEvent(id int, output message.Output) *message.Message {
+func makeTriggerEvent(meta *json.RawMessage, output message.Output) *message.Message {
 	m := message.Message{
 		Header: message.Header{
 			Version: message.Version,
@@ -182,7 +186,7 @@ func makeTriggerEvent(id int, output message.Output) *message.Message {
 	}
 
 	e := message.TriggerEvent{
-		TriggerID: id,
+		Meta: meta,
 		Output: message.OutputMessage{
 			Contents: output,
 		},

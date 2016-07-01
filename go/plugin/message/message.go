@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/orcalabs/plugin-sdk/go/plugin/parameter"
+	"github.com/komand/plugin-sdk/go/plugin/parameter"
 )
 
 // Message contains general message information that other messages should embed
@@ -12,6 +12,16 @@ type Message struct {
 	Header // Message header
 	Body   // Message body
 }
+
+// StatusType contains the possible step return statuses
+type StatusType string
+
+const (
+	// OK everything worked
+	OK = StatusType("ok")
+	// ERROR something failed
+	ERROR = StatusType("error")
+)
 
 // Validate the msg against the provided msgtype.
 func (m *Message) Validate() error {

@@ -1,7 +1,7 @@
 .PHONY: all setup plugin test
 
 export BASE?=$(PWD)/..
-export DST?=$(GOPATH)/src/github.com/orcalabs/plugin-sdk
+export DST?=$(GOPATH)/src/github.com/komand/plugin-sdk
 
 
 setup:

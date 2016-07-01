@@ -3,7 +3,7 @@ package plugin
 import (
 	"encoding/json"
 
-	"github.com/orcalabs/plugin-sdk/go/plugin/message"
+	"github.com/komand/plugin-sdk/go/plugin/message"
 )
 
 // GenerateSampleActionStart generates a sample action start message

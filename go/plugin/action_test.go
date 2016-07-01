@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/orcalabs/plugin-sdk/go/plugin/parameter"
+	"github.com/komand/plugin-sdk/go/plugin/parameter"
 )
 
 var actionStartMessage = `
@@ -12,7 +12,9 @@ var actionStartMessage = `
   "version": "v1",
   "type": "action_start",
   "body": {
-    "action_id": 14,
+  	"meta": {
+		"action_id": 14
+  	},
 	"action": "hello_action",
 	"connection": { "thing": "one"},
     "input": { "person": "Bob"}
@@ -25,7 +27,9 @@ var invalidTypeActionStartMessage = `
   "version": "v1",
   "type": "not_action_start",
   "body": {
-    "action_id": 14,
+  	"meta": {
+		"action_id": 14
+  	},
     "action": "hello_action",
     "connection": { "thing": "one"},
     "input": { "person": "Bob"}
@@ -86,7 +90,7 @@ func (h *HelloAction) Act() error {
 
 func TestWorkingAction(t *testing.T) {
 	parameter.Stdin = parameter.NewParamSet(strings.NewReader(actionStartMessage))
-	expectedOutputEvent := `{"version":"v1","type":"action_event","body":{"action_id":14,"status":"ok","error":"","output":{"greeting":"good day to you"}}}`
+	expectedOutputEvent := `{"version":"v1","type":"action_event","body":{"meta":{"action_id":14},"status":"ok","error":"","output":{"greeting":"good day to you"}}}`
 	dispatcher := &mockDispatcher{}
 
 	// mock dispatcher to test dispatch works
@@ -125,7 +129,7 @@ func TestGenerateSampleActionStartMessage(t *testing.T) {
    "version": "v1",
    "type": "action_start",
    "body": {
-     "action_id": 0,
+     "meta": null,
      "action": "hello_action",
      "connection": {
        "thing": ""
@@ -144,7 +148,7 @@ func TestGenerateSampleActionStartMessage(t *testing.T) {
 	}
 
 	if p != sample {
-		t.Fatal("Expected action start to be equal: %s, %s", p, sampleMsg)
+		t.Fatalf("Expected action start to be equal: %s, expected: %s", p, sample)
 	}
 
 }
