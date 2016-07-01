@@ -24,6 +24,8 @@ func (t *triggerTask) Test() error {
 		return err
 	}
 
+	t.dispatcher = &StdoutDispatcher{}
+
 	// connect the connection
 	if connectable, ok := t.trigger.(Connectable); ok {
 		if err := connectable.Connection().Connect(); err != nil {
