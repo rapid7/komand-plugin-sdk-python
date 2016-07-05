@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"os"
+	"log"
 
 	"github.com/komand/plugin-sdk/go/plugin/message"
 )
@@ -23,6 +23,8 @@ func (t *triggerTask) Test() error {
 	if err := t.unpack(); err != nil {
 		return err
 	}
+
+	t.dispatcher = &StdoutDispatcher{}
 
 	// connect the connection
 	if connectable, ok := t.trigger.(Connectable); ok {
@@ -77,7 +79,13 @@ func (t *triggerTask) Run() error {
 	}
 
 	defer collector.stop()
-	go collector.start()
+	go func() {
+		err := collector.start()
+		collector.stopped <- true
+		if err != nil {
+			log.Fatal("Stopping trigger, received error collecting events: ", err)
+		}
+	}()
 
 	// finally start the trigger
 	return t.trigger.RunTrigger()
@@ -126,8 +134,6 @@ type triggerEventCollector struct {
 	sender     queueable
 	dispatcher Dispatcher
 	message    *message.TriggerStart
-
-	errors chan error
 }
 
 func makeTriggerEventCollector(message *message.TriggerStart, trigger Triggerable, dispatcher Dispatcher) (*triggerEventCollector, error) {
@@ -140,26 +146,25 @@ func makeTriggerEventCollector(message *message.TriggerStart, trigger Triggerabl
 			stopped:    make(chan bool, 1),
 			sender:     queueable,
 			dispatcher: dispatcher,
-			errors:     make(chan error),
 		}, nil
 	}
 	return nil, errors.New("Trigger does not implement Send() interface. Did you compose with plugin.Trigger?")
 }
 
-func (t *triggerEventCollector) start() {
+func (t *triggerEventCollector) start() error {
 	for {
+
 		output := t.sender.Read()
+
 		if output != nil {
 			if err := t.send(output); err != nil {
-				// TODO: remove this and figure out how to handle.
-				fmt.Fprintf(os.Stderr, "Receieved error sending trigger message: %s", err)
-				t.errors <- err
+				log.Printf("Receieved error sending trigger message: %s", err)
+				return err
 			}
 		} else {
-			break
+			return nil
 		}
 	}
-	t.stopped <- true
 }
 func (t *triggerEventCollector) stop() {
 	t.sender.Stop()
