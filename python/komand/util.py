@@ -4,8 +4,14 @@ import pprint
 import copy
 
 def default_for(prop):
-    if not prop['type']:
+    if not 'type' in prop:
         return ''
+
+    if 'enum' in prop:
+        return prop['enum'][0]
+
+    if prop['type'] == 'array':
+        return [] 
 
     if prop['type'] == 'object':
         return {} 
