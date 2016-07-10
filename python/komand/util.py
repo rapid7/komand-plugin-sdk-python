@@ -24,7 +24,7 @@ def default_for(prop):
 
 def sample(source):
 
-    if not source:
+    if not source or (not 'properties' in source) or len(source['properties']) == 0:
         return {}
 
     schema = {
