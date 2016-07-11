@@ -11,8 +11,8 @@ build:
     commands:
       - make all
       - make test
- notify:
-   slack:
+notify:
+  slack:
      webhook_url: $$SLACK_URL 
      channel: devstatus
      username: drone
