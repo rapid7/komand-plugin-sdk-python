@@ -17,7 +17,7 @@ class Connection(object):
         if self.schema:
             validate(self.parameters, self.schema)
 
-    def connect(self):
+    def connect(self, params={}):
         """ Connect """
         raise NotImplementedError
 

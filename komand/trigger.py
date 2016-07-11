@@ -21,11 +21,11 @@ class Trigger(object):
 
         self._sender.send(event)
 
-    def run(self):
+    def run(self, params={}):
         """ Run a trigger. Returns nothing """
         raise NotImplementedError
 
-    def test(self):
+    def test(self, params={}):
         """ Test a trigger.  Should return output JSON """
         raise NotImplementedError
 
@@ -49,7 +49,11 @@ class Task(object):
 
         try:
             self._setup()
-            output = self.trigger.test()
+            params = {}
+            if self.trigger and self.trigger.input.parameters:
+                params = self.trigger.input.parameters
+
+            output = self.trigger.test(params)
         except Exception as e:
             logging.exception('trigger test failure: %s', e)
             return False
@@ -63,7 +67,11 @@ class Task(object):
         try:
             self._setup()
             self.trigger._sender = self
-            self.trigger.run()
+            params = {}
+            if self.trigger and self.trigger.input.parameters:
+                params = self.trigger.input.parameters
+
+            self.trigger.run(params)
         except:
             e = sys.exc_info()[0]
             logging.exception('trigger test failure: %s', e)
@@ -85,7 +93,7 @@ class Task(object):
         if self.connection:
             params = (trigger_msg.get('connection') or {})
             self.connection.set(params)
-            self.connection.connect()
+            self.connection.connect(params)
             self.trigger.connection = self.connection
 
         input = self.trigger.input

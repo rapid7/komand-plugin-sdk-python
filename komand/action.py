@@ -12,11 +12,11 @@ class Action(object):
         self.output = output
         self.connection = None
 
-    def run(self):
+    def run(self, params={}):
         """ Run a action, return output or raise error """
         raise NotImplementedError
 
-    def test(self):
+    def test(self, params={}):
         """ Test an action, return output or raise error"""
         raise NotImplementedError
 
@@ -35,8 +35,11 @@ class Task(object):
         """ Run test """
         try:
             self._setup()
-            output = self.action.test()
+            params = {}
+            if self.action and self.action.input.parameters:
+                params = self.action.input.parameters
 
+            output = self.action.test(params)
             schema = self.action.output
     
             if schema:
@@ -59,7 +62,10 @@ class Task(object):
         """ Run the action"""
         try:
             self._setup()
-            output = self.action.run()
+            params = {}
+            if self.action and self.action.input.parameters:
+                params = self.action.input.parameters
+            output = self.action.run(params)
 
             schema = self.action.output
     
@@ -86,7 +92,9 @@ class Task(object):
         if self.connection:
             params = (action_msg.get('connection') or {})
             self.connection.set(params)
-            self.connection.connect()
+            import inspect
+            print inspect.getsource(self.connection.connect)
+            self.connection.connect(params)
             self.action.connection = self.connection
 
 
