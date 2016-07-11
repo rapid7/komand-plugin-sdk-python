@@ -1,4 +1,5 @@
-*.sw*
-
-python/build
-python/dist
+*.egg-info
+*.pyc
+build/
+dist/
+.eggs

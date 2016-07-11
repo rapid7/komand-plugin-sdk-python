@@ -1,6 +1,16 @@
+.PHONY: test install build all
 
-.PHONY: all
+image:
+	docker build -t komand/python-plugin .
 
-all: 
-	make -C python image  
-	make -C go image
+all: build test
+
+build:
+	python setup.py build 
+
+install:
+	python setup.py install
+
+test:
+	python setup.py test
+

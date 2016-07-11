@@ -3,22 +3,16 @@ build:
   build_image:
     image: docker:1.9
     commands:
-      - cd $$BUILD && docker build -t komand/$$BUILD-plugin .
+      - docker build -t komand/python-plugin .
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
   build_project:
-    image: komand/$$BUILD-plugin:latest
+    image: komand/python-plugin:latest
     commands:
-      - cd $$BUILD
       - make all
       - make test
-matrix:
-  BUILD:
-    # TODO: add other plugin sdk builds here
-    - go
-    - python
-notify:
-  slack:
-    webhook_url: https://hooks.slack.com/services/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
-    channel: devstatus
-    username: drone
+ notify:
+   slack:
+     webhook_url: $$SLACK_URL 
+     channel: devstatus
+     username: drone
