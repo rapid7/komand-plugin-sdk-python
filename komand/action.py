@@ -92,8 +92,6 @@ class Task(object):
         if self.connection:
             params = (action_msg.get('connection') or {})
             self.connection.set(params)
-            import inspect
-            print inspect.getsource(self.connection.connect)
             self.connection.connect(params)
             self.action.connection = self.connection
 
