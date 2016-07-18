@@ -3,6 +3,7 @@ import action
 import trigger
 import sys
 import dispatcher
+import StringIO
 
 
 class Plugin(object):
@@ -34,18 +35,29 @@ class Plugin(object):
         else:
             raise Exception("Invalid message type:" + msg.Type)
 
-    def run(self):
+    def run(self, msg=None):
         """Run the plugin."""
-        msg = message.unmarshal(sys.stdin)
+        input = sys.stdin
+        if msg:
+            input = StringIO.StringIO(msg)
+
+        msg = message.unmarshal(input)
         runner = self._lookup(msg)
         if self.debug:
             runner.dispatcher = dispatcher.Stdout()
 
         runner.run()
 
-    def test(self):
+    def test(self, msg=None):
         """Test the plugin."""
-        msg = message.unmarshal(sys.stdin)
+        input = sys.stdin
+        if msg:
+            input = StringIO.StringIO(msg)
+
+        msg = message.unmarshal(input)
+
+        if not msg:
+            msg = message.unmarshal(sys.stdin)
         runner = self._lookup(msg)
         runner.test()
 

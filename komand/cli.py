@@ -8,17 +8,25 @@ import logging
 GREEN = '\033[92m'
 RESET = '\033[0m'
 
+
 class CLI(object):
     """ CLI is a cli for komand """
     def __init__(self, plugin, args=sys.argv[1:]):
         self.plugin = plugin
-        self.args = args
+        self.args = args or []
+        self.msg = None
+
+        if "--" in self.args:
+            index = self.args.index("--") 
+            self.msg = " ".join(self.args[index+1:])
+            self.args = self.args[:index]
+
 
     def test(self, args):
         if args.debug:
             self.plugin.debug = True
 
-        self.plugin.test()
+        self.plugin.test(self.msg)
 
     def sample(self, args):
         name = args.name
@@ -90,7 +98,7 @@ class CLI(object):
         if args.debug:
             self.plugin.debug = True
 
-        self.plugin.run()
+        self.plugin.run(self.msg)
 
     def run(self):
         """Run the CLI tool"""
