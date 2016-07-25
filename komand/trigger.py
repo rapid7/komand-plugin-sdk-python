@@ -48,7 +48,7 @@ class Task(object):
         dispatch = dispatcher.Stdout()
 
         try:
-            self._setup()
+            self._setup(False)
             params = {}
             if self.trigger and self.trigger.input.parameters:
                 params = self.trigger.input.parameters
@@ -79,7 +79,7 @@ class Task(object):
             return
 
 
-    def _setup(self):
+    def _setup(self, validate=True):
         trigger_msg = self.msg
 
         if not trigger_msg:
@@ -99,5 +99,5 @@ class Task(object):
         input = self.trigger.input
 
         if input:
-            input.set(trigger_msg.get('input'))
+            input.set(trigger_msg.get('input'), validate)
 
