@@ -4,6 +4,9 @@ import pprint
 import copy
 
 def default_for(prop):
+    if 'default' in prop: 
+        return prop['default']
+
     if not 'type' in prop:
         return ''
 
@@ -18,6 +21,9 @@ def default_for(prop):
 
     if prop['type'] == 'string':
         return ''
+
+    if prop['type'] == 'boolean':
+        return False 
 
     if prop['type'] == 'integer' or prop['type'] == 'number':
         return 0 
