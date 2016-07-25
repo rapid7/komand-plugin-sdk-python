@@ -7,10 +7,11 @@ class Input(object):
     def __init__(self, schema):
         self.schema = schema
 
-    def set(self, parameters):
+    def set(self, parameters, validate=True):
         """ Set parameters """
         self.parameters = parameters
-        self.validate(self.parameters)
+        if validate:
+            self.validate(self.parameters)
 
     def validate(self, parameters):
         """ Validate variables """
@@ -27,10 +28,11 @@ class Output(object):
     def __init__(self, schema):
         self.schema = schema
 
-    def set(self, parameters):
+    def set(self, parameters, validate=True):
         """ Set parameters """
         self.parameters = parameters
-        self.validate(self.parameters)
+        if validate:
+            self.validate(self.parameters)
 
     def validate(self, parameters):
         """ Validate variables """
