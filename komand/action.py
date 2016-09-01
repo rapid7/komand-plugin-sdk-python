@@ -52,10 +52,11 @@ class Task(object):
                     meta=self.meta,
                     error=str(e))
             self.dispatcher.write(err)
-            return
+            return False
 
         ok = message.ActionSuccess(meta=self.meta, output=output)
         self.dispatcher.write(ok)
+        return True
 
 
     def run(self):
@@ -75,6 +76,7 @@ class Task(object):
             logging.exception('Action run failure: %s', e)
             err = message.ActionError(meta=self.meta, error=str(e))
             self.dispatcher.write(err)
+            sys.exit(1)
             return
 
         ok = message.ActionSuccess(meta=self.meta, output=output)
