@@ -2,10 +2,16 @@ import sys
 import python_jsonschema_objects as pjs
 import pprint
 import copy
+import logging
 
 def default_for(prop):
+
     if 'default' in prop: 
         return prop['default']
+
+    # TODO should really follow this
+    if prop.get('$ref'):
+        return {} 
 
     if not 'type' in prop:
         return ''
@@ -41,6 +47,9 @@ def sample(source):
                 }
 
     defaults = {}
+
+    if source.get('definitions'):
+        schema['definitions'] = source['definitions']
 
     for key, prop in source['properties'].iteritems():
         prop = copy.copy(prop)

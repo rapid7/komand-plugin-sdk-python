@@ -59,7 +59,9 @@ class Plugin(object):
         if not msg:
             msg = message.unmarshal(sys.stdin)
         runner = self._lookup(msg)
-        runner.test()
+
+        if not runner.test():
+            return sys.exit(1)
 
     def add_trigger(self, trigger):
         """ add a new trigger """
