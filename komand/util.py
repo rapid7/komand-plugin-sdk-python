@@ -4,14 +4,28 @@ import pprint
 import copy
 import logging
 
-def default_for(prop):
+def default_for_object(obj, defs):
+    defaults = {}
 
-    if 'default' in prop: 
+    if not obj.get('properties'):
+        return defaults
+
+    for key, prop in obj['properties'].iteritems():
+        defaults[key] = default_for(prop, defs)
+    return defaults
+
+def default_for(prop, defs):
+
+    if 'default' in prop:
         return prop['default']
 
     # TODO should really follow this
-    if prop.get('$ref'):
-        return {} 
+    if prop.get('$ref') and defs:
+        items = defs.get(prop.get('$ref'))
+        if items:
+            return default_for(items, defs)
+
+        return {}
 
     if not 'type' in prop:
         return ''
@@ -20,19 +34,19 @@ def default_for(prop):
         return prop['enum'][0]
 
     if prop['type'] == 'array':
-        return [] 
+        return []
 
     if prop['type'] == 'object':
-        return {} 
+        return default_for_object(prop)
 
     if prop['type'] == 'string':
         return ''
 
     if prop['type'] == 'boolean':
-        return False 
+        return False
 
     if prop['type'] == 'integer' or prop['type'] == 'number':
-        return 0 
+        return 0
 
 def sample(source):
 
@@ -46,14 +60,18 @@ def sample(source):
                 'required': [],
                 }
 
-    defaults = {}
+    definitions = {}
 
     if source.get('definitions'):
         schema['definitions'] = source['definitions']
 
+        for key, defin in source['definitions'].iteritems():
+            definitions['#/definitions/' + key] = defin
+
+    defaults = default_for_object(source, definitions)
+
     for key, prop in source['properties'].iteritems():
         prop = copy.copy(prop)
-        defaults[key] = default_for(prop) 
         schema['properties'][key] = prop
         schema['required'].append(key)
 
