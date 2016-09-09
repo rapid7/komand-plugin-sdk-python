@@ -37,7 +37,7 @@ def default_for(prop, defs):
         return []
 
     if prop['type'] == 'object':
-        return default_for_object(prop)
+        return default_for_object(prop, defs)
 
     if prop['type'] == 'string':
         return ''
