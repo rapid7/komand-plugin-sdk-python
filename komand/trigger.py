@@ -1,5 +1,6 @@
 import message
 import dispatcher
+import helper
 import logging
 import variables
 import sys
