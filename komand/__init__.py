@@ -1,4 +1,4 @@
-__all__ = ['message', 'plugin', 'connection', 'trigger', 'action', 'variables', 'cli']
+__all__ = ['message', 'plugin', 'connection', 'trigger', 'action', 'variables', 'cli', 'helper']
 
 
 import plugin, action, trigger, connection, cli
