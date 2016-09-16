@@ -80,3 +80,14 @@ def remove_cachefile(cache_file):
       return True
     logging.info('Cache file %s did not exist, not removing it', cache_file)
   return False
+
+def open_url(url):
+  '''Return url object given a URL as a string'''
+  try:
+    resp = urllib2.urlopen(url)
+    return resp
+  except urllib2.HTTPError, e:
+    logging.error('HTTPError: %s for %s', str(e.code), url)
+  except urllib2.URLError, e:
+    logging.error('URLError: %s for %s', str(e.reason), url)
+  raise Exception('URL Request Failed')
