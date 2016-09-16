@@ -3,6 +3,7 @@ import json
 import re
 import subprocess
 import os
+import urllib2
 
 def extract_value(begin, key, end, s):
   '''Returns a string from a given key/pattern using provided regexes
