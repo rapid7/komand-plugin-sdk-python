@@ -1,6 +1,7 @@
 import logging
 import json
 import re
+import subprocess
 import os
 
 def extract_value(begin, key, end, s):
@@ -91,3 +92,20 @@ def open_url(url):
   except urllib2.URLError, e:
     logging.error('URLError: %s for %s', str(e.reason), url)
   raise Exception('URL Request Failed')
+
+def exec_command(command):
+  '''Return dict with keys stdout, stderr, and return code of executed subprocess command'''
+  try:
+     p = subprocess.Popen(command,
+       shell=True,
+       stdin=subprocess.PIPE,
+       stdout=subprocess.PIPE,
+       stderr=subprocess.PIPE,
+       close_fds=True)
+     stdout = p.stdout.read()
+     stderr = p.stderr.read()
+     rcode  = p.poll()
+     return { 'stdout': stdout, 'stderr': stderr, 'rcode': rcode }
+  except OSError as e:
+    logging.error('SubprocessError: %s %s: %s', str(e.filename), str(e.strerror), str(e.errno))
+  raise Exception('Subprocess failed')
