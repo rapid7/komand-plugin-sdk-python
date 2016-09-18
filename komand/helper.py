@@ -42,6 +42,22 @@ def clean_dict(dictionary):
       del newdict[key]
   return newdict
 
+def clean_list(lst):
+  '''Returns a new but cleaned list:
+
+  * None type values are removed
+  * Empty string values are removed
+
+  This function is designed so we only return useful data
+  '''
+  newlist = list(lst)
+  for i in lst:
+    if i == None:
+      newlist.remove(i)
+    if i == '':
+      newlist.remove(i)
+  return newlist
+
 def check_cachefile(cache_file):
   '''Return boolean on whether cachefile exists'''
   cache_dir  = '/var/cache'
