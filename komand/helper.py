@@ -38,7 +38,7 @@ def clean_dict(dictionary):
   '''
   newdict = dict(dictionary)
   for key in dictionary.keys():
-    if dictionary.get(key) == None:
+    if dictionary.get(key) is None:
       del newdict[key]
     if dictionary[key] == '':
       del newdict[key]
@@ -54,7 +54,7 @@ def clean_list(lst):
   '''
   newlist = list(lst)
   for i in lst:
-    if i == None:
+    if i is None:
       newlist.remove(i)
     if i == '':
       newlist.remove(i)
