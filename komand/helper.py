@@ -1,3 +1,4 @@
+import base64
 import logging
 import json
 import re
@@ -146,3 +147,15 @@ def exec_command(command):
   except OSError as e:
     logging.error('SubprocessError: %s %s: %s', str(e.filename), str(e.strerror), str(e.errno))
   raise Exception('Subprocess failed')
+
+def encode_file(file_path):
+  '''Return a string of base64 encoded file provided as an absolute file path'''
+  try:
+    f = open(file_path, "rb")
+    efile = base64.b64encode(f.read())
+  except (IOError, OSError) as e:
+    logging.error('File open error: %s', e.strerror)
+    raise Exception('File Open Failed')
+  finally:
+    f.close()
+  return efile
