@@ -1,6 +1,7 @@
 import logging
 import json
 import re
+import requests
 import subprocess
 import os
 import urllib2
@@ -109,6 +110,25 @@ def open_url(url):
   except urllib2.URLError, e:
     logging.error('URLError: %s for %s', str(e.reason), url)
   raise Exception('URL Request Failed')
+
+def check_url(url):
+  '''Return boolean on whether we can access url successfully
+  We submit an HTTP HEAD request to check the status. This way we don't download the file for performance.
+  '''
+  try:
+    resp = requests.head(url)
+    resp.raise_for_status()
+    if resp.status_code >= 200 and resp.status_code <= 399 :
+      return True
+  except requests.exceptions.HTTPError:
+    logging.error('Requests: HTTPError: status code for %s', resp.status_code, url)
+  except requests.exceptions.Timeout:
+    logging.error('Requests: Timeout for %s', url)
+  except requests.exceptions.TooManyRedirects:
+    logging.error('Requests: TooManyRedirects for %s', url)
+  except requests.ConnectionError:
+    logging.error('Requests: ConnectionError for %s', url)
+  return False
 
 def exec_command(command):
   '''Return dict with keys stdout, stderr, and return code of executed subprocess command'''
