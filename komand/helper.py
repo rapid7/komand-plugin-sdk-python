@@ -119,10 +119,10 @@ def check_url(url):
   try:
     resp = requests.head(url)
     resp.raise_for_status()
-    if resp.status_code >= 200 and resp.status_code <= 399 :
+    if resp.status_code >= 200 and resp.status_code <= 399:
       return True
   except requests.exceptions.HTTPError:
-    logging.error('Requests: HTTPError: status code for %s', resp.status_code, url)
+    logging.error('Requests: HTTPError: status code %s for %s', str(resp.status_code), url)
   except requests.exceptions.Timeout:
     logging.error('Requests: Timeout for %s', url)
   except requests.exceptions.TooManyRedirects:
