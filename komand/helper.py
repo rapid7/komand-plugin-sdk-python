@@ -103,7 +103,9 @@ def open_file(file_path):
   if os.path.isdir(dirname):
     if os.path.isfile(file_path):
       f = open(file_path, 'rb')
-      return f
+      if type(f) is file:
+        return f
+      return None
     else:
       logging.info('OpenFile: File %s is not a file or does not exist ', filename)
   else:
@@ -135,7 +137,7 @@ def remove_cachefile(cache_file):
     if os.path.isfile(cache_file):
       os.remove(cache_file)
       return True
-    logging.info('Cache file %s did not exist, not removing it', cache_file)
+    logging.info('RemoveCacheFile: Cache file %s did not exist', cache_file)
   return False
 
 def open_url(url):
@@ -189,7 +191,10 @@ def encode_file(file_path):
   '''Return a string of base64 encoded file provided as an absolute file path'''
   try:
     f = open_file(file_path)
-    efile = base64.b64encode(f.read())
+    if type(f) is file:
+      efile = base64.b64encode(f.read())
+      return f
+    return None
   except (IOError, OSError) as e:
     logging.error('EncodeFile: Failed to open file: %s', e.strerror)
     raise Exception('EncodeFile: Failed to open file')
