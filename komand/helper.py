@@ -1,4 +1,5 @@
 import base64
+import hashlib
 import logging
 import json
 import re
@@ -60,6 +61,50 @@ def clean_list(lst):
       newlist.remove(i)
   return newlist
 
+def check_hashes(src, checksum):
+  '''Return boolean on whether a hash matches a file or string'''
+  if type(src) is str:
+    hashes = get_hashes_string(src)
+  elif type(src) is file:
+    hashes = get_hashes_file(src)
+    if not hashes:
+      return False
+  else:
+    logging.error('check_hashes: Unknown type, requires string or file object')
+    raise Exception('Check Hashes failed')
+  alg = [ 'md5', 'sha1', 'sha256', 'sha512' ]
+  for alg in hashes:
+    if hashes[alg] == checksum:
+      return True
+  logging.info('Check Hashes: No checksum match')
+  return False
+
+def get_hashes_string(s):
+  '''Return a dictionary of hashes for a string'''
+  hashes={}
+  hashes['md5']    = hashlib.md5(s).hexdigest()
+  hashes['sha1']   = hashlib.sha1(s).hexdigest()
+  hashes['sha256'] = hashlib.sha256(s).hexdigest()
+  hashes['sha512'] = hashlib.sha512(s).hexdigest()
+  return hashes
+
+def get_hashes_file(f):
+  '''Return a dictionary of hashes for a file object'''
+  try:
+    raw = f.read()
+  except IOError, e:
+    logging.error('GetHashesFile: IOError: %s', str(e.code))
+    return False
+  except AttributeError, e:
+    logging.error('GetHashesFile: AttributeError: %s', str(e.code))
+    return False
+  hashes={}
+  hashes['md5']    = hashlib.md5(raw).hexdigest()
+  hashes['sha1']   = hashlib.sha1(raw).hexdigest()
+  hashes['sha256'] = hashlib.sha256(raw).hexdigest()
+  hashes['sha512'] = hashlib.sha512(raw).hexdigest()
+  return hashes
+
 def check_cachefile(cache_file):
   '''Return boolean on whether cachefile exists'''
   cache_dir  = '/var/cache'
@@ -71,6 +116,19 @@ def check_cachefile(cache_file):
       return True
     logging.info('Cache file %s did not exist, skipping', cache_file)
   return False
+
+def open_file(file_path):
+  '''Return file object if it exists'''
+  dirname = os.path.dirname(file_path)
+  filename = os.path.basename(file_path)
+  if os.path.isdir(dirname):
+    if os.path.isfile(file_path):
+      f = open(file_path, 'r')
+      return f
+    else:
+      logging.info('OpenFile: File %s is not a file or does not exist ', filename)
+  else:
+    logging.error('OpenFile: Directory %s is not a directory or does not exist', dirname)
 
 def open_cachefile(cache_file):
   '''Return file object if cachefile exists, create and return new cachefile if it doesn't exist'''
