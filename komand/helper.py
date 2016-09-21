@@ -186,7 +186,7 @@ def get_url_content_disposition(headers):
   # Dict is case-insensitive
   if headers.get('content-disposition'):
     filename = re.findall("filename=(.+)", headers['content-disposition'])
-    return filename
+    return str(filename[0].strip('"'))
   return None
     
 def get_url_path_filename(url):
