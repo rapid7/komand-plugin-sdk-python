@@ -72,7 +72,7 @@ def check_hashes(src, checksum):
   for alg in hashes:
     if hashes[alg] == checksum:
       return True
-  logging.info('Check Hashes: No checksum match')
+  logging.info('CheckHashes: No checksum match')
   return False
 
 def get_hashes_string(s):
@@ -91,9 +91,9 @@ def check_cachefile(cache_file):
     cache_file = cache_dir + '/' + cache_file
   if os.path.isdir(cache_dir):
     if os.path.isfile(cache_file):
-      logging.info('Cache file exists', cache_file)
+      logging.info('CheckCacheFile: File exists', cache_file)
       return True
-    logging.info('Cache file %s did not exist, skipping', cache_file)
+    logging.info('CheckCacheFile: File %s did not exist', cache_file)
   return False
 
 def open_file(file_path):
@@ -117,14 +117,14 @@ def open_cachefile(cache_file):
   if os.path.isdir(cache_dir):
     if os.path.isfile(cache_file):
       f = open(cache_file, 'r+')
-      logging.info('Cache file %s exists, returning it', cache_file)
+      logging.info('OpenCacheFile: %s exists, returning it', cache_file)
     else:
       if not os.path.isdir(os.path.dirname(cache_file)):
         os.makedirs(os.path.dirname(cache_file))
       f = open(cache_file, 'w')
-      logging.info('Cache file %s created', cache_file)
+      logging.info('OpenCacheFile: %s created', cache_file)
     return f
-  logging.error('%s is not a directory or does not exist', cache_dir)
+  logging.error('OpenCacheFile: %s directory or does not exist', cache_dir)
 
 def remove_cachefile(cache_file):
   '''Returns boolean on whether cachefile was removed'''
@@ -147,7 +147,7 @@ def open_url(url):
     logging.error('HTTPError: %s for %s', str(e.code), url)
   except urllib2.URLError, e:
     logging.error('URLError: %s for %s', str(e.reason), url)
-  raise Exception('URL Request Failed')
+  raise Exception('OpenURL Failed')
 
 def check_url(url):
   '''Return boolean on whether we can access url successfully
@@ -183,7 +183,7 @@ def exec_command(command):
      return { 'stdout': stdout, 'stderr': stderr, 'rcode': rcode }
   except OSError as e:
     logging.error('SubprocessError: %s %s: %s', str(e.filename), str(e.strerror), str(e.errno))
-  raise Exception('Subprocess failed')
+  raise Exception('ExecCommand Failed')
 
 def encode_file(file_path):
   '''Return a string of base64 encoded file provided as an absolute file path'''
@@ -191,8 +191,8 @@ def encode_file(file_path):
     f = open_file(file_path)
     efile = base64.b64encode(f.read())
   except (IOError, OSError) as e:
-    logging.error('File open error: %s', e.strerror)
-    raise Exception('File Open Failed')
+    logging.error('EncodeFile: Failed to open file: %s', e.strerror)
+    raise Exception('EncodeFile: Failed to open file')
   finally:
     if type(f) is file:
       f.close()
