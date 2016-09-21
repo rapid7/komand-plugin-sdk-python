@@ -159,3 +159,69 @@ def encode_file(file_path):
   finally:
     f.close()
   return efile
+
+def check_url_modified(url):
+  '''Return boolean on whether the url has been modified.
+  We submit an HTTP HEAD request to check the status. This way we don't download the file for performance.
+  '''
+  try:
+    resp = requests.head(url)
+    resp.raise_for_status()
+    if resp.status_code == 304:
+      return False
+    if resp.status_code == 200:
+      return True
+  except requests.exceptions.HTTPError:
+    logging.error('Requests: HTTPError: status code %s for %s', str(resp.status_code), url)
+  except requests.exceptions.Timeout:
+    logging.error('Requests: Timeout for %s', url)
+  except requests.exceptions.TooManyRedirects:
+    logging.error('Requests: TooManyRedirects for %s', url)
+  except requests.ConnectionError:
+    logging.error('Requests: ConnectionError for %s', url)
+  return False
+
+def get_url_content_disposition(headers):
+  '''Return filename as string from content-disposition by supplying requests headers'''
+  # Dict is case-insensitive
+  if headers.get('content-disposition'):
+    filename = re.findall("filename=(.+)", headers['content-disposition'])
+    return filename
+  return None
+    
+def get_url_path_filename(url):
+  '''Return filename from url as string if we have a file extension, otherwise return None.'''
+  if url.find('/', 9) == -1:
+    return None
+  name = os.path.basename(url)   
+  try:
+    for n in range(-1,-5,-1):
+      if name[n].endswith('.'):
+        return name
+  except IndexError:
+    logging.error('Range: IndexError: URL basename is short: %s of %s', name, url)
+    return None
+  return None
+
+def get_url_filename(url):
+  '''Return filename as string from url by content-disposition or url path, or return None if not found'''
+  try:
+    resp = requests.head(url)
+    resp.raise_for_status()
+    name = get_url_content_disposition(resp.headers)
+    if name is not None:
+      return name
+    name = get_url_path_filename(url)
+    if name is not None:
+      return name
+    return None
+  except requests.exceptions.MissingSchema:
+    logging.error('Requests: MissingSchema: Requires ftp|http(s):// for %s', url)
+  except requests.exceptions.HTTPError:
+    logging.error('Requests: HTTPError: status code %s for %s', str(resp.status_code), url)
+  except requests.exceptions.Timeout:
+    logging.error('Requests: Timeout for %s', url)
+  except requests.exceptions.TooManyRedirects:
+    logging.error('Requests: TooManyRedirects for %s', url)
+  except requests.ConnectionError:
+    logging.error('Requests: ConnectionError for %s', url)
