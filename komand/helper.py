@@ -215,7 +215,8 @@ def encode_file(file_path):
     logging.error('File open error: %s', e.strerror)
     raise Exception('File Open Failed')
   finally:
-    f.close()
+    if type(f) is file:
+      f.close()
   return efile
 
 def check_url_modified(url):
