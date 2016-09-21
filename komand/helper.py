@@ -123,7 +123,7 @@ def open_file(file_path):
   filename = os.path.basename(file_path)
   if os.path.isdir(dirname):
     if os.path.isfile(file_path):
-      f = open(file_path, 'r')
+      f = open(file_path, 'rb')
       return f
     else:
       logging.info('OpenFile: File %s is not a file or does not exist ', filename)
@@ -209,7 +209,7 @@ def exec_command(command):
 def encode_file(file_path):
   '''Return a string of base64 encoded file provided as an absolute file path'''
   try:
-    f = open(file_path, "rb")
+    f = open_file(file_path)
     efile = base64.b64encode(f.read())
   except (IOError, OSError) as e:
     logging.error('File open error: %s', e.strerror)
