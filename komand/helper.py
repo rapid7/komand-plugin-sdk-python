@@ -17,7 +17,7 @@ def extract_value(begin, key, end, s):
 
   Example: The following will use pull out the /bin/bash from the string s
   s = '\nShell: /bin/bash\n'
-  shell = get_value(r'\s', 'Shell', r':\s(.*)\s', s)   
+  shell = get_value(r'\s', 'Shell', r':\s(.*)\s', s)
 
   This function works well when you have a list of keys to iterate through where the pattern is the same.
   '''
@@ -188,12 +188,12 @@ def get_url_content_disposition(headers):
     filename = re.findall("filename=(.+)", headers['content-disposition'])
     return str(filename[0].strip('"'))
   return None
-    
+
 def get_url_path_filename(url):
   '''Return filename from url as string if we have a file extension, otherwise return None.'''
   if url.find('/', 9) == -1:
     return None
-  name = os.path.basename(url)   
+  name = os.path.basename(url)
   try:
     for n in range(-1,-5,-1):
       if name[n].endswith('.'):
