@@ -193,7 +193,7 @@ def encode_file(file_path):
     f = open_file(file_path)
     if type(f) is file:
       efile = base64.b64encode(f.read())
-      return f
+      return efile
     return None
   except (IOError, OSError) as e:
     logging.error('EncodeFile: Failed to open file: %s', e.strerror)
