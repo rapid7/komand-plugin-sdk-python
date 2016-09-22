@@ -91,7 +91,7 @@ def check_cachefile(cache_file):
     cache_file = cache_dir + '/' + cache_file
   if os.path.isdir(cache_dir):
     if os.path.isfile(cache_file):
-      logging.info('CheckCacheFile: File exists', cache_file)
+      logging.info('CheckCacheFile: File %s exists', cache_file)
       return True
     logging.info('CheckCacheFile: File %s did not exist', cache_file)
   return False
