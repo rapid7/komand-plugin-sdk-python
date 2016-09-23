@@ -7,6 +7,7 @@ import requests
 import subprocess
 import os
 import urllib2
+import time
 
 def extract_value(begin, key, end, s):
   '''Returns a string from a given key/pattern using provided regexes
@@ -138,6 +139,38 @@ def remove_cachefile(cache_file):
       os.remove(cache_file)
       return True
     logging.info('RemoveCacheFile: Cache file %s did not exist', cache_file)
+  return False
+
+def lock_cache(lock_file):
+  '''Returns boolean on whether lock was created'''
+  lock_dir  = '/var/cache/lock'
+  if not os.path.isdir(lock_dir):
+    os.makedirs(lock_dir)
+  if not lock_file.startswith('/'):
+    lock_file = lock_dir + '/' + lock_file
+  if os.path.isdir(lock_dir):
+    while os.path.isfile(lock_file):
+      pass
+    if not os.path.isdir(os.path.dirname(lock_file)):
+      os.makedirs(os.path.dirname(lock_file))
+    f = open(lock_file, 'w')
+    logging.info('Cache lock %s created', lock_file)
+    return True
+  logging.info('Cache lock %s failed, lock not created', lock_file)
+  return False
+
+def unlock_cache(lock_file, wait_time):
+  '''Returns boolean on whether lock was released'''
+  '''Wait_time value used to wait before unlocking and is measured in seconds'''
+  lock_dir  = '/var/cache/lock'
+  if not lock_file.startswith('/'):
+    lock_file = lock_dir + '/' + lock_file
+  if os.path.isdir(lock_dir):
+    if os.path.isfile(lock_file):
+      time.sleep(wait_time)
+      os.remove(lock_file)
+      return True
+    logging.info('Cache unlock %s failed, lock not released', lock_file)
   return False
 
 def open_url(url):
