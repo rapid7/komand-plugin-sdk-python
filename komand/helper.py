@@ -68,7 +68,7 @@ def check_hashes(src, checksum):
     hashes = get_hashes_string(src)
   else:
     logging.error('CheckHashes: Argument must be a string')
-    raise Exception('CheckHashes: Failed to check')
+    raise Exception('CheckHashes')
   alg = [ 'md5', 'sha1', 'sha256', 'sha512' ]
   for alg in hashes:
     if hashes[alg] == checksum:
@@ -182,7 +182,7 @@ def open_url(url):
     logging.error('HTTPError: %s for %s', str(e.code), url)
   except urllib2.URLError, e:
     logging.error('URLError: %s for %s', str(e.reason), url)
-  raise Exception('OpenURL Failed')
+  raise Exception('OpenURL')
 
 def check_url(url):
   '''Return boolean on whether we can access url successfully
@@ -218,7 +218,7 @@ def exec_command(command):
      return { 'stdout': stdout, 'stderr': stderr, 'rcode': rcode }
   except OSError as e:
     logging.error('SubprocessError: %s %s: %s', str(e.filename), str(e.strerror), str(e.errno))
-  raise Exception('ExecCommand Failed')
+  raise Exception('ExecCommand')
 
 def encode_file(file_path):
   '''Return a string of base64 encoded file provided as an absolute file path'''
@@ -230,7 +230,7 @@ def encode_file(file_path):
     return None
   except (IOError, OSError) as e:
     logging.error('EncodeFile: Failed to open file: %s', e.strerror)
-    raise Exception('EncodeFile: Failed to open file')
+    raise Exception('EncodeFile')
   finally:
     if type(f) is file:
       f.close()
