@@ -35,7 +35,7 @@ class Task(object):
     def test(self):
         """ Run test """
         try:
-            self._setup()
+            self._setup(True)
             params = {}
             if self.action and self.action.input.parameters:
                 params = self.action.input.parameters
@@ -84,7 +84,7 @@ class Task(object):
         self.dispatcher.write(ok)
 
 
-    def _setup(self):
+    def _setup(self, test_mode=False):
         action_msg = self.msg
 
         if not action_msg:
@@ -102,5 +102,9 @@ class Task(object):
         input = self.action.input
 
         if input:
-            input.set(action_msg.get('input'))
+            try:
+                input.set(action_msg.get('input'))
+            except e: 
+                if not test_mode:
+                    raise
 
