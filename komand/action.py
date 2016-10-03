@@ -104,7 +104,7 @@ class Task(object):
         if input:
             try:
                 input.set(action_msg.get('input'))
-            except e: 
+            except: 
                 if not test_mode:
                     raise
 
