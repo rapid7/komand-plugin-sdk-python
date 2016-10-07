@@ -187,12 +187,21 @@ def open_url(url):
 def check_url(url):
   '''Return boolean on whether we can access url successfully
   We submit an HTTP HEAD request to check the status. This way we don't download the file for performance.
+  If the server doesn't support HEAD we try a Range of bytes so we don't download the entire file.
   '''
   try:
+    '''Try HEAD request first'''
     resp = requests.head(url)
-    resp.raise_for_status()
     if resp.status_code >= 200 and resp.status_code <= 399:
       return True
+
+    '''Try Range request as secondary option'''
+    hrange = {'Range':'bytes=0-2'}
+    req = urllib2.Request(url,headers=hrange)
+    resp = urllib2.urlopen(req)
+    if resp.code >= 200 and resp.code <= 299:
+      return True
+
   except requests.exceptions.HTTPError:
     logging.error('Requests: HTTPError: status code %s for %s', str(resp.status_code), url)
   except requests.exceptions.Timeout:
