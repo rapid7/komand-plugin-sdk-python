@@ -124,7 +124,7 @@ def open_cachefile(cache_file):
     else:
       if not os.path.isdir(os.path.dirname(cache_file)):
         os.makedirs(os.path.dirname(cache_file))
-      f = open(cache_file, 'w')
+      f = open(cache_file, 'w+')
       logging.info('OpenCacheFile: %s created', cache_file)
     return f
   logging.error('OpenCacheFile: %s directory or does not exist', cache_dir)
