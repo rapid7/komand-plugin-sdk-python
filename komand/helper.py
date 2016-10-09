@@ -173,10 +173,14 @@ def unlock_cache(lock_file, wait_time):
     logging.info('Cache unlock %s failed, lock not released', lock_file)
   return False
 
-def open_url(url):
+def open_url(url, **kwargs):
   '''Return url object given a URL as a string'''
+  req = urllib2.Request(url)
+  if type(kwargs) is dict:
+    for header in kwargs:
+      req.add_header(header, kwargs[header])
   try:
-    resp = urllib2.urlopen(url)
+    resp = urllib2.urlopen(req)
     return resp
   except urllib2.HTTPError, e:
     logging.error('HTTPError: %s for %s', str(e.code), url)
