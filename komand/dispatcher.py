@@ -22,5 +22,5 @@ class Http(object):
         logging.info('Using dispatcher config: %s', config)
 
     def write(self, msg):
-        r = requests.post(self.url, data=msg)
+        r = requests.post(self.url, json=msg)
         logging.info('POST %s returned %s', self.url, r.content)
