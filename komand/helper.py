@@ -4,6 +4,7 @@ import logging
 import json
 import re
 import requests
+import ssl
 import subprocess
 import os
 import urllib2
@@ -173,20 +174,34 @@ def unlock_cache(lock_file, wait_time):
     logging.info('Cache unlock %s failed, lock not released', lock_file)
   return False
 
-def open_url(url, **kwargs):
-  '''Return url object given a URL as a string'''
+def open_url(url, timeout=None, verify=True, **kwargs):
+  '''Returns a urllib2 object given a URL as a string
+  Optional parameters include
+  * timeout - Timeout value for request as int
+  * verify  - Certificate validation as boolean
+  * headers - Add many headers as Header_Name='Val', Header_Name2='Val2'
+  '''
   req = urllib2.Request(url)
   if type(kwargs) is dict:
-    for header in kwargs:
-      req.add_header(header, kwargs[header])
+    for key in kwargs.keys():
+      header = key.replace('_', '-')
+      req.add_header(header, kwargs[key])
   try:
-    resp = urllib2.urlopen(req)
-    return resp
+    if verify:
+      urlobj = urllib2.urlopen(req, timeout=timeout)
+    else:
+      ctx = ssl.create_default_context()
+      ctx.check_hostname = False
+      ctx.verify_mode = ssl.CERT_NONE
+      urlobj = urllib2.urlopen(req, timeout=timeout, context=ctx)
+    return urlobj
   except urllib2.HTTPError, e:
     logging.error('HTTPError: %s for %s', str(e.code), url)
+    if e.code == 304:
+      return None
   except urllib2.URLError, e:
     logging.error('URLError: %s for %s', str(e.reason), url)
-  raise Exception('OpenURL')
+  raise Exception('GetURL Failed')
 
 def check_url(url):
   '''Return boolean on whether we can access url successfully
