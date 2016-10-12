@@ -100,7 +100,7 @@ def check_cachefile(cache_file):
 
 def open_file(file_path):
   '''Return file object if it exists'''
-  dirname = os.path.dirname(file_path)
+  dirname  = os.path.dirname(file_path)
   filename = os.path.basename(file_path)
   if os.path.isdir(dirname):
     if os.path.isfile(file_path):
@@ -247,6 +247,13 @@ def exec_command(command):
   except OSError as e:
     logging.error('SubprocessError: %s %s: %s', str(e.filename), str(e.strerror), str(e.errno))
   raise Exception('ExecCommand')
+
+def encode_string(s):
+  '''Returns a base64 encoded string given a string'''
+  if type(s) is str:
+    _bytes = base64.b64encode(s)
+    return _bytes
+  return None
 
 def encode_file(file_path):
   '''Return a string of base64 encoded file provided as an absolute file path'''
