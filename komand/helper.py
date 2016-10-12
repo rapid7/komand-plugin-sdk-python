@@ -248,6 +248,13 @@ def exec_command(command):
     logging.error('SubprocessError: %s %s: %s', str(e.filename), str(e.strerror), str(e.errno))
   raise Exception('ExecCommand')
 
+def encode_string(s):
+  '''Returns a base64 encoded string given a string'''
+  if type(s) is str:
+    _bytes = base64.b64encode(s)
+    return _bytes
+  return None
+
 def encode_file(file_path):
   '''Return a string of base64 encoded file provided as an absolute file path'''
   try:
