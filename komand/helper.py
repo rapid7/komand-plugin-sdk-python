@@ -100,7 +100,7 @@ def check_cachefile(cache_file):
 
 def open_file(file_path):
   '''Return file object if it exists'''
-  dirname = os.path.dirname(file_path)
+  dirname  = os.path.dirname(file_path)
   filename = os.path.basename(file_path)
   if os.path.isdir(dirname):
     if os.path.isfile(file_path):
