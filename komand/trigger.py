@@ -4,6 +4,7 @@ import helper
 import logging
 import variables
 import sys
+import inspect
 
 class Trigger(object):
     """A trigger"""
@@ -54,7 +55,13 @@ class Task(object):
             if self.trigger and self.trigger.input.parameters:
                 params = self.trigger.input.parameters
 
-            output = self.trigger.test(params)
+            args = inspect.getargspec(self.trigger.test).args
+
+            if len(args) == 1:
+                output = self.trigger.test()
+            else:
+                output = self.trigger.test(params)
+
         except Exception as e:
             logging.exception('trigger test failure: %s', e)
             return False

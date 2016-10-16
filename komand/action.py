@@ -3,6 +3,7 @@ import dispatcher
 import helper
 import logging
 import sys
+import inspect
 
 class Action(object):
     """A action"""
@@ -36,11 +37,13 @@ class Task(object):
         """ Run test """
         try:
             self._setup(True)
-            params = {}
-            if self.action and self.action.input.parameters:
-                params = self.action.input.parameters
+            args = inspect.getargspec(self.action.test).args
 
-            output = self.action.test(params)
+            if len(args) == 1:
+                output = self.action.test()
+            else:
+                output = self.action.test({})
+
             schema = self.action.output
     
             if schema:
