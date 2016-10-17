@@ -10,7 +10,7 @@ def default_for_object(obj, defs):
     if not obj.get('properties'):
         return defaults
 
-    for key, prop in obj['properties'].iteritems():
+    for key, prop in obj['properties'].items():
         defaults[key] = default_for(prop, defs)
     return defaults
 
@@ -65,12 +65,12 @@ def sample(source):
     if source.get('definitions'):
         schema['definitions'] = source['definitions']
 
-        for key, defin in source['definitions'].iteritems():
+        for key, defin in source['definitions'].items():
             definitions['#/definitions/' + key] = defin
 
     defaults = default_for_object(source, definitions)
 
-    for key, prop in source['properties'].iteritems():
+    for key, prop in source['properties'].items():
         prop = copy.copy(prop)
         schema['properties'][key] = prop
         schema['required'].append(key)

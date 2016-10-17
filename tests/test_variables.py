@@ -1,5 +1,5 @@
 import unittest
-from StringIO import StringIO
+from io import StringIO
 import sys, os
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -22,8 +22,8 @@ class TestMessage(unittest.TestCase):
        }
        }
 
-      input = komand.Input(schema)
-      print input.sample()
+      i = komand.Input(schema)
+      print(i.sample())
 
 
 if __name__ == '__main__':

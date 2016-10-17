@@ -1,9 +1,13 @@
-import message
-import action
-import trigger
+import komand.message as message
+import komand.action as action
+import komand.trigger as trigger
 import sys
-import dispatcher
-import StringIO
+import komand.dispatcher as dispatcher
+
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
 
 
 class Plugin(object):
@@ -39,7 +43,7 @@ class Plugin(object):
         """Run the plugin."""
         input = sys.stdin
         if msg:
-            input = StringIO.StringIO(msg)
+            input = StringIO(msg)
 
         msg = message.unmarshal(input)
         runner = self._lookup(msg)
@@ -52,7 +56,7 @@ class Plugin(object):
         """Test the plugin."""
         input = sys.stdin
         if msg:
-            input = StringIO.StringIO(msg)
+            input = StringIO(msg)
 
         msg = message.unmarshal(input)
 
