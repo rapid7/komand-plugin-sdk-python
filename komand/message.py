@@ -1,6 +1,6 @@
 import sys
 import json
-import util
+import komand.util as util
 
 
 # version
@@ -59,28 +59,28 @@ def ActionError(meta={}, error=''):
 def validateTriggerStart(body):
     if not body:
         raise Exception('No body: %s' % body)
-    if not body.has_key('trigger'):
+    if not 'trigger' in body:
         raise Exception('Missing trigger in %s' % body)
 
-    if not body.has_key('connection'):
+    if not 'connection' in body:
         body['connection'] = {}
-    if not body.has_key('dispatcher'):
+    if not 'dispatcher' in body:
         body['dispatcher'] = {}
-    if not body.has_key('input'):
+    if not 'input' in body:
         body['input'] = {}
 
 
 def validateActionStart(body):
     if not body:
         raise Exception('No body: %s' % body)
-    if not body.has_key('action'):
+    if not 'action' in body:
         raise Exception('Missing action in %s' % body)
 
-    if not body.has_key('connection'):
+    if not 'connection' in body:
         body['connection'] = {}
-    if not body.has_key('dispatcher'):
+    if not 'dispatcher' in body:
         body['dispatcher'] = {}
-    if not body.has_key('input'):
+    if not 'input' in body:
         body['input'] = {}
 
 
@@ -103,7 +103,7 @@ def unmarshal(fd=sys.stdin):
     try:
         msg = json.load(fd)
     except Exception as e:
-        raise Exception("Invalid message json: %s" % e), None, util.trace(e)
+        raise Exception("Invalid message json: %s" % e)
 
     validate(msg)
     return msg
@@ -111,18 +111,18 @@ def unmarshal(fd=sys.stdin):
 
 def validate(msg):
     """Validate the message is good"""
-    if not msg.has_key('version'):
+    if not 'version' in msg:
         raise Exception("No message version: %s" % msg)
     if msg['version'] != VERSION:
         raise Exception("Invalid version: %s in %s" % (msg['version'], msg))
 
-    if not msg.has_key('type'):
+    if not 'type' in msg:
         raise Exception("No message type: %s" % msg)
 
     if not msg['type'] in valid_types:
         raise Exception("Invalid type: %s in %s" % (msg['type'], msg))
 
-    if not msg.has_key('body'):
+    if not 'body' in msg:
         raise Exception("No message body: %s" % msg)
 
     validators[msg['type']](msg['body'])

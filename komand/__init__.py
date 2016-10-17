@@ -1,12 +1,16 @@
 __all__ = ['message', 'plugin', 'connection', 'trigger', 'action', 'variables', 'cli', 'helper']
 
+import komand.plugin
 
-import plugin, action, trigger, connection, cli
+import komand.action
+import komand.trigger 
+import komand.connection
+import komand.cli
 
-Plugin = plugin.Plugin
-Action = action.Action
-Trigger = trigger.Trigger
-Connection = connection.Connection
-Input = variables.Input
-Output = variables.Output
-CLI = cli.CLI
+Plugin = komand.plugin.Plugin
+Action = komand.action.Action
+Trigger = komand.trigger.Trigger
+Connection = komand.connection.Connection
+Input = komand.variables.Input
+Output = komand.variables.Output
+CLI = komand.cli.CLI

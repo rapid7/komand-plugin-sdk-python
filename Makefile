@@ -9,13 +9,13 @@ image:
 all: build test
 
 build:
-	python setup.py build 
+	python3 setup.py build 
 
 install:
-	python setup.py install
+	python3 setup.py install
 
 test:
-	python setup.py test
+	python3 setup.py test
 
 tag: image
 	@echo version is $(VERSION)

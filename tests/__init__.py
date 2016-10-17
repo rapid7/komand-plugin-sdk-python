@@ -1,7 +1,7 @@
 import unittest
-import test_message
-import test_action
-import test_variables
+import tests.test_message
+import tests.test_action
+import tests.test_variables
 
 def komand_test_suite():
     testmodules = [

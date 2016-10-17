@@ -1,4 +1,4 @@
-import message 
+import komand.message  as message
 import sys
 import logging
 import requests
