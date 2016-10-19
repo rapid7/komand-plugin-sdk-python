@@ -129,8 +129,8 @@ class CLI(object):
         else:
             logging.basicConfig(level=logging.INFO)
 
-        if not args.func:
-            args.func = self._run
+        if not hasattr(args, 'func') or not args.func:
+            return parser.print_help() 
 
         args.func(args)
 
