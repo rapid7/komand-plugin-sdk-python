@@ -174,7 +174,7 @@ def unlock_cache(lock_file, wait_time):
     logging.info('Cache unlock %s failed, lock not released', lock_file)
   return False
 
-def open_url(url, timeout=None, verify=True, **kwargs):
+def open_url(url, timeout=None, verify=True, data=None, **kwargs):
   '''Returns a urllib2 object given a URL as a string
   Optional parameters include
   * timeout - Timeout value for request as int
@@ -188,12 +188,12 @@ def open_url(url, timeout=None, verify=True, **kwargs):
       req.add_header(header, kwargs[key])
   try:
     if verify:
-      urlobj = urllib2.urlopen(req, timeout=timeout)
+      urlobj = urllib2.urlopen(req, timeout=timeout, data=data)
     else:
       ctx = ssl.create_default_context()
       ctx.check_hostname = False
       ctx.verify_mode = ssl.CERT_NONE
-      urlobj = urllib2.urlopen(req, timeout=timeout, context=ctx)
+      urlobj = urllib2.urlopen(req, timeout=timeout, context=ctx, data=data)
     return urlobj
   except urllib2.HTTPError, e:
     logging.error('HTTPError: %s for %s', str(e.code), url)
