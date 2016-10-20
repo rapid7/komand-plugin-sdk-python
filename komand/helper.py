@@ -179,7 +179,8 @@ def open_url(url, timeout=None, verify=True, data=None, **kwargs):
   Optional parameters include
   * timeout - Timeout value for request as int
   * verify  - Certificate validation as boolean
-  * headers - Add many headers as Header_Name='Val', Header_Name2='Val2'
+  * data    - Data for POST requests
+  * headers - Add many headers as kwargs: Header_Name='Val', Header_Name2='Val2'
   '''
   req = urllib.request.Request(url)
   if type(kwargs) is dict:
