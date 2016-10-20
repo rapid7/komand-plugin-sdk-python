@@ -2,7 +2,7 @@
 
 import sys
 import argparse
-import message
+import komand.message as message
 import logging
 
 GREEN = '\033[92m'
@@ -82,14 +82,14 @@ class CLI(object):
             result += '\n'
             result += ('Triggers (%s%d%s): \n') % (GREEN, len(self.plugin.triggers), RESET)
 
-            for name, item in self.plugin.triggers.iteritems():
+            for name, item in self.plugin.triggers.items():
                 result += ('└── %s%s%s (%s%s)\n') % (GREEN, name, RESET, item.description, RESET)
 
         if len(self.plugin.actions) > 0:
             result += '\n'
             result += ('Actions (%s%d%s): \n') % (GREEN, len(self.plugin.actions), RESET)
 
-            for name, item in self.plugin.actions.iteritems():
+            for name, item in self.plugin.actions.items():
                 result += ('└── %s%s%s (%s%s)\n') % (GREEN, name, RESET, item.description, RESET)
 
         print(result)
@@ -129,8 +129,8 @@ class CLI(object):
         else:
             logging.basicConfig(level=logging.INFO)
 
-        if not args.func:
-            args.func = self._run
+        if not hasattr(args, 'func') or not args.func:
+            return parser.print_help() 
 
         args.func(args)
 

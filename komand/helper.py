@@ -7,7 +7,7 @@ import requests
 import ssl
 import subprocess
 import os
-import urllib2
+import urllib.request
 import time
 
 def extract_value(begin, key, end, s):
@@ -181,7 +181,7 @@ def open_url(url, timeout=None, verify=True, data=None, **kwargs):
   * verify  - Certificate validation as boolean
   * headers - Add many headers as Header_Name='Val', Header_Name2='Val2'
   '''
-  req = urllib2.Request(url)
+  req = urllib.request.Request(url)
   if type(kwargs) is dict:
     for key in kwargs.keys():
       header = key.replace('_', '-')
@@ -195,11 +195,11 @@ def open_url(url, timeout=None, verify=True, data=None, **kwargs):
       ctx.verify_mode = ssl.CERT_NONE
       urlobj = urllib2.urlopen(req, timeout=timeout, context=ctx, data=data)
     return urlobj
-  except urllib2.HTTPError, e:
+  except urllib.request.HTTPError as e:
     logging.error('HTTPError: %s for %s', str(e.code), url)
     if e.code == 304:
       return None
-  except urllib2.URLError, e:
+  except urllib.request.URLError as e:
     logging.error('URLError: %s for %s', str(e.reason), url)
   raise Exception('GetURL Failed')
 
@@ -216,8 +216,8 @@ def check_url(url):
 
     '''Try Range request as secondary option'''
     hrange = {'Range':'bytes=0-2'}
-    req = urllib2.Request(url,headers=hrange)
-    resp = urllib2.urlopen(req)
+    req = urllib.request.Request(url,headers=hrange)
+    resp = urllib.request.urlopen(req)
     if resp.code >= 200 and resp.code <= 299:
       return True
 

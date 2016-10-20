@@ -1,5 +1,5 @@
 from jsonschema import validate
-import util
+import komand.util as util
 
 
 class Input(object):
