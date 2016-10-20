@@ -174,12 +174,13 @@ def unlock_cache(lock_file, wait_time):
     logging.info('Cache unlock %s failed, lock not released', lock_file)
   return False
 
-def open_url(url, timeout=None, verify=True, **kwargs):
-  '''Returns a urllib.request object given a URL as a string
+def open_url(url, timeout=None, verify=True, data=None, **kwargs):
+  '''Returns a urllib2 object given a URL as a string
   Optional parameters include
   * timeout - Timeout value for request as int
   * verify  - Certificate validation as boolean
-  * headers - Add many headers as Header_Name='Val', Header_Name2='Val2'
+  * data    - Data for POST requests
+  * headers - Add many headers as kwargs: Header_Name='Val', Header_Name2='Val2'
   '''
   req = urllib.request.Request(url)
   if type(kwargs) is dict:
@@ -188,12 +189,12 @@ def open_url(url, timeout=None, verify=True, **kwargs):
       req.add_header(header, kwargs[key])
   try:
     if verify:
-      urlobj = urllib.request.urlopen(req, timeout=timeout)
+      urlobj = urllib2.urlopen(req, timeout=timeout, data=data)
     else:
       ctx = ssl.create_default_context()
       ctx.check_hostname = False
       ctx.verify_mode = ssl.CERT_NONE
-      urlobj = urllib.request.urlopen(req, timeout=timeout, context=ctx)
+      urlobj = urllib2.urlopen(req, timeout=timeout, context=ctx, data=data)
     return urlobj
   except urllib.request.HTTPError as e:
     logging.error('HTTPError: %s for %s', str(e.code), url)
