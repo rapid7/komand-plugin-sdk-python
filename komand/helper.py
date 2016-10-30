@@ -113,20 +113,23 @@ def open_file(file_path):
   else:
     logging.error('OpenFile: Directory %s is not a directory or does not exist', dirname)
 
-def open_cachefile(cache_file):
+
+def open_cachefile(cache_file, append=False):
+  import os
   '''Return file object if cachefile exists, create and return new cachefile if it doesn't exist'''
-  cache_dir  = '/var/cache'
+  cache_dir = '/var/cache'
   if cache_dir not in cache_file:
     cache_file = cache_dir + '/' + cache_file
   if os.path.isdir(cache_dir):
     if os.path.isfile(cache_file):
-      f = open(cache_file, 'r+')
+      f = open(cache_file, 'a+' if append else 'r+')
       logging.info('OpenCacheFile: %s exists, returning it', cache_file)
     else:
       if not os.path.isdir(os.path.dirname(cache_file)):
         os.makedirs(os.path.dirname(cache_file))
-      f = open(cache_file, 'w+')
+      open(cache_file, 'w+')  # Open once to create the cache file
       logging.info('OpenCacheFile: %s created', cache_file)
+      f = open(cache_file, 'a+' if append else 'r+')
     return f
   logging.error('OpenCacheFile: %s directory or does not exist', cache_dir)
 
