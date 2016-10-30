@@ -115,7 +115,6 @@ def open_file(file_path):
 
 
 def open_cachefile(cache_file, append=False):
-  import os
   '''Return file object if cachefile exists, create and return new cachefile if it doesn't exist'''
   cache_dir = '/var/cache'
   if cache_dir not in cache_file:
