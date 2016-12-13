@@ -34,7 +34,7 @@ class CLI(object):
         if trig:
             conn = self.plugin.connection
             input = trig.input
-            dispatcher = { 'url': 'http://localhost:8000' }
+            dispatcher = { 'url': 'http://localhost:8000', 'webhook_url': '' }
 
             if conn:
                 conn = conn.sample()

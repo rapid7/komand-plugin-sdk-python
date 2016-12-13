@@ -15,6 +15,7 @@ class Trigger(object):
         self._sender = None
         self.input = input
         self.output = output
+        self.webhook_url = ''
 
     def send(self, event):
         schema = self.output
@@ -40,6 +41,7 @@ class Task(object):
         self.msg = msg
         self.dispatcher = dispatch
         self.meta = None
+        self.debug = False
 
     def send(self, output):
         msg = message.TriggerEvent(meta=self.meta, output=output)
@@ -47,7 +49,7 @@ class Task(object):
 
     def test(self):
         """ Run test """
-        dispatch = dispatcher.Stdout()
+        dispatch = dispatcher.Stdout(self.msg.get('dispatcher') or {})
 
         try:
             self._setup(False)
@@ -94,9 +96,14 @@ class Task(object):
             raise ValueError('No trigger input to trigger task')
 
         if not self.dispatcher:
-            self.dispatcher = dispatcher.Http(trigger_msg.get('dispatcher') or {})
+            if self.debug:
+                self.dispatcher = dispatcher.Stdout(trigger_msg.get('dispatcher') or {})
+            else:
+                self.dispatcher = dispatcher.Http(trigger_msg.get('dispatcher') or {})
 
         self.meta = trigger_msg.get('meta') or {}
+
+        self.trigger.webhook_url = self.dispatcher.webhook_url or ''
 
         if self.connection:
             params = (trigger_msg.get('connection') or {})

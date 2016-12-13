@@ -13,6 +13,7 @@ class Action(object):
         self.input = input 
         self.output = output
         self.connection = None
+        self.debug = False
 
     def run(self, params={}):
         """ Run a action, return output or raise error """

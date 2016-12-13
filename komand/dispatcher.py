@@ -5,6 +5,12 @@ import requests
 
 class Stdout(object):
     """ stdout dispatcher """
+    def __init__(self, config={}):
+        self.webhook_url = config.get('webhook_url')
+
+        logging.info('Using dispatcher config: %s', config)
+
+
     def write(self, msg):
         message.marshal(msg, sys.stdout)
 
@@ -18,6 +24,7 @@ class Http(object):
             raise ValueError('missing HTTP dispatcher config url')
 
         self.url = config['url']
+        self.webhook_url = config.get('webhook_url')
 
         logging.info('Using dispatcher config: %s', config)
 
