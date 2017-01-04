@@ -48,7 +48,7 @@ class Plugin(object):
         msg = message.unmarshal(input)
         runner = self._lookup(msg)
         if self.debug:
-            runner.dispatcher = dispatcher.Stdout()
+            runner.debug = True
 
         runner.run()
 
