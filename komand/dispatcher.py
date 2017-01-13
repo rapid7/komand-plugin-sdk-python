@@ -8,9 +8,6 @@ class Stdout(object):
     def __init__(self, config={}):
         self.webhook_url = config.get('webhook_url')
 
-        logging.info('Using dispatcher config: %s', config)
-
-
     def write(self, msg):
         message.marshal(msg, sys.stdout)
 
