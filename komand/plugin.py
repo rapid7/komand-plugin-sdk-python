@@ -13,7 +13,7 @@ except ImportError:
 class Plugin(object):
     """An Komand Plugin."""
 
-    def __init__(self, name='', vendor='', description='', version='', connection=None):
+    def __init__(self, name='', vendor='', description='', version='', connection=None, custom_encoder=None, custom_decoder=None):
         self.name = name
         self.vendor = vendor
         self.description = description
@@ -22,8 +22,8 @@ class Plugin(object):
         self.triggers = {}
         self.actions = {}
         self.debug = False
-        self.custom_decoder = None
-        self.custom_encoder = None
+        self.custom_decoder = custom_decoder
+        self.custom_encoder = custom_encoder
 
     def _lookup(self, msg):
         if msg['type'] == message.TRIGGER_START:

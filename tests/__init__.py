@@ -2,12 +2,14 @@ import unittest
 import tests.test_message
 import tests.test_action
 import tests.test_variables
+import tests.test_custom_encoder
 
 def komand_test_suite():
     testmodules = [
         test_message,
         test_action,
         test_variables,
+        test_custom_encoder,
         ]
 
     suite = unittest.TestSuite()
