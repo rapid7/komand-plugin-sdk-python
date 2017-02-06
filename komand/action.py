@@ -26,7 +26,12 @@ class Action(object):
 
 class Task(object):
     """Task to run or test an action"""
-    def __init__(self, connection, action, msg, dispatch=dispatcher.Stdout()):
+    def __init__(self, connection, action, msg, dispatch=None, custom_encoder=None, custom_decoder=None):
+        if dispatch is None:
+            dispatch = dispatcher.Stdout({
+                "custom_encoder": custom_encoder,
+                "custom_decoder":custom_decoder
+            })
         self.connection = connection
         self.action = action
         self.msg = msg

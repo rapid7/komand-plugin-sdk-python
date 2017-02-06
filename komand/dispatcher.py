@@ -7,9 +7,11 @@ class Stdout(object):
     """ stdout dispatcher """
     def __init__(self, config={}):
         self.webhook_url = config.get('webhook_url')
+        self.custom_encoder = config.get("custom_encoder")
+        self.custom_decoder = config.get("custom_decoder")
 
     def write(self, msg):
-        message.marshal(msg, sys.stdout)
+        message.marshal(msg, sys.stdout, ce=self.custom_encoder)
 
 class Http(object):
     """ HTTP dispatcher """
@@ -22,6 +24,8 @@ class Http(object):
 
         self.url = config['url']
         self.webhook_url = config.get('webhook_url')
+        self.custom_encoder = config.get("custom_encoder")
+        self.custom_decoder = config.get("custom_decoder")
 
         logging.info('Using dispatcher config: %s', config)
 

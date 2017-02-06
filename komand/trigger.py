@@ -35,11 +35,13 @@ class Trigger(object):
 
 class Task(object):
     """Task to run or test an trigger"""
-    def __init__(self, connection, trigger, msg, dispatch=None):
-        self.connection = connection 
+    def __init__(self, connection, trigger, msg, dispatch=None, custom_encoder=None, custom_decoder=None):
+        self.connection = connection
         self.trigger = trigger
         self.msg = msg
         self.dispatcher = dispatch
+        self.custom_encoder = custom_encoder
+        self.custom_decoder = custom_decoder
         self.meta = None
         self.debug = False
 
@@ -49,7 +51,10 @@ class Task(object):
 
     def test(self):
         """ Run test """
-        dispatch = dispatcher.Stdout(self.msg.get('dispatcher') or {})
+        dispatch = dispatcher.Stdout(self.msg.get('dispatcher') or {
+            "custom_encoder": self.custom_encoder,
+            "custom_decoder": self.custom_decoder,
+        })
 
         try:
             self._setup(False)
@@ -91,15 +96,18 @@ class Task(object):
 
     def _setup(self, validate=True):
         trigger_msg = self.msg
-
+        dparams = {
+            "custom_encoder": self.custom_encoder,
+            "custom_decoder": self.custom_decoder,
+        }
         if not trigger_msg:
             raise ValueError('No trigger input to trigger task')
 
         if not self.dispatcher:
             if self.debug:
-                self.dispatcher = dispatcher.Stdout(trigger_msg.get('dispatcher') or {})
+                self.dispatcher = dispatcher.Stdout(trigger_msg.get('dispatcher') or dparams)
             else:
-                self.dispatcher = dispatcher.Http(trigger_msg.get('dispatcher') or {})
+                self.dispatcher = dispatcher.Http(trigger_msg.get('dispatcher') or dparams)
 
         self.meta = trigger_msg.get('meta') or {}
 
