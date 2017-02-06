@@ -19,7 +19,7 @@ class MyConnection(komand.Connection):
     def __init__(self):
         super(self.__class__, self).__init__(self.schema)
     
-    def connect(self):
+    def connect(self, params={}):
         return None
 
 class StupidActionInput(komand.Input):

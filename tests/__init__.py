@@ -5,10 +5,10 @@ import tests.test_variables
 
 def komand_test_suite():
     testmodules = [
-            test_message,
-            test_action,
-            test_variables,
-            ]
+        test_message,
+        test_action,
+        test_variables,
+        ]
 
     suite = unittest.TestSuite()
 
