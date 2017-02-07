@@ -51,10 +51,10 @@ class Task(object):
 
     def test(self):
         """ Run test """
-        dispatch = dispatcher.Stdout(self.msg.get('dispatcher') or {
-            "custom_encoder": self.custom_encoder,
-            "custom_decoder": self.custom_decoder,
-        })
+        dparams = self.msg.get('dispatcher', {})
+        dparams["custom_encoder"] = self.custom_encoder
+        dparams["custom_decover"] = self.custom_decoder
+        dispatch = dispatcher.Stdout(dparams)
 
         try:
             self._setup(False)
@@ -96,18 +96,18 @@ class Task(object):
 
     def _setup(self, validate=True):
         trigger_msg = self.msg
-        dparams = {
-            "custom_encoder": self.custom_encoder,
-            "custom_decoder": self.custom_decoder,
-        }
+        tparams = trigger_msg.get('dispatcher', {})
+        tparams["custom_encoder"] = self.custom_encoder
+        tparams["custom_decoder"] = self.custom_decoder
+
         if not trigger_msg:
             raise ValueError('No trigger input to trigger task')
 
         if not self.dispatcher:
             if self.debug:
-                self.dispatcher = dispatcher.Stdout(trigger_msg.get('dispatcher') or dparams)
+                self.dispatcher = dispatcher.Stdout(tparams)
             else:
-                self.dispatcher = dispatcher.Http(trigger_msg.get('dispatcher') or dparams)
+                self.dispatcher = dispatcher.Http(tparams)
 
         self.meta = trigger_msg.get('meta') or {}
 
