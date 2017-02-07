@@ -6,8 +6,20 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from komand import action 
 import komand
+import json
+import decimal
 
-class MyConnection(komand.Connection):
+class DecimalEncoder(json.JSONEncoder):
+    def default(self, o):
+        if isinstance(o, decimal.Decimal):
+            if o % 1 > 0:
+                # This is potentially dangerous - it seems simplejson treats these as strings
+                return float(o)
+            else:
+                return int(o)
+        return super(DecimalEncoder, self).default(o)
+
+class CustomEncoderConnection(komand.Connection):
     schema = {
             "type" : "object",
             "properties" : {
@@ -22,7 +34,7 @@ class MyConnection(komand.Connection):
     def connect(self, params={}):
         return None
 
-class StupidActionInput(komand.Input):
+class CustomEncoderActionInput(komand.Input):
     schema = {
             "type" : "object",
             "properties" : {
@@ -33,7 +45,7 @@ class StupidActionInput(komand.Input):
     def __init__(self):
         super(self.__class__, self).__init__(schema=self.schema)
 
-class StupidActionOutput(komand.Output):
+class CustomEncoderActionOutput(komand.Output):
     schema = {
             "type" : "object",
             "required": ["price", "name"],
@@ -47,33 +59,32 @@ class StupidActionOutput(komand.Output):
         super(self.__class__, self).__init__(schema=self.schema)
 
 
-class StupidAction(action.Action):
+class CustomEncoderAction(action.Action):
     def __init__(self):
         super(self.__class__, self).__init__(
                 'stupid', 
                 'an action',
-                StupidActionInput(), 
-                StupidActionOutput(),
+                CustomEncoderActionInput(), 
+                CustomEncoderActionOutput(),
                 )
 
     def run(self):
-        return { 'price': 1100, 'name': 'Jon' }
+        return { 'price': decimal.Decimal('1100.0'), 'name': 'Jon' }
 
     def test(self):
-        return { 'price': 100, 'name': 'Jon' }
+        return { 'price': decimal.Decimal('1.1'), 'name': 'Jon' }
 
 class TestActionRunner(unittest.TestCase):
 
-    def test_action_test_succeeds(self):
-
-        task = action.Task(MyConnection(), StupidAction(), { 
+    def test_custom_encoder_action_succeeds(self):
+        task = action.Task(CustomEncoderConnection(), CustomEncoderAction(), { 
             'body': { 'action': 'stupid', 
                 'input': {
                     'greeting': 'hello'
                     },
                 'meta': { 'action_id': 12345 }, 
                 }
-            })
+            }, custom_encoder=DecimalEncoder)
 
         task.test()
 

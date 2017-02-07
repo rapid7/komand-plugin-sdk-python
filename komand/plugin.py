@@ -13,29 +13,35 @@ except ImportError:
 class Plugin(object):
     """An Komand Plugin."""
 
-    def __init__(self, name='', vendor='', description='', version='', connection=None):
-        self.name = name 
-        self.vendor = vendor 
-        self.description = description 
-        self.version = version 
+    def __init__(self, name='', vendor='', description='', version='', connection=None, custom_encoder=None, custom_decoder=None):
+        self.name = name
+        self.vendor = vendor
+        self.description = description
+        self.version = version
         self.connection = connection
         self.triggers = {}
         self.actions = {}
         self.debug = False
+        self.custom_decoder = custom_decoder
+        self.custom_encoder = custom_encoder
 
     def _lookup(self, msg):
         if msg['type'] == message.TRIGGER_START:
             trig = self._trigger(msg['body'])
             return trigger.Task(
-                    connection=self.connection, 
-                    trigger=trig, 
-                    msg=msg['body']) 
+                connection=self.connection,
+                trigger=trig,
+                msg=msg['body'],
+                custom_encoder=self.custom_encoder,
+                custom_decoder=self.custom_decoder)
         elif msg['type'] == message.ACTION_START:
             act = self._action(msg['body'])
             return action.Task(
-                    connection=self.connection, 
-                    action=act, 
-                    msg=msg['body']) 
+                connection=self.connection,
+                action=act,
+                msg=msg['body'],
+                custom_encoder=self.custom_encoder,
+                custom_decoder=self.custom_decoder)
         else:
             raise Exception("Invalid message type:" + msg.Type)
 
@@ -45,7 +51,7 @@ class Plugin(object):
         if msg:
             input = StringIO(msg)
 
-        msg = message.unmarshal(input)
+        msg = message.unmarshal(input, cd=self.custom_decoder)
         runner = self._lookup(msg)
         if self.debug:
             runner.debug = True
@@ -58,7 +64,7 @@ class Plugin(object):
         if msg:
             input = StringIO(msg)
 
-        msg = message.unmarshal(input)
+        msg = message.unmarshal(input, cd=self.custom_decoder)
 
         if not msg:
             msg = message.unmarshal(sys.stdin)

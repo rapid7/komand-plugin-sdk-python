@@ -89,19 +89,29 @@ validators = {
     ACTION_START:  validateActionStart,
 }
 
-def marshal(msg, fd=sys.stdout):
+def marshal(msg, fd=sys.stdout, ce=None):
     """ Marshal a message to fd"""
-    json.dump(msg, fd)
+    if ce is None:
+        json.dump(msg, fd)
+    else:
+        json.dump(msg, fd, cls=ce)
     fd.flush()
 
-def marshal_string(msg):
+def marshal_string(msg, ce=None):
     """ Marshal a message to a string"""
-    return json.dumps(msg)
+    if ce is None:
+        return json.dumps(msg)
+    else:
+        return json.dumps(msg, cls=ce)
 
-def unmarshal(fd=sys.stdin):
+def unmarshal(fd=sys.stdin, cd=None):
     """Unmarshals a message"""
     try:
-        msg = json.load(fd)
+        msg = None
+        if cd is None:
+            msg = json.load(fd)
+        else:
+            msg = json.load(fd, cls=cd)
     except Exception as e:
         raise Exception("Invalid message json: %s" % e)
 

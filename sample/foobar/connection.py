@@ -17,7 +17,7 @@ class Connection(komand.Connection):
     def __init__(self):
         super(self.__class__, self).__init__(self.schema)
         
-    def connect(self):
+    def connect(self, params={}):
         """ No-op"""
         logging.info("connecting")
 
