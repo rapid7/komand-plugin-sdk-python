@@ -5,6 +5,8 @@ import logging
 import sys
 import inspect
 
+from io import StringIO
+
 class Action(object):
     """A action"""
     def __init__(self, name, description, input, output):
@@ -14,6 +16,22 @@ class Action(object):
         self.output = output
         self.connection = None
         self.debug = False
+
+    def setupLogger(self):
+        self.stream = StringIO()
+        self.handler = logging.StreamHandler(self.stream)
+
+        self.logger = logging.getLogger(self.name)
+        if self.debug:
+            self.logger.setLevel(logging.DEBUG)
+        else:
+            self.logger.setLevel(logging.INFO)
+        self.logger.addHandler(self.handler)
+  
+    def logs(self):
+        """ Get logs from action """
+        self.handler.flush()
+        return self.stream.getvalue()
 
     def run(self, params={}):
         """ Run a action, return output or raise error """
@@ -26,16 +44,17 @@ class Action(object):
 
 class Task(object):
     """Task to run or test an action"""
-    def __init__(self, connection, action, msg, dispatch=None, custom_encoder=None, custom_decoder=None):
+    def __init__(self, connection, action, msg, custom_encoder=None, custom_decoder=None, connection_cache=None, stream=None, dispatch=None):
         if dispatch is None:
             dispatch = dispatcher.Stdout({
                 "custom_encoder": custom_encoder,
-                "custom_decoder":custom_decoder
+                "custom_decoder": custom_decoder,
             })
         self.connection = connection
         self.action = action
         self.msg = msg
         self.dispatcher = dispatch
+        self.connection_cache = connection_cache 
         self.meta = None
 
 
@@ -101,12 +120,16 @@ class Task(object):
 
         self.meta = action_msg.get('meta') or {}
 
-        if self.connection:
-            params = (action_msg.get('connection') or {})
+        conn = None
+        params = (action_msg.get('connection') or {})
+        if self.connection_cache:
+            conn = self.connection_cache.get(params)
+        elif self.connection:
+            conn = self.connection
             self.connection.set(params)
             self.connection.connect(params)
-            self.action.connection = self.connection
 
+        self.action.connection = conn 
 
         input = self.action.input
 

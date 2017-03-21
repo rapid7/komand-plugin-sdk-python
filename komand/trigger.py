@@ -16,6 +16,7 @@ class Trigger(object):
         self.input = input
         self.output = output
         self.webhook_url = ''
+        self.logger = logging.getLogger()
 
     def send(self, event):
         schema = self.output
@@ -53,7 +54,7 @@ class Task(object):
         """ Run test """
         dparams = self.msg.get('dispatcher', {})
         dparams["custom_encoder"] = self.custom_encoder
-        dparams["custom_decover"] = self.custom_decoder
+        dparams["custom_decoder"] = self.custom_decoder
         dispatch = dispatcher.Stdout(dparams)
 
         try:

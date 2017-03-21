@@ -1,8 +1,10 @@
 import komand.message as message
 import komand.action as action
 import komand.trigger as trigger
+import komand.server  
 import sys
 import komand.dispatcher as dispatcher
+from .connection import ConnectionCache
 
 try:
     from StringIO import StringIO
@@ -19,6 +21,7 @@ class Plugin(object):
         self.description = description
         self.version = version
         self.connection = connection
+        self.connection_cache = ConnectionCache(connection)
         self.triggers = {}
         self.actions = {}
         self.debug = False
@@ -44,6 +47,15 @@ class Plugin(object):
                 custom_decoder=self.custom_decoder)
         else:
             raise Exception("Invalid message type:" + msg.Type)
+
+    def server(self, port=8001):
+        server = komand.server.Server(
+                plugin=self,
+                port=port,
+                debug=self.debug,
+                )
+
+        server.start()
 
     def run(self, msg=None):
         """Run the plugin."""

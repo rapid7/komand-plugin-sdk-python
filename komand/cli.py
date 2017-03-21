@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*- 
+#-*- coding: utf-8 -*- 
 
 import sys
 import argparse
@@ -21,6 +21,11 @@ class CLI(object):
             self.msg = " ".join(self.args[index+1:])
             self.args = self.args[:index]
 
+    def server(self, args):
+        if args.debug:
+            self.plugin.debug = True
+
+        self.plugin.server(port=args.port)
 
     def test(self, args):
         if args.debug:
@@ -121,6 +126,10 @@ class CLI(object):
 
         run_command = subparsers.add_parser('run', help='Run the plugin (default command). You must supply the start message on stdin.')
         run_command.set_defaults(func=self._run)
+
+        server_command = subparsers.add_parser('server', help='Run a server. You must supply a port, otherwise will listen on 8001.')
+        server_command.add_argument('port', help='port', default=8001, type=int)
+        server_command.set_defaults(func=self.server)
 
         args = parser.parse_args(self.args)
 
