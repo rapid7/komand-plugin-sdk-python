@@ -11,9 +11,9 @@ import komand.dispatcher
 # I don't know. :shrug:
 app = Flask(__name__)
 
-@app.route('/actions/<string:name>', methods=['PUT','POST'])
-def action(name):
+@app.route('/actions/<string:name>', methods=['PUT', 'POST'])
 
+def action(name):
     if not g.control:
         logging.fatal("Fatal error - no control server provided")
 
