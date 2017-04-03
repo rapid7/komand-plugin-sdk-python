@@ -54,7 +54,7 @@ class Server(object):
         act.setupLogger()
 
         if msg['type'] != message.ACTION_START:
-            return {'plugin_error': ('Invalid message type %s' % msg['type'])}
+            return message.ActionError(input.meta, ('Invalid message type %s' % msg['type']), "")
 
         dispatch = komand.dispatcher.Noop()
 
@@ -73,5 +73,5 @@ class Server(object):
         output = dispatch.msg
 
         if 'body' in output and output['body']['status'] == message.ERROR:
-            return message.ActionError(action.meta, output, logs)
+            return message.ActionError(action.meta, output['body']['error'], logs)
         return message.ActionSuccess(action.meta, output, logs)
