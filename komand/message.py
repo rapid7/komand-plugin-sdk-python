@@ -17,44 +17,42 @@ valid_types = [
     ACTION_START,
 ]
 
-SUCCESS = 'ok';
-ERROR = 'error';
+SUCCESS = 'ok'
+ERROR = 'error'
 
 def envelope(msg_type, body={}):
     return {
-            'body': body,
-            'type': msg_type,
-            'version': VERSION,
-            }
+        'body': body,
+        'type': msg_type,
+        'version': VERSION,
+        }
 
 def ActionStart(action='', meta={}, input={}, connection={}):
-     return envelope(ACTION_START, { 
-         'action': action,
-         'meta': meta,
-         'input': input,
-         'connection': connection,
-         }) 
-        
+    return envelope(ACTION_START, {
+        'action': action,
+        'meta': meta,
+        'input': input,
+        'connection': connection,
+        })
 
 def TriggerStart(trigger='', meta={}, dispatcher={}, input={}, connection={}):
-     return envelope(TRIGGER_START, { 
-         'trigger': trigger,
-         'meta': meta,
-         'input': input,
-         'dispatcher': dispatcher,
-         'connection': connection,
-         }) 
-        
+    return envelope(TRIGGER_START, {
+        'trigger': trigger,
+        'meta': meta,
+        'input': input,
+        'dispatcher': dispatcher,
+        'connection': connection,
+        })
 
-def TriggerEvent(meta={}, output={}):
-    return envelope(TRIGGER_EVENT, { 'meta': meta, 'output': output });
+def TriggerEvent(meta={}, output={}, log=""):
+    return envelope(TRIGGER_EVENT, {'meta': meta, 'output': output, 'log': log})
 
-def ActionSuccess(meta={}, output={}):
-    return envelope(ACTION_EVENT, { 'meta': meta, 'output': output, 'status': SUCCESS });
+def ActionSuccess(meta={}, output={}, log=""):
+    return envelope(ACTION_EVENT, {'meta': meta, 'output': output, 'status': SUCCESS, 'log': log})
 
-def ActionError(meta={}, error=''):
+def ActionError(meta={}, error='', log=""):
     err = "%s" % error
-    return envelope(ACTION_EVENT, { 'meta': meta, 'error': err, 'status': ERROR });
+    return envelope(ACTION_EVENT, {'meta': meta, 'error': err, 'status': ERROR, 'log': log})
 
 def validateTriggerStart(body):
     if not body:

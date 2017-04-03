@@ -29,7 +29,6 @@ def action(name):
 
     return response
 
-
 class Server(object):
     """Server runs the plugin in server mode"""
     def __init__(self, plugin, port=10001, debug=False):
@@ -43,7 +42,6 @@ class Server(object):
             g.control = self
             logging.info("Starting server on port: %d", self.port)
             app.run(port=self.port)
-
 
     def handle(self, name, msg):
         """Run handler"""
@@ -75,9 +73,9 @@ class Server(object):
 
         if 'body' in output and output['body']['status'] == message.ERROR:
             return {
-                    'plugin_logs': logs,
-                    'plugin_error': output['body']['error'],
-                    'output': output
-                    }
+                'plugin_logs': logs,
+                'plugin_error': output['body']['error'],
+                'output': output
+                }
 
-        return { 'plugin_logs': logs, 'output': output }
+        return {'plugin_logs': logs, 'output': output}
