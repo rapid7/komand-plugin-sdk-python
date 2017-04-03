@@ -9,6 +9,7 @@ import komand.dispatcher
 # this is global...
 # there can only be one app in python servers i guess.
 # I don't know. :shrug:
+# lol python
 app = Flask(__name__)
 
 @app.route('/actions/<string:name>', methods=['PUT', 'POST'])
@@ -72,10 +73,5 @@ class Server(object):
         output = dispatch.msg
 
         if 'body' in output and output['body']['status'] == message.ERROR:
-            return {
-                'plugin_logs': logs,
-                'plugin_error': output['body']['error'],
-                'output': output
-                }
-
-        return {'plugin_logs': logs, 'output': output}
+            return message.ActionError(action.meta, output, logs)
+        return message.ActionSuccess(action.meta, output, logs)
