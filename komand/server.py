@@ -32,7 +32,7 @@ def action(name):
 
 class Server(object):
     """Server runs the plugin in server mode"""
-    def __init__(self, plugin, port=8001, debug=False):
+    def __init__(self, plugin, port=10001, debug=False):
         self.plugin = plugin
         self.port = port
         self.debug = debug
@@ -48,27 +48,25 @@ class Server(object):
     def handle(self, name, msg):
         """Run handler"""
         if not name in self.plugin.actions:
-            return { 'plugin_error': ('No action found %s' % name) }
+            return {'plugin_error': ('No action found %s' % name)}
 
-        action = self.plugin.actions[name]
-        action = copy.copy(action)
-        action.setupLogger()
+        act = self.plugin.actions[name]
+        act = copy.copy(act)
+        act.setupLogger()
 
         if msg['type'] != message.ACTION_START:
-            return {
-                    'plugin_error': ('Invalid message type %s' % msg['type'])
-                    }
+            return {'plugin_error': ('Invalid message type %s' % msg['type'])}
 
-        dispatch=komand.dispatcher.Noop()
+        dispatch = komand.dispatcher.Noop()
 
         task = komand.action.Task(
-                connection=None,
-                action=action,
-                msg=msg['body'],
-                connection_cache=self.plugin.connection_cache,
-                dispatch=dispatch,
-                custom_encoder=self.plugin.custom_encoder,
-                custom_decoder=self.plugin.custom_decoder)
+            connection=None,
+            action=act,
+            msg=msg['body'],
+            connection_cache=self.plugin.connection_cache,
+            dispatch=dispatch,
+            custom_encoder=self.plugin.custom_encoder,
+            custom_decoder=self.plugin.custom_decoder)
 
         task.run()
 
