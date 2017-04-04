@@ -13,7 +13,6 @@ import komand.dispatcher
 app = Flask(__name__)
 
 @app.route('/actions/<string:name>', methods=['PUT', 'POST'])
-
 def action(name):
     if request.method == 'POST':
         dummy = request.form
