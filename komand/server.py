@@ -48,7 +48,7 @@ class Server(object):
         with app.app_context():
             g.control = self
             logging.info("Starting server on port: %d", self.port)
-            app.run(port=self.port)
+            app.run(host='0.0.0.0', port=self.port)
 
     def handle(self, name, msg):
         """Run handler"""
@@ -58,6 +58,9 @@ class Server(object):
         act = self.plugin.actions[name]
         act = copy.copy(act)
         act.setupLogger()
+        logging.error("~~~~~~~~~~")
+        logging.error(act)
+        logging.error("~~~~~~~~~~")
 
         if msg['type'] != message.ACTION_START:
             return message.ActionError(act.meta, ('Invalid message type %s' % msg['type']), "")
