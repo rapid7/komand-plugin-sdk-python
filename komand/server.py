@@ -14,6 +14,7 @@ app = Flask(__name__)
 
 @app.route('/actions/<string:name>', methods=['PUT', 'POST'])
 def action(name):
+    logging.error("ACTION IS %s", name)
     if request.method == 'POST':
         dummy = request.form
     if not g.control:
@@ -21,7 +22,7 @@ def action(name):
 
     msg = request.get_json()
 
-    logging.debug('request json: %s', msg)
+    logging.error('request json: %s', msg)
 
     # TODO: wrap in antoher try/catch and capture any errors
     result = g.control.handle(name, msg)
