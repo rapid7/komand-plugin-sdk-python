@@ -1,9 +1,9 @@
-#-*- coding: utf-8 -*- 
+#-*- coding: utf-8 -*-
 
 import sys
 import argparse
-import komand.message as message
 import logging
+import komand.message as message
 
 GREEN = '\033[92m'
 RESET = '\033[0m'
@@ -17,7 +17,7 @@ class CLI(object):
         self.msg = None
 
         if "--" in self.args:
-            index = self.args.index("--") 
+            index = self.args.index("--")
             self.msg = " ".join(self.args[index+1:])
             self.args = self.args[:index]
 
@@ -38,38 +38,36 @@ class CLI(object):
         trig = self.plugin.triggers.get(name)
         if trig:
             conn = self.plugin.connection
-            input = trig.input
-            dispatcher = { 'url': 'http://localhost:8000', 'webhook_url': '' }
+            dispatcher = {'url': 'http://localhost:8000', 'webhook_url': ''}
 
             if conn:
                 conn = conn.sample()
-            if input:
-                input = input.sample()
+            if trig.input:
+                trig.input = trig.input.sample()
 
             msg = message.TriggerStart(
-                    trigger=trig.name,
-                    connection=conn,
-                    input=input,
-                    dispatcher=dispatcher)
-            
+                trigger=trig.name,
+                connection=conn,
+                input=trig.input,
+                dispatcher=dispatcher
+            )
             message.marshal(msg)
             return
 
         act = self.plugin.actions.get(name)
         if act:
             conn = self.plugin.connection
-            input = act.input
 
             if conn:
                 conn = conn.sample()
-            if input:
-                input = input.sample()
+            if act.input:
+                act.input = act.input.sample()
 
             msg = message.ActionStart(
-                    action=act.name,
-                    connection=conn,
-                    input=input)
-            
+                action=act.name,
+                connection=conn,
+                input=act.input
+            )
             message.marshal(msg)
             return
 
@@ -97,7 +95,7 @@ class CLI(object):
             for name, item in self.plugin.actions.items():
                 result += ('└── %s%s%s (%s%s)\n') % (GREEN, name, RESET, item.description, RESET)
 
-        print(result)
+        print result
 
     def _run(self, args):
         if args.debug:
@@ -139,7 +137,7 @@ class CLI(object):
             logging.basicConfig(level=logging.INFO)
 
         if not hasattr(args, 'func') or not args.func:
-            return parser.print_help() 
+            return parser.print_help()
 
         args.func(args)
 
