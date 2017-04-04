@@ -54,16 +54,15 @@ class Server(object):
         """Run handler"""
         if not name in self.plugin.actions:
             return message.ActionError({}, ('No action found %s' % name), "")
-
+        meta = {}
+        if 'body' in msg and msg['body']['meta']:
+            meta = msg['body']['meta']
         act = self.plugin.actions[name]
         act = copy.copy(act)
         act.setupLogger()
-        logging.error("~~~~~~~~~~")
-        logging.error(msg)
-        logging.error("~~~~~~~~~~")
 
         if msg['type'] != message.ACTION_START:
-            return message.ActionError(act.meta, ('Invalid message type %s' % msg['type']), "")
+            return message.ActionError(meta, ('Invalid message type %s' % msg['type']), "")
 
         dispatch = komand.dispatcher.Noop()
 
@@ -77,10 +76,9 @@ class Server(object):
             custom_decoder=self.plugin.custom_decoder)
 
         task.run()
-
         logs = act.logs()
         output = dispatch.msg
 
         if 'body' in output and output['body']['status'] == message.ERROR:
-            return message.ActionError(act.meta, output['body']['error'], logs)
-        return message.ActionSuccess(act.meta, output, logs)
+            return message.ActionError(meta, output['body']['error'], logs)
+        return message.ActionSuccess(meta, output, logs)
