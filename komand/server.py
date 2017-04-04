@@ -15,6 +15,8 @@ app = Flask(__name__)
 @app.route('/actions/<string:name>', methods=['PUT', 'POST'])
 
 def action(name):
+    if request.method == 'POST':
+        dummy = request.form
     if not g.control:
         logging.fatal("Fatal error - no control server provided")
 
@@ -47,7 +49,7 @@ class Server(object):
     def handle(self, name, msg):
         """Run handler"""
         if not name in self.plugin.actions:
-            return {'plugin_error': ('No action found %s' % name)}
+            return message.ActionError({}, ('No action found %s' % name), "")
 
         act = self.plugin.actions[name]
         act = copy.copy(act)
