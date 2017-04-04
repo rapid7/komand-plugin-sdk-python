@@ -78,7 +78,7 @@ class Server(object):
         task.run()
         logs = act.logs()
         output = dispatch.msg
-
+        logging.error(output)
         if 'body' in output and output['body']['status'] == message.ERROR:
             return message.ActionError(meta, output['body']['error'], logs)
-        return message.ActionSuccess(meta, output, logs)
+        return message.ActionSuccess(meta, output['body']['output'], logs)
