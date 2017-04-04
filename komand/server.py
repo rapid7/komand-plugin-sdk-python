@@ -59,7 +59,7 @@ class Server(object):
         act = copy.copy(act)
         act.setupLogger()
         logging.error("~~~~~~~~~~")
-        logging.error(act)
+        logging.error(msg)
         logging.error("~~~~~~~~~~")
 
         if msg['type'] != message.ACTION_START:
