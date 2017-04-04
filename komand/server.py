@@ -12,6 +12,10 @@ import komand.dispatcher
 # lol python
 app = Flask(__name__)
 
+@app.route("/test")
+def testy():
+    return jsonify({"hey":"hi"})
+
 @app.route('/actions/<string:name>', methods=['PUT', 'POST'])
 def action(name):
     logging.error("ACTION IS %s", name)
