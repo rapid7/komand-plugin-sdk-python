@@ -11,23 +11,22 @@ class Action(object):
     """A action"""
     def __init__(self, name, description, input, output):
         self.name = name
-        self.description = description 
-        self.input = input 
+        self.description = description
+        self.input = input
         self.output = output
         self.connection = None
         self.debug = False
-
-    def setupLogger(self):
         self.stream = StringIO()
         self.handler = logging.StreamHandler(self.stream)
-
         self.logger = logging.getLogger(self.name)
+
+    def setupLogger(self):
         if self.debug:
             self.logger.setLevel(logging.DEBUG)
         else:
             self.logger.setLevel(logging.INFO)
         self.logger.addHandler(self.handler)
-  
+
     def logs(self):
         """ Get logs from action """
         self.handler.flush()
@@ -54,7 +53,7 @@ class Task(object):
         self.action = action
         self.msg = msg
         self.dispatcher = dispatch
-        self.connection_cache = connection_cache 
+        self.connection_cache = connection_cache
         self.meta = None
 
 
@@ -70,21 +69,19 @@ class Task(object):
                 output = self.action.test({})
 
             schema = self.action.output
-    
             if schema:
                 schema.validate(output)
-    
-
         except Exception as e:
             logging.exception('Action test failure: %s', e)
             err = message.ActionError(
-                    meta=self.meta,
-                    error=str(e))
+                meta=self.meta,
+                error=str(e),
+                log=self.action.logs())
             self.dispatcher.write(err)
             return False
 
-        ok = message.ActionSuccess(meta=self.meta, output=output)
-        self.dispatcher.write(ok)
+        success = message.ActionSuccess(meta=self.meta, output=output, log=self.action.logs())
+        self.dispatcher.write(success)
         return True
 
 
@@ -97,18 +94,16 @@ class Task(object):
                 params = self.action.input.parameters
             output = self.action.run(params)
 
-            schema = self.action.output
-    
-            if schema:
-                schema.validate(output)
+            if self.action.output:
+                self.action.output.validate(output)
         except Exception as e:
             logging.exception('Action run failure: %s', e)
-            err = message.ActionError(meta=self.meta, error=str(e))
+            err = message.ActionError(meta=self.meta, error=str(e), log=self.action.logs())
             self.dispatcher.write(err)
             sys.exit(1)
             return
 
-        ok = message.ActionSuccess(meta=self.meta, output=output)
+        ok = message.ActionSuccess(meta=self.meta, output=output, log=self.action.logs())
         self.dispatcher.write(ok)
 
 
@@ -129,14 +124,11 @@ class Task(object):
             self.connection.set(params)
             self.connection.connect(params)
 
-        self.action.connection = conn 
-
-        input = self.action.input
-
-        if input:
+        self.action.connection = conn
+        if self.action.input:
             try:
-                input.set(action_msg.get('input'))
-            except: 
+                self.action.input.set(action_msg.get('input'))
+            except Exception:
                 if not test_mode:
                     raise
 

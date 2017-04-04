@@ -76,9 +76,5 @@ class Server(object):
             custom_decoder=self.plugin.custom_decoder)
 
         task.run()
-        logs = act.logs()
-        output = dispatch.msg
-        logging.error(output)
-        if 'body' in output and output['body']['status'] == message.ERROR:
-            return message.ActionError(meta, output['body']['error'], logs)
-        return message.ActionSuccess(meta, output['body']['output'], logs)
+        # dispatch.msg has the envelope and message body with error codes and logs
+        return dispatch.msg
