@@ -11,107 +11,107 @@ import urllib.request
 import time
 
 def extract_value(begin, key, end, s):
-    '''Returns a string from a given key/pattern using provided regexes
-    It takes 4 arguments:
-    * begin: a regex/pattern to match left side
-    * key: a regex/pattern that should be the key
-    * end: a regex/pattern to match the right side
-    * s: the string to extract values from
+  '''Returns a string from a given key/pattern using provided regexes
+  It takes 4 arguments:
+  * begin: a regex/pattern to match left side
+  * key: a regex/pattern that should be the key
+  * end: a regex/pattern to match the right side
+  * s: the string to extract values from
 
-    Example: The following will use pull out the /bin/bash from the string s
-    s = '\nShell: /bin/bash\n'
-    shell = get_value(r'\s', 'Shell', r':\s(.*)\s', s)
+  Example: The following will use pull out the /bin/bash from the string s
+  s = '\nShell: /bin/bash\n'
+  shell = get_value(r'\s', 'Shell', r':\s(.*)\s', s)
 
-    This function works well when you have a list of keys to iterate through where the pattern is the same.
-    '''
-    regex = begin + key + end
-    r = re.search(regex, s)
-    if hasattr(r, 'group'):
-        if r.lastindex == 1:
-            return r.group(1)
-    return None
+  This function works well when you have a list of keys to iterate through where the pattern is the same.
+  '''
+  regex = begin + key + end
+  r = re.search(regex, s)
+  if hasattr(r, 'group'):
+    if r.lastindex == 1:
+      return r.group(1)
+  return None
 
 def clean_dict(dictionary):
-    '''Returns a new but cleaned dictionary:
+  '''Returns a new but cleaned dictionary:
 
-  	* Keys with None type values are removed
-	* Keys with empty string values are removed
+  * Keys with None type values are removed
+  * Keys with empty string values are removed
 
-  	This function is designed so we only return useful data
-    '''
-    newdict = dict(dictionary)
-    for key in dictionary.keys():
-        if dictionary.get(key) is None:
-            del newdict[key]
-        if dictionary[key] == '':
-            del newdict[key]
-    return newdict
+  This function is designed so we only return useful data
+  '''
+  newdict = dict(dictionary)
+  for key in dictionary.keys():
+    if dictionary.get(key) is None:
+      del newdict[key]
+    if dictionary[key] == '':
+      del newdict[key]
+  return newdict
 
 def clean_list(lst):
-    '''Returns a new but cleaned list:
+  '''Returns a new but cleaned list:
 
-    * None type values are removed
-    * Empty string values are removed
+  * None type values are removed
+  * Empty string values are removed
 
-    This function is designed so we only return useful data
-    '''
-    newlist = list(lst)
-    for i in lst:
-        if i is None:
-            newlist.remove(i)
-        if i == '':
-            newlist.remove(i)
-    return newlist
+  This function is designed so we only return useful data
+  '''
+  newlist = list(lst)
+  for i in lst:
+    if i is None:
+      newlist.remove(i)
+    if i == '':
+      newlist.remove(i)
+  return newlist
 
 def check_hashes(src, checksum):
-    '''Return boolean on whether a hash matches a file or string'''
-    if type(src) is str:
-        hashes = get_hashes_string(src)
-    else:
-        logging.error('CheckHashes: Argument must be a string')
-        raise Exception('CheckHashes')
-    alg = ['md5', 'sha1', 'sha256', 'sha512']
-    for alg in hashes:
-        if hashes[alg] == checksum:
-            return True
-        logging.info('CheckHashes: No checksum match')
-    return False
+  '''Return boolean on whether a hash matches a file or string'''
+  if type(src) is str:
+    hashes = get_hashes_string(src)
+  else:
+    logging.error('CheckHashes: Argument must be a string')
+    raise Exception('CheckHashes')
+  alg = [ 'md5', 'sha1', 'sha256', 'sha512' ]
+  for alg in hashes:
+    if hashes[alg] == checksum:
+      return True
+  logging.info('CheckHashes: No checksum match')
+  return False
 
 def get_hashes_string(s):
-    '''Return a dictionary of hashes for a string'''
-    hashes = {}
-    hashes['md5'] = hashlib.md5(s).hexdigest()
-    hashes['sha1'] = hashlib.sha1(s).hexdigest()
-    hashes['sha256'] = hashlib.sha256(s).hexdigest()
-    hashes['sha512'] = hashlib.sha512(s).hexdigest()
-    return hashes
+  '''Return a dictionary of hashes for a string'''
+  hashes={}
+  hashes['md5']    = hashlib.md5(s).hexdigest()
+  hashes['sha1']   = hashlib.sha1(s).hexdigest()
+  hashes['sha256'] = hashlib.sha256(s).hexdigest()
+  hashes['sha512'] = hashlib.sha512(s).hexdigest()
+  return hashes
 
 def check_cachefile(cache_file):
-    '''Return boolean on whether cachefile exists'''
-    cache_dir = '/var/cache'
-    if cache_dir not in cache_file:
-        cache_file = cache_dir + '/' + cache_file
-    if os.path.isdir(cache_dir):
-        if os.path.isfile(cache_file):
-            logging.info('CheckCacheFile: File %s exists', cache_file)
-            return True
-        logging.info('CheckCacheFile: File %s did not exist', cache_file)
-    return False
+  '''Return boolean on whether cachefile exists'''
+  cache_dir  = '/var/cache'
+  if cache_dir not in cache_file:
+    cache_file = cache_dir + '/' + cache_file
+  if os.path.isdir(cache_dir):
+    if os.path.isfile(cache_file):
+      logging.info('CheckCacheFile: File %s exists', cache_file)
+      return True
+    logging.info('CheckCacheFile: File %s did not exist', cache_file)
+  return False
 
 def open_file(file_path):
-    '''Return file object if it exists'''
-    dirname = os.path.dirname(file_path)
-    filename = os.path.basename(file_path)
-    if os.path.isdir(dirname):
-        if os.path.isfile(file_path):
-            f = open(file_path, 'rb')
-            if type(f) is file:
-                return f
-            return None
-        else:
-            logging.info('OpenFile: File %s is not a file or does not exist ', filename)
+  '''Return file object if it exists'''
+  dirname  = os.path.dirname(file_path)
+  filename = os.path.basename(file_path)
+  if os.path.isdir(dirname):
+    if os.path.isfile(file_path):
+      f = open(file_path, 'rb')
+      if type(f) is file:
+        return f
+      return None
     else:
-        logging.error('OpenFile: Directory %s is not a directory or does not exist', dirname)
+      logging.info('OpenFile: File %s is not a file or does not exist ', filename)
+  else:
+    logging.error('OpenFile: Directory %s is not a directory or does not exist', dirname)
 
 
 def open_cachefile(cache_file, append=False):
