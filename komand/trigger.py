@@ -8,12 +8,12 @@ import inspect
 
 class Trigger(object):
     """A trigger"""
-    def __init__(self, name, description, input, output):
-        self.name = name 
-        self.description = description 
+    def __init__(self, name, description, inp, output):
+        self.name = name
+        self.description = description
         self.connection = None
         self._sender = None
-        self.input = input
+        self.input = inp
         self.output = output
         self.webhook_url = ''
         self.logger = logging.getLogger()
@@ -21,7 +21,7 @@ class Trigger(object):
     def send(self, event):
         schema = self.output
         if schema:
-          schema.validate(event)
+            schema.validate(event)
 
         self._sender.send(event)
 
@@ -120,8 +120,6 @@ class Task(object):
             self.connection.connect(params)
             self.trigger.connection = self.connection
 
-        input = self.trigger.input
-
-        if input:
-            input.set(trigger_msg.get('input'), validate)
+        if self.trigger.input:
+            self.trigger.input.set(trigger_msg.get('input'), validate)
 

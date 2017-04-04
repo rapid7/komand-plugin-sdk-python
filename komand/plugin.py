@@ -1,8 +1,8 @@
+import sys
 import komand.message as message
 import komand.action as action
 import komand.trigger as trigger
-import komand.server  
-import sys
+import komand.server
 import komand.dispatcher as dispatcher
 from .connection import ConnectionCache
 
@@ -50,20 +50,20 @@ class Plugin(object):
 
     def server(self, port=8001):
         server = komand.server.Server(
-                plugin=self,
-                port=port,
-                debug=self.debug,
-                )
+            plugin=self,
+            port=port,
+            debug=self.debug,
+            )
 
         server.start()
 
     def run(self, msg=None):
         """Run the plugin."""
-        input = sys.stdin
+        inp = sys.stdin
         if msg:
-            input = StringIO(msg)
+            inp = StringIO(msg)
 
-        msg = message.unmarshal(input, cd=self.custom_decoder)
+        msg = message.unmarshal(inp, cd=self.custom_decoder)
         runner = self._lookup(msg)
         if self.debug:
             runner.debug = True
@@ -72,11 +72,11 @@ class Plugin(object):
 
     def test(self, msg=None):
         """Test the plugin."""
-        input = sys.stdin
+        inp = sys.stdin
         if msg:
-            input = StringIO(msg)
+            inp = StringIO(msg)
 
-        msg = message.unmarshal(input, cd=self.custom_decoder)
+        msg = message.unmarshal(inp, cd=self.custom_decoder)
 
         if not msg:
             msg = message.unmarshal(sys.stdin)
