@@ -6,6 +6,7 @@ import requests
 class Noop(object):
     def __init__(self, config={}):
         self.msg = None
+        self.webhook_url = ''
 
     def write(self, msg):
         self.msg = msg
