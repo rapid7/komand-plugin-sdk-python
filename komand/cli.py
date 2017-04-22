@@ -126,7 +126,7 @@ class CLI(object):
         run_command.set_defaults(func=self._run)
 
         http_command = subparsers.add_parser('http', help='Run a server. You must supply a port, otherwise will listen on 10001.')
-        http_command.add_argument('-port', help='-port', default=10001, type=int)
+        http_command.add_argument('-port', help='--port', default=10001, type=int)
         http_command.set_defaults(func=self.server)
 
         args = parser.parse_args(self.args)
