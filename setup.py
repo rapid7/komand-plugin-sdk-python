@@ -7,7 +7,6 @@ setup(name='komand',
       author_email='support@komand.com',
       url='http://komand.com',
       packages=find_packages(),
-      install_requires=['requests==2.9','python_jsonschema_objects','jsonschema==2.3.0', 'flask'],
+      install_requires=['requests==2.9', 'python_jsonschema_objects', 'jsonschema==2.3.0', 'flask'],
       test_suite="tests.komand_test_suite",
-
-      )
+     )

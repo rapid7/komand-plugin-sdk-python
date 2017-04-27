@@ -27,14 +27,8 @@ def handler(prefix, name, test):
     # TODO: wrap in antoher try/catch and capture any errors
     if prefix == "actions":
         result = g.control.handle_action(name, msg, is_test)
-        logging.info("~~~~~~~~~")
-        logging.info(result)
-        logging.info("~~~~~~~~~")
     elif prefix == "triggers" and is_test:
         result = g.control.handle_trigger(name, msg)
-        logging.info("~~~~~~~~~")
-        logging.info(result)
-        logging.info("~~~~~~~~~")
     else:
         # It wasn't an action, and it wasn't a trigger test, so it was a trigger non test
         # Not supported, return error
