@@ -11,7 +11,7 @@ def create_flask_app():
 
     @app.route('/<string:prefix>/<string:name>', defaults={'test': None}, methods=['POST'])
     @app.route('/<string:prefix>/<string:name>/<string:test>', methods=['POST'])
-    def handler(prefix, name, test):    
+    def handler(prefix, name, test):
         msg = request.get_json()
         if request.method == 'POST':
             dummy = request.form
@@ -21,11 +21,22 @@ def create_flask_app():
         is_test = test is not None
         logging.error('request json: %s', msg)
         result = {}
-        # TODO: wrap in antoher try/catch and capture any errors
         if prefix == "actions":
-            result = g.control.handle_action(name, msg, is_test)
+            try:
+                result = g.control.handle_action(name, msg, is_test)
+            except Exception as ex:
+                logging.fatal("Exception while running http handler for action: %s", ex)
+                response = jsonify(message.ActionError(meta={}))
+                response.status_code = 400
+                return response
         elif prefix == "triggers" and is_test:
-            result = g.control.handle_trigger(name, msg)
+            try:
+                result = g.control.handle_trigger(name, msg)
+            except Exception as ex:
+                logging.fatal("Exception while running http handler for trigger: %s", ex)
+                response = jsonify(message.TriggerEvent(meta={}, output={}))
+                response.status_code = 400
+                return response
         else:
             # It wasn't an action, and it wasn't a trigger test, so it was a trigger non test
             # Not supported, return error
@@ -33,10 +44,10 @@ def create_flask_app():
             response = jsonify(message.TriggerEvent(meta={}, output={}))
             response.status_code = 400
             return response
+
         response = jsonify(result)
         if 'plugin_error' in result:
             response.status_code = 500
-
         return response
     return app
 
