@@ -20,8 +20,6 @@ class Input(object):
     def sample(self):
         """ Sample object """
         return util.sample(self.schema)
-    
-
 
 class Output(object):
     """ Output variables """

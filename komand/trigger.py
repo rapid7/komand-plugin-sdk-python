@@ -6,24 +6,41 @@ import komand.variables as variables
 import sys
 import inspect
 
+from io import StringIO
+
 class Trigger(object):
     """A trigger"""
     def __init__(self, name, description, input, output):
-        self.name = name 
-        self.description = description 
+        self.name = name
+        self.description = description
         self.connection = None
         self._sender = None
         self.input = input
         self.output = output
         self.webhook_url = ''
-        self.logger = logging.getLogger()
+        self.debug = False
+        self.stream = StringIO()
+        self.handler = logging.StreamHandler(self.stream)
+        self.logger = logging.getLogger(self.name)
 
     def send(self, event):
         schema = self.output
         if schema:
-          schema.validate(event)
+            schema.validate(event)
 
         self._sender.send(event)
+
+    def setupLogger(self):
+        if self.debug:
+            self.logger.setLevel(logging.DEBUG)
+        else:
+            self.logger.setLevel(logging.INFO)
+        self.logger.addHandler(self.handler)
+
+    def logs(self):
+        """ Get logs from action """
+        self.handler.flush()
+        return self.stream.getvalue()
 
     def run(self, params={}):
         """ Run a trigger. Returns nothing """
@@ -36,13 +53,14 @@ class Trigger(object):
 
 class Task(object):
     """Task to run or test an trigger"""
-    def __init__(self, connection, trigger, msg, dispatch=None, custom_encoder=None, custom_decoder=None):
+    def __init__(self, connection, trigger, msg, dispatch=None, custom_encoder=None, custom_decoder=None, connection_cache=None, stream=None):
         self.connection = connection
         self.trigger = trigger
         self.msg = msg
         self.dispatcher = dispatch
         self.custom_encoder = custom_encoder
         self.custom_decoder = custom_decoder
+        self.connection_cache = connection_cache
         self.meta = None
         self.debug = False
 
@@ -55,7 +73,7 @@ class Task(object):
         dparams = self.msg.get('dispatcher', {})
         dparams["custom_encoder"] = self.custom_encoder
         dparams["custom_decoder"] = self.custom_decoder
-        dispatch = dispatcher.Stdout(dparams)
+        dispatch = (self.dispatcher or dispatcher.Stdout(dparams))
 
         try:
             self._setup(False)
@@ -120,8 +138,6 @@ class Task(object):
             self.connection.connect(params)
             self.trigger.connection = self.connection
 
-        input = self.trigger.input
-
-        if input:
-            input.set(trigger_msg.get('input'), validate)
+        if self.trigger.input:
+            self.trigger.input.set(trigger_msg.get('input'), validate)
 
