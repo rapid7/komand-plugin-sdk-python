@@ -39,6 +39,7 @@ def clean_dict(dictionary):
 
   This function is designed so we only return useful data
   '''
+
   newdict = dict(dictionary)
   for key in dictionary.keys():
     if dictionary.get(key) is None:
@@ -86,6 +87,18 @@ def clean(object):
 
   return cleaned
 
+
+def get_hashes_string(s):
+  '''Return a dictionary of hashes for a string'''
+  s = s.encode("utf-8")
+  hashes={}
+  hashes['md5']    = hashlib.md5(s).hexdigest()
+  hashes['sha1']   = hashlib.sha1(s).hexdigest()
+  hashes['sha256'] = hashlib.sha256(s).hexdigest()
+  hashes['sha512'] = hashlib.sha512(s).hexdigest()
+  return hashes
+
+
 def check_hashes(src, checksum):
   '''Return boolean on whether a hash matches a file or string'''
   if type(src) is str:
@@ -100,14 +113,6 @@ def check_hashes(src, checksum):
   logging.info('CheckHashes: No checksum match')
   return False
 
-def get_hashes_string(s):
-  '''Return a dictionary of hashes for a string'''
-  hashes={}
-  hashes['md5']    = hashlib.md5(s).hexdigest()
-  hashes['sha1']   = hashlib.sha1(s).hexdigest()
-  hashes['sha256'] = hashlib.sha256(s).hexdigest()
-  hashes['sha512'] = hashlib.sha512(s).hexdigest()
-  return hashes
 
 def check_cachefile(cache_file):
   '''Return boolean on whether cachefile exists'''

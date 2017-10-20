@@ -3,6 +3,7 @@ import tests.test_message
 import tests.test_action
 import tests.test_variables
 import tests.test_custom_encoder
+import tests.test_helpers
 
 def komand_test_suite():
     testmodules = [
@@ -10,6 +11,7 @@ def komand_test_suite():
         test_action,
         test_variables,
         test_custom_encoder,
+        test_helpers
         ]
 
     suite = unittest.TestSuite()
