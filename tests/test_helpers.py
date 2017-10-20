@@ -78,7 +78,7 @@ class TestHelpers(unittest.TestCase):
 
     # get_hashes_string
 
-    def test_get_hashes_string(self):
+    def test_get_hashes_string_equal_successful(self):
         test_string = "abcdefghijklmnopqrstuvwxyz"
         self.assertDictEqual(
             {"md5": "c3fcd3d76192e4007dfb496cca67e13b",
@@ -87,3 +87,64 @@ class TestHelpers(unittest.TestCase):
              "sha512": "4dbff86cc2ca1bae1e16468a05cb9881c97f1753bce3619034898faa1aabe429955a1bf8ec483d7421fe3c1646613a59ed5441fb0f321389f77f48a879c7b1f1"},
             helper.get_hashes_string(test_string)
         )
+
+    def test_get_hashes_string_not_equal_successful(self):
+        test_string = "abcdefghijklmnopqrstuvwxyz"
+        self.assertNotEqual(
+            {"sha1": "32d10c7b8cf96570ca04ce37f2a19d84240d3a89",
+             "sha256": "71c480df93d6ae2f1efad1447c66c9525e316218cf51fc8d9ed832f2daf18b73",
+             "sha512": "4dbff86cc2ca1bae1e16468a05cb9881c97f1753bce3619034898faa1aabe429955a1bf8ec483d7421fe3c1646613a59ed5441fb0f321389f77f48a879c7b1f1"},
+            helper.get_hashes_string(test_string)
+        )
+
+    def test_get_hashes_string_no_exceptions(self):
+        test_string = "abcdefghijklmnopqrstuvwxyz"
+        try:
+            helper.get_hashes_string(test_string)
+        except:
+            self.fail("Exception was thrown")
+
+    def test_get_hashes_string_all_keys_present(self):
+        test_string = "abcdefghijklmnopqrstuvwxyz"
+        expected_keys = {"md5", "sha1", "sha256", "sha512"}
+
+        has_all_keys = expected_keys.issubset(helper.get_hashes_string(test_string))
+
+        self.assertTrue(has_all_keys)
+
+    # check_hashes
+
+    def test_check_hashes_true_md5_success(self):
+        test_string = "abcdefghijklmnopqrstuvwxyz"
+        self.assertTrue(helper.check_hashes(test_string, "c3fcd3d76192e4007dfb496cca67e13b"))
+
+    def test_check_hashes_false_md5_failure(self):
+        test_string = "abcdefghijklmnopqrstuvwxyz"
+        self.assertFalse(helper.check_hashes(test_string, "c3fcd3d76192asdfasdfasdf67e13z"))
+
+    def test_check_hashes_true_sha1_success(self):
+        test_string = "abcdefghijklmnopqrstuvwxyz"
+        self.assertTrue(helper.check_hashes(test_string, "32d10c7b8cf96570ca04ce37f2a19d84240d3a89"))
+
+    def test_check_hashes_false_sha1_failure(self):
+        test_string = "abcdefghijklmnopqrstuvwxyz"
+        self.assertFalse(helper.check_hashes(test_string, "32d10c7b8cf96570ca04ce37f2a19d84240d3aasdf"))
+
+    def test_check_hashes_true_sha256_success(self):
+        test_string = "abcdefghijklmnopqrstuvwxyz"
+        self.assertTrue(helper.check_hashes(test_string, "71c480df93d6ae2f1efad1447c66c9525e316218cf51fc8d9ed832f2daf18b73"))
+
+    def test_check_hashes_false_sha256_failure(self):
+        test_string = "abcdefghijklmnopqrstuvwxyz"
+        self.assertFalse(helper.check_hashes(test_string, "71c480df93d6ae2f1efad1447c66c9525e316218cf51fc8d9ed832f2dafasdfasdf"))
+
+    def test_check_hashes_true_sha512_success(self):
+        test_string = "abcdefghijklmnopqrstuvwxyz"
+        self.assertTrue(helper.check_hashes(test_string,
+                                            "4dbff86cc2ca1bae1e16468a05cb9881c97f1753bce3619034898faa1aabe429955a1bf8ec483d7421fe3c1646613a59ed5441fb0f321389f77f48a879c7b1f1"))
+
+    def test_check_hashes_false_sha512_failure(self):
+        test_string = "abcdefghijklmnopqrstuvwxyz"
+        self.assertFalse(helper.check_hashes(test_string,
+                                             "4dbff86cc2ca1bae1e16468a05cb9881c97f1753bce3619034898faa1aabe429955a1bf8ec483d7421fe3c1646613a59ed5441fb0f32138asdfasdf"))
+
