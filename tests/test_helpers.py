@@ -107,7 +107,8 @@ class TestHelpers(unittest.TestCase):
     def test_get_hashes_string_all_keys_present(self):
         test_string = "abcdefghijklmnopqrstuvwxyz"
         expected_keys = {"md5", "sha1", "sha256", "sha512"}
-
+        
+        #TODO: Cleaner way to do this using set difference len((set1 - set2)) == 0
         has_all_keys = expected_keys.issubset(helper.get_hashes_string(test_string))
 
         self.assertTrue(has_all_keys)
