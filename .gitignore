@@ -3,5 +3,5 @@
 build/
 dist/
 .eggs
-idea./
+.idea/
 .DS_STORE
