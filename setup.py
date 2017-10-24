@@ -9,5 +9,4 @@ setup(name='komand',
       packages=find_packages(),
       install_requires=['requests>=2.9','python_jsonschema_objects','jsonschema==2.3.0'],
       test_suite="tests.komand_test_suite",
-
       )
