@@ -1,5 +1,6 @@
 import unittest
 from komand import helper
+import requests
 
 
 class TestHelpers(unittest.TestCase):
@@ -149,3 +150,13 @@ class TestHelpers(unittest.TestCase):
         self.assertFalse(helper.check_hashes(test_string,
                                              "4dbff86cc2ca1bae1e16468a05cb9881c97f1753bce3619034898faa1aabe429955a1bf8ec483d7421fe3c1646613a59ed5441fb0f32138asdfasdf"))
 
+    # open_url
+
+    # We can't reliably test known responses against dynamic responses from an endpoint we don't control,
+    # so this is the best we can do (to verify Python 2/3 compatibility
+    def test_open_url_no_exceptions(self):
+        try:
+            response = helper.open_url(url="https://api.ipify.org?format=json")
+            self.assertIsNotNone(response)
+        except:
+            self.fail("Exception caught")
