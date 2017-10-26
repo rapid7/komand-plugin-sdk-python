@@ -286,7 +286,7 @@ def exec_command(command):
 def encode_string(s):
   '''Returns a base64 encoded string given a string'''
   if type(s) is str:
-    _bytes = base64.b64encode(s)
+    _bytes = base64.b64encode(s.encode())
     return _bytes
   return None
 
