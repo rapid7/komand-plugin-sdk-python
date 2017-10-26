@@ -160,3 +160,31 @@ class TestHelpers(unittest.TestCase):
             self.assertIsNotNone(response)
         except:
             self.fail("Exception caught")
+
+    # check_url
+
+    def test_check_url_success(self):
+        self.assertTrue(helper.check_url("https://google.com"))
+
+    def test_check_url_exception(self):
+        with self.assertRaises(requests.exceptions.InvalidURL):
+            helper.check_url("http:google.com")
+
+    # exec_command
+
+    def test_exec_command_success(self):
+        result = helper.exec_command("ls")
+        expected_keys = {"stdout", "rcode", "stderr"}
+        set_diff = expected_keys.difference(set(result))
+        has_keys = len(set_diff) == 0
+        self.assertTrue(has_keys)
+
+    # encode_string
+
+    def test_encode_string(self):
+        sample = "hello world"
+        expected = b'aGVsbG8gd29ybGQ='
+
+        encoded = helper.encode_string(sample)
+
+        self.assertEqual(expected, encoded)
