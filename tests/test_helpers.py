@@ -200,3 +200,24 @@ class TestHelpers(unittest.TestCase):
         self.assertEqual(expected, actual)
 
         os.remove("test.txt")
+
+    # check_url_modified
+
+    def test_check_url_modified_false(self):
+        self.assertFalse(helper.check_url_modified("https://httpstat.us/304"))
+
+    def test_check_url_modified_true(self):
+        self.assertTrue(helper.check_url_modified("https://httpstat.us/200"))
+
+    # get_url_content_disposition
+
+    def test_get_url_content_disposition(self):
+        headers = {"Content-Type": "text/html; charset=utf-8",
+                    "Content-Disposition": "attachment; filename=test.html",
+                    "Content-Length": 22
+        }
+
+        self.assertEqual("test.html", helper.get_url_content_disposition(headers))
+
+    
+
