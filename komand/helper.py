@@ -331,9 +331,10 @@ def check_url_modified(url):
 def get_url_content_disposition(headers):
   '''Return filename as string from content-disposition by supplying requests headers'''
   # Dict is case-insensitive
-  if headers.get('content-disposition'):
-    filename = re.findall("filename=(.+)", headers['content-disposition'])
-    return str(filename[0].strip('"'))
+  for key, value in headers.items():
+    if key.lower() == "content-disposition":
+      filename = re.findall("filename=(.+)", value)
+      return str(filename[0].strip('"'))
   return None
 
 def get_url_path_filename(url):
