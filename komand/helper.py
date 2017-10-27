@@ -12,6 +12,7 @@ import time
 # Python 2/3 compatibility
 from six.moves.urllib import request
 from six.moves.urllib.error import HTTPError, URLError
+from io import IOBase
 
 
 def extract_value(begin, key, end, s):
@@ -294,7 +295,7 @@ def encode_file(file_path):
   '''Return a string of base64 encoded file provided as an absolute file path'''
   try:
     f = open_file(file_path)
-    if type(f) is file:
+    if isinstance(f, file) or isinstance(f, IOBase):  # IOBase for Py3 compatibility
       efile = base64.b64encode(f.read())
       return efile
     return None
@@ -302,7 +303,7 @@ def encode_file(file_path):
     logging.error('EncodeFile: Failed to open file: %s', e.strerror)
     raise Exception('EncodeFile')
   finally:
-    if type(f) is file:
+    if isinstance(f, file) or isinstance(f, IOBase):
       f.close()
   return efile
 
