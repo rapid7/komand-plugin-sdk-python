@@ -190,7 +190,7 @@ class TestHelpers(unittest.TestCase):
         self.assertEqual(expected, encoded)
 
     def test_encode_file_success(self):
-        expected = "a29tYW5kIGlzIGF3ZXNvbWU="
+        expected = b'a29tYW5kIGlzIGF3ZXNvbWU='
 
         f = open("test.txt", "w+")
         f.write("komand is awesome")

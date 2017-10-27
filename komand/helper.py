@@ -138,7 +138,7 @@ def open_file(file_path):
   if os.path.isdir(dirname):
     if os.path.isfile(file_path):
       f = open(file_path, 'rb')
-      if type(f) is file:
+      if isinstance(f, IOBase) or isinstance(f, file):
         return f
       return None
     else:
@@ -295,7 +295,7 @@ def encode_file(file_path):
   '''Return a string of base64 encoded file provided as an absolute file path'''
   try:
     f = open_file(file_path)
-    if isinstance(f, file) or isinstance(f, IOBase):  # IOBase for Py3 compatibility
+    if isinstance(f, IOBase) or isinstance(f, file):  # IOBase for Py3 compatibility
       efile = base64.b64encode(f.read())
       return efile
     return None
@@ -303,7 +303,7 @@ def encode_file(file_path):
     logging.error('EncodeFile: Failed to open file: %s', e.strerror)
     raise Exception('EncodeFile')
   finally:
-    if isinstance(f, file) or isinstance(f, IOBase):
+    if isinstance(f, IOBase) or isinstance(f, file):
       f.close()
   return efile
 
