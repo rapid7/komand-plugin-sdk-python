@@ -1,10 +1,10 @@
 import unittest
 from io import StringIO
 import sys, os
+import komand.message
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-import komand.message 
 
 class TestMessage(unittest.TestCase):
 

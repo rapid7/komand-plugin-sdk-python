@@ -1,10 +1,10 @@
 import unittest
 from io import StringIO
 import sys, os
+from komand.variables import Input
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-import komand.variables 
 
 class TestMessage(unittest.TestCase):
 
@@ -22,7 +22,7 @@ class TestMessage(unittest.TestCase):
        }
        }
 
-      i = komand.Input(schema)
+      i = Input(schema)
       print(i.sample())
 
 
