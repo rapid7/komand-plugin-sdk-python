@@ -5,6 +5,7 @@ import tests.test_variables
 import tests.test_custom_encoder
 import tests.test_helpers
 
+
 def komand_test_suite():
     testmodules = [
         test_message,

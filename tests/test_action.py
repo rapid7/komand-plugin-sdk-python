@@ -2,12 +2,15 @@ import unittest
 from io import StringIO
 import sys, os
 
+from komand.action import Action, Task
+from komand.connection import Connection
+from komand.variables import Input
+from komand.variables import Output
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from komand import action 
-import komand
 
-class MyConnection(komand.Connection):
+class MyConnection(Connection):
     schema = {
             "type" : "object",
             "properties" : {
@@ -22,7 +25,8 @@ class MyConnection(komand.Connection):
     def connect(self, params={}):
         return None
 
-class StupidActionInput(komand.Input):
+
+class StupidActionInput(Input):
     schema = {
             "type" : "object",
             "properties" : {
@@ -33,7 +37,8 @@ class StupidActionInput(komand.Input):
     def __init__(self):
         super(self.__class__, self).__init__(schema=self.schema)
 
-class StupidActionOutput(komand.Output):
+
+class StupidActionOutput(Output):
     schema = {
             "type" : "object",
             "required": ["price", "name"],
@@ -47,7 +52,7 @@ class StupidActionOutput(komand.Output):
         super(self.__class__, self).__init__(schema=self.schema)
 
 
-class StupidAction(action.Action):
+class StupidAction(Action):
     def __init__(self):
         super(self.__class__, self).__init__(
                 'stupid', 
@@ -62,11 +67,12 @@ class StupidAction(action.Action):
     def test(self):
         return { 'price': 100, 'name': 'Jon' }
 
+
 class TestActionRunner(unittest.TestCase):
 
     def test_action_test_succeeds(self):
 
-        task = action.Task(MyConnection(), StupidAction(), { 
+        task = Task(MyConnection(), StupidAction(), {
             'body': { 'action': 'stupid', 
                 'input': {
                     'greeting': 'hello'
