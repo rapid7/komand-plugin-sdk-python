@@ -211,7 +211,7 @@ class TestHelpers(unittest.TestCase):
 
     # get_url_content_disposition
 
-    def test_get_url_content_disposition(self):
+    def test_get_url_content_disposition_success(self):
         headers = {"Content-Type": "text/html; charset=utf-8",
                     "Content-Disposition": "attachment; filename=test.html",
                     "Content-Length": 22
@@ -219,5 +219,23 @@ class TestHelpers(unittest.TestCase):
 
         self.assertEqual("test.html", helper.get_url_content_disposition(headers))
 
-    
+    # get_url_path_filename
+
+    def test_get_url_path_filename_success(self):
+        sample = "https://dl.google.com/chrome/mac/stable/GGRO/googlechrome.dmg"
+        expected = "googlechrome.dmg"
+
+        self.assertEqual(expected, helper.get_url_path_filename(sample))
+
+    def test_get_url_path_filename_success_with_two_periods(self):
+        sample = "https://dl.google.com/chrome/mac/stable/GGRO/google.chrome.dmg"
+        expected = "google.chrome.dmg"
+
+        self.assertEqual(expected, helper.get_url_path_filename(sample))
+
+    # get_url_filename
+
+    def test_get_url_filename_successful(self):
+        expected = "googlechrome.dmg"
+        self.assertEqual(expected, helper.get_url_filename("https://dl.google.com/chrome/mac/stable/GGRO/googlechrome.dmg"))
 
