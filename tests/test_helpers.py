@@ -1,7 +1,7 @@
 import unittest
 from komand import helper
 import requests
-
+import os
 
 class TestHelpers(unittest.TestCase):
 
@@ -188,3 +188,15 @@ class TestHelpers(unittest.TestCase):
         encoded = helper.encode_string(sample)
 
         self.assertEqual(expected, encoded)
+
+    def test_encode_file_success(self):
+        expected = "a29tYW5kIGlzIGF3ZXNvbWU="
+
+        f = open("test.txt", "w+")
+        f.write("komand is awesome")
+        f.close()
+
+        actual = helper.encode_file("./test.txt")
+        self.assertEqual(expected, actual)
+
+        os.remove("test.txt")
