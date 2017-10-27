@@ -153,7 +153,7 @@ class TestHelpers(unittest.TestCase):
     # open_url
 
     # We can't reliably test known responses against dynamic responses from an endpoint we don't control,
-    # so this is the best we can do (to verify Python 2/3 compatibility
+    # so this is the best we can do (to verify Python 2/3 compatibility)
     def test_open_url_no_exceptions(self):
         try:
             response = helper.open_url(url="https://api.ipify.org?format=json")
