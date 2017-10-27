@@ -4,8 +4,7 @@ import sys, os
 
 from komand.action import Action, Task
 from komand.connection import Connection
-from komand.variables import Input
-from komand.variables import Output
+from komand.variables import Input, Output
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 

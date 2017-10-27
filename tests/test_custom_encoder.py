@@ -1,13 +1,15 @@
 import unittest
 from io import StringIO
 import sys, os
+import json
+import decimal
+
+from komand.action import Action, Task
+from komand.variables import Input, Output
+from komand.connection import Connection
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from komand import action 
-import komand
-import json
-import decimal
 
 class DecimalEncoder(json.JSONEncoder):
     def default(self, o):
@@ -19,7 +21,8 @@ class DecimalEncoder(json.JSONEncoder):
                 return int(o)
         return super(DecimalEncoder, self).default(o)
 
-class CustomEncoderConnection(komand.Connection):
+
+class CustomEncoderConnection(Connection):
     schema = {
             "type" : "object",
             "properties" : {
@@ -34,7 +37,8 @@ class CustomEncoderConnection(komand.Connection):
     def connect(self, params={}):
         return None
 
-class CustomEncoderActionInput(komand.Input):
+
+class CustomEncoderActionInput(Input):
     schema = {
             "type" : "object",
             "properties" : {
@@ -45,7 +49,8 @@ class CustomEncoderActionInput(komand.Input):
     def __init__(self):
         super(self.__class__, self).__init__(schema=self.schema)
 
-class CustomEncoderActionOutput(komand.Output):
+
+class CustomEncoderActionOutput(Output):
     schema = {
             "type" : "object",
             "required": ["price", "name"],
@@ -59,7 +64,7 @@ class CustomEncoderActionOutput(komand.Output):
         super(self.__class__, self).__init__(schema=self.schema)
 
 
-class CustomEncoderAction(action.Action):
+class CustomEncoderAction(Action):
     def __init__(self):
         super(self.__class__, self).__init__(
                 'stupid', 
@@ -74,10 +79,11 @@ class CustomEncoderAction(action.Action):
     def test(self):
         return { 'price': decimal.Decimal('1.1'), 'name': 'Jon' }
 
+
 class TestActionRunner(unittest.TestCase):
 
     def test_custom_encoder_action_succeeds(self):
-        task = action.Task(CustomEncoderConnection(), CustomEncoderAction(), { 
+        task = Task(CustomEncoderConnection(), CustomEncoderAction(), {
             'body': { 'action': 'stupid', 
                 'input': {
                     'greeting': 'hello'
@@ -87,6 +93,7 @@ class TestActionRunner(unittest.TestCase):
             }, custom_encoder=DecimalEncoder)
 
         task.test()
+
 
 if __name__ == '__main__':
     unittest.main()
