@@ -1,6 +1,5 @@
 import unittest
 from io import StringIO
-from io import BytesIO
 import sys, os
 import komand.message
 
