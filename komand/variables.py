@@ -22,7 +22,6 @@ class Input(object):
         return util.sample(self.schema)
     
 
-
 class Output(object):
     """ Output variables """
     def __init__(self, schema):
@@ -41,4 +40,3 @@ class Output(object):
     def sample(self):
         """ Sample object """
         return util.sample(self.schema)
-    

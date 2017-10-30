@@ -1,7 +1,6 @@
 import base64
 import hashlib
 import logging
-import json
 import re
 import requests
 import ssl

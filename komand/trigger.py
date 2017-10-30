@@ -1,10 +1,9 @@
 import komand.message as message
 import komand.dispatcher as dispatcher
-import komand.helper as helper
 import logging
-import komand.variables as variables
 import sys
 import inspect
+
 
 class Trigger(object):
     """A trigger"""

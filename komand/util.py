@@ -1,8 +1,7 @@
 import sys
 import python_jsonschema_objects as pjs
-import pprint
 import copy
-import logging
+
 
 def default_for_object(obj, defs):
     defaults = {}
@@ -13,6 +12,7 @@ def default_for_object(obj, defs):
     for key, prop in obj['properties'].items():
         defaults[key] = default_for(prop, defs)
     return defaults
+
 
 def default_for(prop, defs):
 
@@ -48,6 +48,7 @@ def default_for(prop, defs):
     if prop['type'] == 'integer' or prop['type'] == 'number':
         return 0
 
+
 def sample(source):
 
     if not source or (not 'properties' in source) or len(source['properties']) == 0:
@@ -80,6 +81,7 @@ def sample(source):
     Obj = ns.Example
     o = Obj(**defaults)
     return o.as_dict()
+
 
 def trace(exception):
     """Returns the trace from an exception"""

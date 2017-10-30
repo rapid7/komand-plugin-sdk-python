@@ -6,7 +6,7 @@ from six.moves import StringIO
 
 
 class Plugin(object):
-    """An Komand Plugin."""
+    """A Komand Plugin."""
 
     def __init__(self, name='', vendor='', description='', version='', connection=None, custom_encoder=None, custom_decoder=None):
         self.name = name

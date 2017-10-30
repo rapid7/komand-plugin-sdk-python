@@ -4,6 +4,7 @@ import logging
 import sys
 import inspect
 
+
 class Action(object):
     """A action"""
     def __init__(self, name, description, input, output):

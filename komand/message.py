@@ -1,6 +1,5 @@
 import sys
 import json
-import komand.util as util
 
 
 # version
@@ -17,8 +16,8 @@ valid_types = [
     ACTION_START,
 ]
 
-SUCCESS = 'ok';
-ERROR = 'error';
+SUCCESS = 'ok'
+ERROR = 'error'
 
 def envelope(msg_type, body={}):
     return {
