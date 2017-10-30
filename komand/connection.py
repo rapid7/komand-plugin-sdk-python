@@ -1,6 +1,6 @@
 from jsonschema import validate
 import komand.util as util
-import komand.helper as helper
+
 
 class Connection(object):
     """Komand connection"""

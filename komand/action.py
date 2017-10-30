@@ -1,6 +1,5 @@
 import komand.message as message
 import komand.dispatcher as dispatcher
-import komand.helper as helper
 import logging
 import sys
 import inspect

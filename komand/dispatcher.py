@@ -3,6 +3,7 @@ import sys
 import logging
 import requests
 
+
 class Stdout(object):
     """ stdout dispatcher """
     def __init__(self, config={}):
@@ -12,6 +13,7 @@ class Stdout(object):
 
     def write(self, msg):
         message.marshal(msg, sys.stdout, ce=self.custom_encoder)
+
 
 class Http(object):
     """ HTTP dispatcher """
