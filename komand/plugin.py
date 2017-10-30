@@ -2,12 +2,7 @@ import komand.message as message
 import komand.action as action
 import komand.trigger as trigger
 import sys
-import komand.dispatcher as dispatcher
-
-try:
-    from StringIO import StringIO
-except ImportError:
-    from io import StringIO
+from six.moves import StringIO
 
 
 class Plugin(object):
