@@ -15,7 +15,10 @@ install:
 	python3 setup.py install
 
 test:
+	@echo Testing Python3...
 	python3 setup.py test
+	@echo Testing Python 2...
+	python setup.py test
 
 tag: image
 	@echo version is $(VERSION)
