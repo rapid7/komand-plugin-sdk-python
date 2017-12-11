@@ -38,7 +38,7 @@ def where():
         else:
             return old_certifi_value
     except Exception as ex:
-        return 'Exception/old_certifi_value: ' + str(ex)
+        return old_certifi_value
 
 # and here's the monkey-patch itself.
 certifi.where = where
