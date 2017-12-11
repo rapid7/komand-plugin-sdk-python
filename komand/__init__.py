@@ -22,9 +22,7 @@ CLI = komand.cli.CLI
 # https://github.com/requests/requests/blob/master/requests/certs.py
 # So, we'll ask it to use SSL_CERT_DIR, one of the most common env vars
 # that would contain a path to SSL CA certificate directory.
-# Additionally, we'll set the OpenSSL default path to look in the same
-# place as well. See OpenSSL.SSL.Context.set_default_verify_paths at:
-# https://pyopenssl.org/en/stable/api/ssl.html
+# We'll also set REQUESTS_CA_BUNDLE if it wasn't set already.
 import certifi
 old_certifi_value = certifi.where()
 
