@@ -24,24 +24,22 @@ CLI = komand.cli.CLI
 # Additionally, we'll set the OpenSSL default path to look in the same
 # place as well. See OpenSSL.SSL.Context.set_default_verify_paths at:
 # https://pyopenssl.org/en/stable/api/ssl.html
-def monkey_patch_certifi_where():
-    import certifi
-    def where():
-        old_value = certifi.where()
-        try:
-            env_var = os.environ['SSL_CERT_DIR']
-            if !env_var && os.path.exists(env_var):
-                # tell SSL in general to use this path
-                SSLContext.load_verify_locations(pemfile=None, capath=env_var)
-                # and return callers of certifi.where() a shiny custom path
-                # to do their own verifications against the bundle.
-                return env_var
-        except Exception:
-            return old_value # if it failed, we just act all innocent-like.
+import certifi
+old_certifi_value = certifi.where()
 
-    # and here's the monkey-patch itself.
-    certifi.where = where
-    return
+def where():
+    try:
+        env_var = os.environ['SSL_CERT_DIR']
+        if len(env_var) > 0 and os.path.exists(env_var):
+            # tell the requests package to use it too
+            os.environ['REQUESTS_CA_BUNDLE'] = env_var
+            # and return callers of certifi.where() a shiny custom path
+            # to do their own verifications against the bundle.
+            return env_var
+        else:
+            return old_certifi_value
+    except Exception as ex:
+        return 'Exception/old_certifi_value: ' + str(ex)
 
-# do the monkey business
-monkey_patch_certifi_where()
+# and here's the monkey-patch itself.
+certifi.where = where
