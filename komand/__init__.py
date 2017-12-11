@@ -1,6 +1,7 @@
 __all__ = ['message', 'plugin', 'connection', 'trigger', 'action', 'variables', 'cli', 'helper']
 
 import komand.plugin
+
 import komand.action
 import komand.trigger 
 import komand.connection
