@@ -24,6 +24,7 @@ CLI = komand.cli.CLI
 # that would contain a path to SSL CA certificate directory.
 # We'll also set REQUESTS_CA_BUNDLE if it wasn't set already.
 import certifi
+import os
 old_certifi_value = certifi.where()
 
 def where():
