@@ -20,8 +20,9 @@ CLI = komand.cli.CLI
 # dedicated CA bundle, which is exactly what we will do. In fact, the 
 # requests package even suggests to do exactly this: 
 # https://github.com/requests/requests/blob/master/requests/certs.py
+# http://docs.python-requests.org/en/master/user/advanced/#ca-certificates
 # So, we'll ask it to use SSL_CERT_FILE, one of the most common env vars
-# that would contain a path to SSL CA certificate directory.
+# that would contain a path to SSL CA certificate bundle.
 # We'll also set REQUESTS_CA_BUNDLE if it wasn't set already.
 import certifi
 import os
