@@ -1,11 +1,12 @@
-__all__ = ['message', 'plugin', 'connection', 'trigger', 'action', 'variables', 'cli', 'helper']
-
 import komand.plugin
-
 import komand.action
-import komand.trigger 
+import komand.trigger
 import komand.connection
 import komand.cli
+import certifi
+import os
+
+__all__ = ['message', 'plugin', 'connection', 'trigger', 'action', 'variables', 'cli', 'helper']
 
 Plugin = komand.plugin.Plugin
 Action = komand.action.Action
@@ -24,9 +25,9 @@ CLI = komand.cli.CLI
 # So, we'll ask it to use SSL_CERT_FILE, one of the most common env vars
 # that would contain a path to SSL CA certificate bundle.
 # We'll also set REQUESTS_CA_BUNDLE if it wasn't set already.
-import certifi
-import os
+
 old_certifi_value = certifi.where()
+
 
 def where():
     try:
