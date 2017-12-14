@@ -6,7 +6,12 @@ import komand.helper as helper
 class Connection(object):
     """Komand connection"""
     def __init__(self, input):
-        self.schema = input.schema
+        # Maintain backwards compatibility here - if Input object passed in it will have a 'schema' property so use that
+        # Otherwise, the input is a JSON schema, so just use it directly
+        if hasattr(input, "schema"):
+            self.schema = input.schema
+        else:
+            self.schema = input
         self.parameters = {}
 
     def set(self, parameters):
