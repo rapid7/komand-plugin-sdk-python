@@ -16,6 +16,7 @@ Input = komand.variables.Input
 Output = komand.variables.Output
 CLI = komand.cli.CLI
 
+
 # Many plugins use the certifi package, particularly indirectly through
 # the requests package. Certifi can be monkey-patched to not use the 
 # dedicated CA bundle, which is exactly what we will do. In fact, the 
@@ -42,6 +43,7 @@ def where():
             return old_certifi_value
     except Exception as ex:
         return old_certifi_value
+
 
 # and here's the monkey-patch itself.
 certifi.where = where
