@@ -41,3 +41,4 @@ class Http(object):
                 self.url,
                 requests.utils.DEFAULT_CA_BUNDLE_PATH,
                 str(ex))
+
