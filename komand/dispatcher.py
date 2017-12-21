@@ -1,4 +1,4 @@
-import komand.message  as message
+import komand.message as message
 import sys
 import logging
 import requests
@@ -33,13 +33,13 @@ class Http(object):
 
     def write(self, msg):
         try:
-            r = requests.post(self.url, 
-                json=msg, 
-                verify=os.environ['SSL_CERT_FILE'])
+            r = requests.post(self.url,
+                              json=msg,
+                              verify=os.environ['SSL_CERT_FILE'])
             logging.info('POST %s returned %s', self.url, r.content)
         except Exception as ex:
             logging.error('ERROR: POST to %s failed. CA bundle path: %s Exception %s',
-                self.url,
-                os.environ['SSL_CERT_FILE'],
-                str(ex))
+                          self.url,
+                          os.environ['SSL_CERT_FILE'],
+                          str(ex))
 
