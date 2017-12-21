@@ -2,7 +2,6 @@ import komand.message  as message
 import sys
 import logging
 import requests
-import requests.utils
 
 class Stdout(object):
     """ stdout dispatcher """
@@ -39,6 +38,6 @@ class Http(object):
         except Exception as ex:
             logging.error('ERROR: POST to %s failed. CA bundle path: %s Exception %s',
                 self.url,
-                requests.utils.DEFAULT_CA_BUNDLE_PATH,
+                os.environ['SSL_CERT_FILE'],
                 str(ex))
 
