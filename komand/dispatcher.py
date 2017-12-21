@@ -38,6 +38,6 @@ class Http(object):
             logging.info('POST %s returned %s', self.url, r.content)
         except Exception as ex:
             logging.error('ERROR: POST to %s failed. CA bundle path: %s Exception %s',
-                requests.utils.DEFAULT_CA_BUNDLE_PATH,
                 self.url,
+                requests.utils.DEFAULT_CA_BUNDLE_PATH,
                 str(ex)
