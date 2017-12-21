@@ -40,4 +40,4 @@ class Http(object):
             logging.error('ERROR: POST to %s failed. CA bundle path: %s Exception %s',
                 self.url,
                 requests.utils.DEFAULT_CA_BUNDLE_PATH,
-                str(ex)
+                str(ex))
