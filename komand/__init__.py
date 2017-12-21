@@ -4,6 +4,7 @@ import komand.trigger
 import komand.connection
 import komand.cli
 import certifi
+import logging
 import os
 
 __all__ = ['message', 'plugin', 'connection', 'trigger', 'action', 'variables', 'cli', 'helper']
@@ -39,9 +40,14 @@ def where():
             # to do their own verifications against the bundle.
             return env_var
         else:
+            logging.warn('certifi.where(): Using old certifi value %s', old_certifi_value)
             return old_certifi_value
     except Exception as ex:
+        logging.warn('certifi.where(): Using old certifi value %s', old_certifi_value)
         return old_certifi_value
 
 # and here's the monkey-patch itself.
 certifi.where = where
+
+logging.info('certifi.where() monkey patched. It resolves to: %s', certifi.where())
+
