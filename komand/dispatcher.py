@@ -2,6 +2,7 @@ import komand.message  as message
 import sys
 import logging
 import requests
+import os
 
 class Stdout(object):
     """ stdout dispatcher """
