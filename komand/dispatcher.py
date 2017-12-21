@@ -4,6 +4,7 @@ import logging
 import requests
 import os
 
+
 class Stdout(object):
     """ stdout dispatcher """
     def __init__(self, config={}):
