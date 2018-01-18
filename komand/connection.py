@@ -39,10 +39,6 @@ class ConnectionCache(object):
 
 class Connection(object):
     """Komand connection"""
-<<<<<<< HEAD
-    def __init__(self, schema={}):
-        self.schema = schema
-=======
     def __init__(self, input):
         # Maintain backwards compatibility here - if Input object passed in it will have a 'schema' property so use that
         # Otherwise, the input is a JSON schema, so just use it directly
@@ -50,7 +46,6 @@ class Connection(object):
             self.schema = input.schema
         else:
             self.schema = input
->>>>>>> origin/master
         self.parameters = {}
 
     def key(self):
@@ -75,8 +70,3 @@ class Connection(object):
         """ Sample object """
         if self.schema:
             return util.sample(self.schema)
-<<<<<<< HEAD
-
-
-=======
->>>>>>> origin/master
