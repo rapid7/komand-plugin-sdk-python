@@ -12,6 +12,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 		ca-certificates \
 		libsqlite3-0 \
 		libssl1.0.0 \
+		git \
 	&& rm -rf /var/lib/apt/lists/*
 
 ENV GPG_KEY 97FC712E4C024BBEA48A61ED3A5CA953F73C700D

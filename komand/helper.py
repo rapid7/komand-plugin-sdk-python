@@ -63,6 +63,29 @@ def clean_list(lst):
       newlist.remove(i)
   return newlist
 
+def clean(object):
+  ''' Returns a new but cleaned JSON object
+  * Recursively iterates through the collection
+  * None type values are removed
+  * Empty string values are removed
+
+  This function is designed so we only return useful data
+  '''
+
+  cleaned = clean_list(object) if isinstance(object, list) else clean_dict(object)
+
+  # The only *real* difference here is how we have to iterate through these different collection types
+  if isinstance(cleaned, list):
+    for key, value in enumerate(cleaned):
+      if isinstance(value, list) or isinstance(value, dict):
+        cleaned[key] = clean(value)
+  elif isinstance(cleaned, dict):
+    for key, value in cleaned.items():
+      if isinstance(value, dict) or isinstance(value, list):
+        cleaned[key] = clean(value)
+
+  return cleaned
+
 def check_hashes(src, checksum):
   '''Return boolean on whether a hash matches a file or string'''
   if type(src) is str:
@@ -191,7 +214,8 @@ def open_url(url, timeout=None, verify=True, **kwargs):
       req.add_header(header, kwargs[key])
   try:
     if verify:
-      urlobj = urllib.request.urlopen(req, timeout=timeout)
+      ctx = ssl.create_default_context(cafile=os.environ['SSL_CERT_FILE'])
+      urlobj = urllib.request.urlopen(req, timeout=timeout, context=ctx)
     else:
       ctx = ssl.create_default_context()
       ctx.check_hostname = False
@@ -220,7 +244,8 @@ def check_url(url):
     '''Try Range request as secondary option'''
     hrange = {'Range':'bytes=0-2'}
     req = urllib.request.Request(url,headers=hrange)
-    resp = urllib.request.urlopen(req)
+    ctx = ssl.create_default_context(cafile=os.environ['SSL_CERT_FILE'])
+    resp = urllib.request.urlopen(req, context=ctx)
     if resp.code >= 200 and resp.code <= 299:
       return True
 
