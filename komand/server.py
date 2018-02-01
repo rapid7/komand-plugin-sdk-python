@@ -5,6 +5,9 @@ from io import StringIO
 import komand.message as message
 import komand.action
 import komand.dispatcher
+import gunicorn.app.base
+from gunicorn.six import iteritems
+
 
 def create_flask_app():
     app = Flask(__name__)
@@ -19,7 +22,7 @@ def create_flask_app():
             logging.fatal("Fatal error - no control server provided")
 
         is_test = test is not None
-        logging.error('request json: %s', msg)
+        logging.info('request json: %s', msg)
         result = {}
         if prefix == "actions":
             try:
@@ -61,10 +64,16 @@ class Server(object):
 
     def start(self):
         """ start server """
+        logging.info("Starting server on port %d" % self.port)
+
         with self.app.app_context():
             g.control = self
-            logging.info("Starting server on port: %d", self.port)
-            self.app.run(host='0.0.0.0', port=self.port)
+            options = {
+                'bind': '%s:%s' % ('0.0.0.0', self.port),
+                'workers': ApplicationServer.number_of_workers(),
+            }
+            logging.info("Binding app to control")
+            ApplicationServer(self.app, options).run()
 
     def handle_action(self, name, msg, is_test):
         """Run handler"""
@@ -124,3 +133,25 @@ class Server(object):
         task.test()
         # dispatch.msg has the envelope and message body with error codes and logs
         return dispatch.msg
+
+
+class ApplicationServer(gunicorn.app.base.BaseApplication):
+
+    def __init__(self, app, options=None):
+        self.options = options or {}
+        self.application = app
+        super(ApplicationServer, self).__init__()
+
+    def load_config(self):
+        config = dict([(key, value) for key, value in iteritems(self.options)
+                       if key in self.cfg.settings and value is not None])
+        for key, value in iteritems(config):
+            self.cfg.set(key.lower(), value)
+
+    def load(self):
+        return self.application
+
+    @staticmethod
+    def number_of_workers():
+        import multiprocessing
+        return (multiprocessing.cpu_count() * 2) + 1
