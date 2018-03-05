@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(name='komand',
-      version='0.3.13',
+      version='0.3.14',
       description='Komand Plugin SDK',
       author='Komand',
       author_email='support@komand.com',
@@ -9,7 +9,7 @@ setup(name='komand',
       packages=find_packages(),
       install_requires=[
           'requests>=2.9.1',
-          'python_jsonschema_objects==0.3.1',
+          'python_jsonschema_objects==0.3.2',
           'jsonschema==2.3.0',
           'certifi==2017.11.5'
       ],

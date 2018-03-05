@@ -14,7 +14,7 @@ build:
 	python3 setup.py build 
 
 install:
-	pip install git+https://github.com/mbroomfield-r7/python-jsonschema-objects.git@fix/support-null-type
+	pip install python_jsonschema_objects==0.3.2
 	python3 setup.py install
 
 test:
