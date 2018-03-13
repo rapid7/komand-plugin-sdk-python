@@ -1,0 +1,15 @@
+language: python
+python:
+- '2.7'
+- '3.6'
+sudo: required
+services:
+  - docker
+script:
+  - make tag
+deploy:
+  provider: script
+  script: make deploy
+  skip_cleanup: true
+  on:
+    tags: true

@@ -27,8 +27,14 @@ def default_for(prop, defs):
 
         return {}
 
-    if not 'type' in prop:
-        return ''
+    if 'oneOf' in prop:
+        for o in prop['oneOf']:
+            t = default_for(o, defs)
+            if t is not None:
+                return t
+
+    if 'type' not in prop:
+        return None
 
     if 'enum' in prop:
         return prop['enum'][0]
@@ -47,6 +53,8 @@ def default_for(prop, defs):
 
     if prop['type'] == 'integer' or prop['type'] == 'number':
         return 0
+
+    return None
 
 
 def sample(source):
@@ -77,7 +85,7 @@ def sample(source):
         schema['required'].append(key)
 
     builder = pjs.ObjectBuilder(schema)
-    ns = builder.build_classes()
+    ns = builder.build_classes(strict=True)
     Obj = ns.Example
     o = Obj(**defaults)
     return o.as_dict()
