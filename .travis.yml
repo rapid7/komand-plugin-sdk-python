@@ -5,6 +5,10 @@ python:
 sudo: required
 services:
   - docker
+environment:
+  SSL_CERT_FILE: /etc/ssl/certs/ca-certificates.crt
+  SSL_CERT_DIR: /etc/ssl/certs
+  REQUESTS_CA_BUNDLE: /etc/ssl/certs/ca-certificates.crt
 script:
   - make test
   - make tag
