@@ -1,8 +1,9 @@
-import komand.plugin
 import komand.action
-import komand.trigger
-import komand.connection
 import komand.cli
+import komand.connection
+import komand.plugin
+import komand.trigger
+import komand.variables
 import certifi
 import os
 

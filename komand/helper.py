@@ -135,13 +135,13 @@ def check_cachefile(cache_file):
 
 
 def open_file(file_path):
-    '''Return file object if it exists'''
+    """Return file object if it exists"""
     dirname = os.path.dirname(file_path)
     filename = os.path.basename(file_path)
     if os.path.isdir(dirname):
         if os.path.isfile(file_path):
             f = open(file_path, 'rb')
-            if isinstance(f, IOBase) or isinstance(f, file):
+            if isinstance(f, IOBase):
                 return f
             return None
         else:
@@ -236,7 +236,7 @@ def open_url(url, timeout=None, verify=True, **kwargs):
     try:
         if verify:
             ctx = ssl.create_default_context(cafile=os.environ['SSL_CERT_FILE'])
-            urlobj = urllib.request.urlopen(req, timeout=timeout, context=ctx)
+            urlobj = request.urlopen(req, timeout=timeout, context=ctx)
         else:
             ctx = ssl.create_default_context()
             ctx.check_hostname = False
@@ -267,9 +267,9 @@ def check_url(url):
 
         # Try Range request as secondary option
         hrange = {'Range': 'bytes=0-2'}
-        req = urllib.request.Request(url, headers=hrange)
+        req = request.Request(url, headers=hrange)
         ctx = ssl.create_default_context(cafile=os.environ['SSL_CERT_FILE'])
-        resp = urllib.request.urlopen(req, context=ctx)
+        resp = request.urlopen(req, context=ctx)
         if resp.code >= 200 and resp.code <= 299:
             return True
 
@@ -310,7 +310,7 @@ def encode_file(file_path):
     """Return a string of base64 encoded file provided as an absolute file path"""
     try:
         f = open_file(file_path)
-        if isinstance(f, IOBase) or isinstance(f, file):  # IOBase for Py3 compatibility
+        if isinstance(f, IOBase):  # IOBase for Py3 compatibility
             efile = base64.b64encode(f.read())
             return efile
         return None
@@ -318,9 +318,8 @@ def encode_file(file_path):
         logging.error('EncodeFile: Failed to open file: %s', e.strerror)
         raise Exception('EncodeFile')
     finally:
-        if isinstance(f, IOBase) or isinstance(f, file):
+        if isinstance(f, IOBase):
             f.close()
-    return efile
 
 
 def check_url_modified(url):
@@ -329,6 +328,7 @@ def check_url_modified(url):
 
     We submit an HTTP HEAD request to check the status. This way we don't download the file for performance.
     """
+    resp = None
     try:
         resp = requests.head(url)
         resp.raise_for_status()
@@ -337,7 +337,7 @@ def check_url_modified(url):
         if resp.status_code == 200:
             return True
     except requests.exceptions.HTTPError:
-        logging.error('Requests: HTTPError: status code %s for %s', str(resp.status_code), url)
+        logging.error('Requests: HTTPError: status code %s for %s', str(resp.status_code) if resp else None, url)
     except requests.exceptions.Timeout:
         logging.error('Requests: Timeout for %s', url)
     except requests.exceptions.TooManyRedirects:
@@ -374,6 +374,7 @@ def get_url_path_filename(url):
 
 def get_url_filename(url):
     """Return filename as string from url by content-disposition or url path, or return None if not found"""
+    resp = None
     try:
         resp = requests.head(url)
         resp.raise_for_status()
@@ -387,7 +388,7 @@ def get_url_filename(url):
     except requests.exceptions.MissingSchema:
         logging.error('Requests: MissingSchema: Requires ftp|http(s):// for %s', url)
     except requests.exceptions.HTTPError:
-        logging.error('Requests: HTTPError: status code %s for %s', str(resp.status_code), url)
+        logging.error('Requests: HTTPError: status code %s for %s', str(resp.status_code) if resp else None, url)
     except requests.exceptions.Timeout:
         logging.error('Requests: Timeout for %s', url)
     except requests.exceptions.TooManyRedirects:
