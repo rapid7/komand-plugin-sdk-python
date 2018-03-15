@@ -37,7 +37,7 @@ class CustomEncoderConnection(Connection):
 
     def __init__(self):
         super(self.__class__, self).__init__(self.schema)
-    
+
     def connect(self, params={}):
         return None
 
@@ -77,11 +77,11 @@ class CustomEncoderActionOutput(Output):
 class CustomEncoderAction(Action):
     def __init__(self):
         super(self.__class__, self).__init__(
-                'stupid', 
-                'an action',
-                CustomEncoderActionInput(), 
-                CustomEncoderActionOutput(),
-                )
+            'stupid',
+            'an action',
+            CustomEncoderActionInput(),
+            CustomEncoderActionOutput(),
+        )
 
     def run(self, params={}):
         return {

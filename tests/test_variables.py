@@ -1,15 +1,15 @@
 import unittest
-import sys, os
 from komand.variables import Input
+import sys
+import os
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 
 class TestMessage(unittest.TestCase):
-
     def test_input_sample(self):
         schema = {
-            "type" : "object",
+            "type": "object",
             "properties": {
                 "foo": {
                     "type": "string"

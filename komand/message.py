@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import sys
 import json
 
@@ -35,7 +36,7 @@ def action_start(action='', meta={}, input={}, connection={}):
         'input': input,
         'connection': connection,
     })
-        
+
 
 def trigger_start(trigger='', meta={}, dispatcher={}, input={}, connection={}):
     return envelope(TRIGGER_START, {
@@ -45,19 +46,19 @@ def trigger_start(trigger='', meta={}, dispatcher={}, input={}, connection={}):
         'dispatcher': dispatcher,
         'connection': connection,
     })
-        
+
 
 def trigger_event(meta={}, output={}):
-    return envelope(TRIGGER_EVENT, { 'meta': meta, 'output': output });
+    return envelope(TRIGGER_EVENT, {'meta': meta, 'output': output})
 
 
 def action_success(meta={}, output={}):
-    return envelope(ACTION_EVENT, { 'meta': meta, 'output': output, 'status': SUCCESS });
+    return envelope(ACTION_EVENT, {'meta': meta, 'output': output, 'status': SUCCESS})
 
 
 def action_error(meta={}, error=''):
     err = "%s" % error
-    return envelope(ACTION_EVENT, { 'meta': meta, 'error': err, 'status': ERROR });
+    return envelope(ACTION_EVENT, {'meta': meta, 'error': err, 'status': ERROR})
 
 
 def validate_trigger_start(body):

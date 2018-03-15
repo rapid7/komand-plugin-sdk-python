@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import komand.message as message
 import komand.dispatcher as dispatcher
 import logging
@@ -9,8 +10,8 @@ class Action(object):
     """A action"""
     def __init__(self, name, description, input, output):
         self.name = name
-        self.description = description 
-        self.input = input 
+        self.description = description
+        self.input = input
         self.output = output
         self.connection = None
         self.debug = False
@@ -30,7 +31,7 @@ class Task(object):
         if dispatch is None:
             dispatch = dispatcher.Stdout({
                 "custom_encoder": custom_encoder,
-                "custom_decoder":custom_decoder
+                "custom_decoder": custom_decoder
             })
         self.connection = connection
         self.action = action
@@ -50,7 +51,7 @@ class Task(object):
                 output = self.action.test({})
 
             schema = self.action.output
-    
+
             if schema:
                 schema.validate(output)
 
@@ -76,7 +77,7 @@ class Task(object):
             output = self.action.run(params)
 
             schema = self.action.output
-    
+
             if schema:
                 schema.validate(output)
         except Exception as e:
@@ -107,6 +108,6 @@ class Task(object):
         if input:
             try:
                 input.set(action_msg.get('input'))
-            except: 
+            except:
                 if not test_mode:
                     raise

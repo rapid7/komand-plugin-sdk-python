@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import komand.message as message
 import komand.dispatcher as dispatcher
 import logging
@@ -7,8 +8,8 @@ import inspect
 class Trigger(object):
     """A trigger"""
     def __init__(self, name, description, input, output):
-        self.name = name 
-        self.description = description 
+        self.name = name
+        self.description = description
         self.connection = None
         self._sender = None
         self.input = input

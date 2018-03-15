@@ -86,7 +86,8 @@ class TestHelpers(unittest.TestCase):
             {"md5": "c3fcd3d76192e4007dfb496cca67e13b",
              "sha1": "32d10c7b8cf96570ca04ce37f2a19d84240d3a89",
              "sha256": "71c480df93d6ae2f1efad1447c66c9525e316218cf51fc8d9ed832f2daf18b73",
-             "sha512": "4dbff86cc2ca1bae1e16468a05cb9881c97f1753bce3619034898faa1aabe429955a1bf8ec483d7421fe3c1646613a59ed5441fb0f321389f77f48a879c7b1f1"},
+             "sha512": "4dbff86cc2ca1bae1e16468a05cb9881c97f1753bce3619034898faa1aabe429955a1bf8ec483d7421fe3c1646613" +
+                       "a59ed5441fb0f321389f77f48a879c7b1f1"},
             helper.get_hashes_string(test_string)
         )
 
@@ -95,7 +96,8 @@ class TestHelpers(unittest.TestCase):
         self.assertNotEqual(
             {"sha1": "32d10c7b8cf96570ca04ce37f2a19d84240d3a89",
              "sha256": "71c480df93d6ae2f1efad1447c66c9525e316218cf51fc8d9ed832f2daf18b73",
-             "sha512": "4dbff86cc2ca1bae1e16468a05cb9881c97f1753bce3619034898faa1aabe429955a1bf8ec483d7421fe3c1646613a59ed5441fb0f321389f77f48a879c7b1f1"},
+             "sha512": "4dbff86cc2ca1bae1e16468a05cb9881c97f1753bce3619034898faa1aabe429955a1bf8ec483d7421fe3c1646613" +
+                       "a59ed5441fb0f321389f77f48a879c7b1f1"},
             helper.get_hashes_string(test_string)
         )
 
@@ -109,7 +111,7 @@ class TestHelpers(unittest.TestCase):
     def test_get_hashes_string_all_keys_present(self):
         test_string = "abcdefghijklmnopqrstuvwxyz"
         expected_keys = {"md5", "sha1", "sha256", "sha512"}
-        
+
         hashes = set(helper.get_hashes_string(test_string))
         has_all_keys = len(expected_keys.difference(hashes)) == 0
 
@@ -147,13 +149,15 @@ class TestHelpers(unittest.TestCase):
         test_string = "abcdefghijklmnopqrstuvwxyz"
         self.assertTrue(helper.check_hashes(
             test_string,
-            "4dbff86cc2ca1bae1e16468a05cb9881c97f1753bce3619034898faa1aabe429955a1bf8ec483d7421fe3c1646613a59ed5441fb0f321389f77f48a879c7b1f1"))
+            "4dbff86cc2ca1bae1e16468a05cb9881c97f1753bce3619034898faa1aabe429955a1bf8ec483d7421fe3c1646613a59ed5441fb" +
+            "0f321389f77f48a879c7b1f1"))
 
     def test_check_hashes_false_sha512_failure(self):
         test_string = "abcdefghijklmnopqrstuvwxyz"
         self.assertFalse(helper.check_hashes(
             test_string,
-            "4dbff86cc2ca1bae1e16468a05cb9881c97f1753bce3619034898faa1aabe429955a1bf8ec483d7421fe3c1646613a59ed5441fb0f32138asdfasdf"))
+            "4dbff86cc2ca1bae1e16468a05cb9881c97f1753bce3619034898faa1aabe429955a1bf8ec483d7421fe3c1646613a59ed5441fb" +
+            "0f32138asdfasdf"))
 
     # open_url
 
@@ -245,4 +249,3 @@ class TestHelpers(unittest.TestCase):
         expected = "googlechrome.dmg"
         self.assertEqual(expected,
                          helper.get_url_filename("https://dl.google.com/chrome/mac/stable/GGRO/googlechrome.dmg"))
-

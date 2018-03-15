@@ -5,3 +5,6 @@ dist/
 .eggs
 .idea/
 .DS_STORE
+.tox
+.pytest_cache
+

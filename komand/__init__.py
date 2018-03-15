@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import komand.action
 import komand.cli
 import komand.connection
@@ -19,9 +20,9 @@ CLI = komand.cli.CLI
 
 
 # Many plugins use the certifi package, particularly indirectly through
-# the requests package. Certifi can be monkey-patched to not use the 
-# dedicated CA bundle, which is exactly what we will do. In fact, the 
-# requests package even suggests to do exactly this: 
+# the requests package. Certifi can be monkey-patched to not use the
+# dedicated CA bundle, which is exactly what we will do. In fact, the
+# requests package even suggests to do exactly this:
 # https://github.com/requests/requests/blob/master/requests/certs.py
 # http://docs.python-requests.org/en/master/user/advanced/#ca-certificates
 # So, we'll ask it to use SSL_CERT_FILE, one of the most common env vars

@@ -11,27 +11,33 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 class MyConnection(Connection):
     schema = {
-            "type" : "object",
-            "properties" : {
-                "price" : {"type" : "number" },
-                "name" : {"type" : "string"},
-                }
-            }
+        "type": "object",
+        "properties": {
+            "price": {
+                "type": "number"
+            },
+            "name": {
+                "type": "string"
+            },
+        }
+    }
 
     def __init__(self):
         super(self.__class__, self).__init__(self.schema)
-    
+
     def connect(self, params={}):
         return None
 
 
 class StupidActionInput(Input):
     schema = {
-            "type" : "object",
-            "properties" : {
-                "greeting" : {"type" : "string"},
-                }
-            }
+        "type": "object",
+        "properties": {
+            "greeting": {
+                "type": "string"
+            },
+        }
+    }
 
     def __init__(self):
         super(self.__class__, self).__init__(schema=self.schema)
@@ -39,13 +45,17 @@ class StupidActionInput(Input):
 
 class StupidActionOutput(Output):
     schema = {
-            "type" : "object",
-            "required": ["price", "name"],
-            "properties" : {
-                "price" : {"type" : "number" },
-                "name" : {"type" : "string"},
-                }
-            }
+        "type": "object",
+        "required": ["price", "name"],
+        "properties": {
+            "price": {
+                "type": "number"
+            },
+            "name": {
+                "type": "string"
+            },
+        }
+    }
 
     def __init__(self):
         super(self.__class__, self).__init__(schema=self.schema)
@@ -54,11 +64,11 @@ class StupidActionOutput(Output):
 class StupidAction(Action):
     def __init__(self):
         super(self.__class__, self).__init__(
-                'stupid', 
-                'an action',
-                StupidActionInput(), 
-                StupidActionOutput(),
-                )
+            'stupid',
+            'an action',
+            StupidActionInput(),
+            StupidActionOutput(),
+        )
 
     def run(self, params={}):
         return {'price': 1100, 'name': 'Jon'}

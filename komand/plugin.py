@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import komand.message as message
 import komand.action as action
 import komand.trigger as trigger

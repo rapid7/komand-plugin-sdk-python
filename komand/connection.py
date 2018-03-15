@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from jsonschema import validate
 import komand.util as util
 

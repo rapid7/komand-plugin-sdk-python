@@ -1,6 +1,7 @@
 import unittest
 from io import StringIO
-import sys, os
+import sys
+import os
 import komand.message
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))

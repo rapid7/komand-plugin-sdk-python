@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import sys
 import python_jsonschema_objects as pjs
 import copy

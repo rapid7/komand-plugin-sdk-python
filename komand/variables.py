@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from jsonschema import validate
 import komand.util as util
 
@@ -21,7 +22,7 @@ class Input(object):
     def sample(self):
         """ Sample object """
         return util.sample(self.schema)
-    
+
 
 class Output(object):
     """ Output variables """

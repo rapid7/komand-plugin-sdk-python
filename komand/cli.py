@@ -1,5 +1,4 @@
-# -*- coding: utf-8 -*- 
-
+# -*- coding: utf-8 -*-
 import sys
 import argparse
 import komand.message as message
@@ -17,7 +16,7 @@ class CLI(object):
         self.msg = None
 
         if "--" in self.args:
-            index = self.args.index("--") 
+            index = self.args.index("--")
             self.msg = " ".join(self.args[index+1:])
             self.args = self.args[:index]
 
@@ -45,7 +44,7 @@ class CLI(object):
                     connection=conn,
                     input=input,
                     dispatcher=dispatcher)
-            
+
             message.marshal(msg)
             return
 
@@ -63,7 +62,7 @@ class CLI(object):
                     action=act.name,
                     connection=conn,
                     input=input)
-            
+
             message.marshal(msg)
             return
 
@@ -130,6 +129,6 @@ class CLI(object):
             logging.basicConfig(level=logging.INFO)
 
         if not hasattr(args, 'func') or not args.func:
-            return parser.print_help() 
+            return parser.print_help()
 
         args.func(args)
