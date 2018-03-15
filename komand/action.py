@@ -43,7 +43,7 @@ class Task(object):
         """ Run test """
         try:
             self._setup(True)
-            args = inspect.getargspec(self.action.test).args
+            args = inspect.getfullargspec(self.action.test).args
 
             if len(args) == 1:
                 output = self.action.test()

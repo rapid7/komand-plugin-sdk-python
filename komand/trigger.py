@@ -61,7 +61,7 @@ class Task(object):
             if self.trigger and self.trigger.input.parameters:
                 params = self.trigger.input.parameters
 
-            args = inspect.getargspec(self.trigger.test).args
+            args = inspect.getfullargspec(self.trigger.test).args
 
             if len(args) == 1:
                 output = self.trigger.test()

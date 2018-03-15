@@ -19,4 +19,4 @@ class Respond(komand.Action):
 
     def test(self):
         logging.info("TESTING ACTION", self.input, self.output)
-        return self.output.validate({ 'hello': 'there' })
+        return self.output.validate({'hello': 'there'})

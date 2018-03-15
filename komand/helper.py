@@ -72,7 +72,7 @@ def clean_list(lst):
     return newlist
 
 
-def clean(object):
+def clean(obj):
     """ Returns a new but cleaned JSON object
     * Recursively iterates through the collection
     * None type values are removed
@@ -81,7 +81,7 @@ def clean(object):
     This function is designed so we only return useful data
     """
 
-    cleaned = clean_list(object) if isinstance(object, list) else clean_dict(object)
+    cleaned = clean_list(obj) if isinstance(obj, list) else clean_dict(obj)
 
     # The only *real* difference here is how we have to iterate through these different collection types
     if isinstance(cleaned, list):
@@ -197,6 +197,7 @@ def lock_cache(lock_file):
         if not os.path.isdir(os.path.dirname(lock_file)):
             os.makedirs(os.path.dirname(lock_file))
         f = open(lock_file, 'w')
+        f.close()
         logging.info('Cache lock %s created', lock_file)
         return True
     logging.info('Cache lock %s failed, lock not created', lock_file)
@@ -260,10 +261,11 @@ def check_url(url):
     We submit an HTTP HEAD request to check the status. This way we don't download the file for performance.
     If the server doesn't support HEAD we try a Range of bytes so we don't download the entire file.
     """
+    resp = None
     try:
         # Try HEAD request first
         resp = requests.head(url)
-        if resp.status_code >= 200 and resp.status_code <= 399:
+        if 200 <= resp.status_code <= 399:
             return True
 
         # Try Range request as secondary option
@@ -271,11 +273,11 @@ def check_url(url):
         req = request.Request(url, headers=hrange)
         ctx = ssl.create_default_context(cafile=os.environ['SSL_CERT_FILE'])
         resp = request.urlopen(req, context=ctx)
-        if resp.code >= 200 and resp.code <= 299:
+        if 200 <= resp.code <= 299:
             return True
 
     except requests.exceptions.HTTPError:
-        logging.error('Requests: HTTPError: status code %s for %s', str(resp.status_code), url)
+        logging.error('Requests: HTTPError: status code %s for %s', str(resp.status_code) if resp else None, url)
     except requests.exceptions.Timeout:
         logging.error('Requests: Timeout for %s', url)
     except requests.exceptions.TooManyRedirects:
@@ -309,6 +311,7 @@ def encode_string(s):
 
 def encode_file(file_path):
     """Return a string of base64 encoded file provided as an absolute file path"""
+    f = None
     try:
         f = open_file(file_path)
         if isinstance(f, IOBase) or isinstance(f, file):  # IOBase for Py3 compatibility
