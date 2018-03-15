@@ -1,6 +1,6 @@
 import unittest
-from io import StringIO
-import sys, os
+import sys
+import os
 import json
 import decimal
 
@@ -24,12 +24,16 @@ class DecimalEncoder(json.JSONEncoder):
 
 class CustomEncoderConnection(Connection):
     schema = {
-            "type" : "object",
-            "properties" : {
-                "price" : {"type" : "number" },
-                "name" : {"type" : "string"},
-                }
-            }
+        "type": "object",
+        "properties": {
+            "price": {
+                "type": "number"
+            },
+            "name": {
+                "type": "string"
+            },
+        }
+    }
 
     def __init__(self):
         super(self.__class__, self).__init__(self.schema)
@@ -40,11 +44,13 @@ class CustomEncoderConnection(Connection):
 
 class CustomEncoderActionInput(Input):
     schema = {
-            "type" : "object",
-            "properties" : {
-                "greeting" : {"type" : "string"},
-                }
-            }
+        "type": "object",
+        "properties": {
+            "greeting": {
+                "type": "string"
+            },
+        }
+    }
 
     def __init__(self):
         super(self.__class__, self).__init__(schema=self.schema)
@@ -52,13 +58,17 @@ class CustomEncoderActionInput(Input):
 
 class CustomEncoderActionOutput(Output):
     schema = {
-            "type" : "object",
-            "required": ["price", "name"],
-            "properties" : {
-                "price" : {"type" : "number" },
-                "name" : {"type" : "string"},
-                }
-            }
+        "type": "object",
+        "required": ["price", "name"],
+        "properties": {
+            "price": {
+                "type": "number"
+            },
+            "name": {
+                "type": "string"
+            },
+        }
+    }
 
     def __init__(self):
         super(self.__class__, self).__init__(schema=self.schema)
@@ -73,28 +83,36 @@ class CustomEncoderAction(Action):
                 CustomEncoderActionOutput(),
                 )
 
-    def run(self):
-        return { 'price': decimal.Decimal('1100.0'), 'name': 'Jon' }
+    def run(self, params={}):
+        return {
+            'price': decimal.Decimal('1100.0'),
+            'name': 'Jon'
+        }
 
-    def test(self):
-        return { 'price': decimal.Decimal('1.1'), 'name': 'Jon' }
+    def test(self, params={}):
+        return {
+            'price': decimal.Decimal('1.1'),
+            'name': 'Jon'
+        }
 
 
 class TestActionRunner(unittest.TestCase):
 
     def test_custom_encoder_action_succeeds(self):
         task = Task(CustomEncoderConnection(), CustomEncoderAction(), {
-            'body': { 'action': 'stupid', 
+            'body': {
+                'action': 'stupid',
                 'input': {
                     'greeting': 'hello'
-                    },
-                'meta': { 'action_id': 12345 }, 
-                }
-            }, custom_encoder=DecimalEncoder)
+                },
+                'meta': {
+                    'action_id': 12345
+                },
+            }
+        }, custom_encoder=DecimalEncoder)
 
         task.test()
 
 
 if __name__ == '__main__':
     unittest.main()
-

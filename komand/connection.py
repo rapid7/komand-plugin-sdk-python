@@ -2,7 +2,6 @@ from jsonschema import validate
 import komand.util as util
 
 
-
 class Connection(object):
     """Komand connection"""
     def __init__(self, input):

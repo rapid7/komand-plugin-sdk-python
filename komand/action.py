@@ -38,7 +38,6 @@ class Task(object):
         self.dispatcher = dispatch
         self.meta = None
 
-
     def test(self):
         """ Run test """
         try:
@@ -54,20 +53,18 @@ class Task(object):
     
             if schema:
                 schema.validate(output)
-    
 
         except Exception as e:
             logging.exception('Action test failure: %s', e)
-            err = message.ActionError(
+            err = message.action_error(
                     meta=self.meta,
                     error=str(e))
             self.dispatcher.write(err)
             return False
 
-        ok = message.ActionSuccess(meta=self.meta, output=output)
+        ok = message.action_success(meta=self.meta, output=output)
         self.dispatcher.write(ok)
         return True
-
 
     def run(self):
         """ Run the action"""
@@ -84,14 +81,12 @@ class Task(object):
                 schema.validate(output)
         except Exception as e:
             logging.exception('Action run failure: %s', e)
-            err = message.ActionError(meta=self.meta, error=str(e))
+            err = message.action_error(meta=self.meta, error=str(e))
             self.dispatcher.write(err)
             sys.exit(1)
-            return
 
-        ok = message.ActionSuccess(meta=self.meta, output=output)
+        ok = message.action_success(meta=self.meta, output=output)
         self.dispatcher.write(ok)
-
 
     def _setup(self, test_mode=False):
         action_msg = self.msg
@@ -107,7 +102,6 @@ class Task(object):
             self.connection.connect(params)
             self.action.connection = self.connection
 
-
         input = self.action.input
 
         if input:
@@ -116,4 +110,3 @@ class Task(object):
             except: 
                 if not test_mode:
                     raise
-

@@ -1,7 +1,6 @@
 import komand.message as message
 import komand.dispatcher as dispatcher
 import logging
-import sys
 import inspect
 
 
@@ -19,7 +18,7 @@ class Trigger(object):
     def send(self, event):
         schema = self.output
         if schema:
-          schema.validate(event)
+            schema.validate(event)
 
         self._sender.send(event)
 
@@ -45,7 +44,7 @@ class Task(object):
         self.debug = False
 
     def send(self, output):
-        msg = message.TriggerEvent(meta=self.meta, output=output)
+        msg = message.trigger_event(meta=self.meta, output=output)
         self.dispatcher.write(msg)
 
     def test(self):
@@ -72,7 +71,7 @@ class Task(object):
             logging.exception('trigger test failure: %s', e)
             return False
 
-        msg = message.TriggerEvent(meta=self.meta, output=output)
+        msg = message.trigger_event(meta=self.meta, output=output)
         dispatch.write(msg)
         return True
 
@@ -86,12 +85,10 @@ class Task(object):
                 params = self.trigger.input.parameters
 
             self.trigger.run(params)
-        except:
-            e = sys.exc_info()[0]
+        except Exception as e:
             logging.exception('trigger test failure: %s', e)
             # XXX: exit code??
             return
-
 
     def _setup(self, validate=True):
         trigger_msg = self.msg
@@ -118,8 +115,7 @@ class Task(object):
             self.connection.connect(params)
             self.trigger.connection = self.connection
 
-        input = self.trigger.input
+        input_data = self.trigger.input
 
-        if input:
-            input.set(trigger_msg.get('input'), validate)
-
+        if input_data:
+            input_data.set(trigger_msg.get('input'), validate)

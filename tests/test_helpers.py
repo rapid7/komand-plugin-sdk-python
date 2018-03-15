@@ -135,21 +135,25 @@ class TestHelpers(unittest.TestCase):
 
     def test_check_hashes_true_sha256_success(self):
         test_string = "abcdefghijklmnopqrstuvwxyz"
-        self.assertTrue(helper.check_hashes(test_string, "71c480df93d6ae2f1efad1447c66c9525e316218cf51fc8d9ed832f2daf18b73"))
+        self.assertTrue(helper.check_hashes(test_string,
+                                            "71c480df93d6ae2f1efad1447c66c9525e316218cf51fc8d9ed832f2daf18b73"))
 
     def test_check_hashes_false_sha256_failure(self):
         test_string = "abcdefghijklmnopqrstuvwxyz"
-        self.assertFalse(helper.check_hashes(test_string, "71c480df93d6ae2f1efad1447c66c9525e316218cf51fc8d9ed832f2dafasdfasdf"))
+        self.assertFalse(helper.check_hashes(test_string,
+                                             "71c480df93d6ae2f1efad1447c66c9525e316218cf51fc8d9ed832f2dafasdfasdf"))
 
     def test_check_hashes_true_sha512_success(self):
         test_string = "abcdefghijklmnopqrstuvwxyz"
-        self.assertTrue(helper.check_hashes(test_string,
-                                            "4dbff86cc2ca1bae1e16468a05cb9881c97f1753bce3619034898faa1aabe429955a1bf8ec483d7421fe3c1646613a59ed5441fb0f321389f77f48a879c7b1f1"))
+        self.assertTrue(helper.check_hashes(
+            test_string,
+            "4dbff86cc2ca1bae1e16468a05cb9881c97f1753bce3619034898faa1aabe429955a1bf8ec483d7421fe3c1646613a59ed5441fb0f321389f77f48a879c7b1f1"))
 
     def test_check_hashes_false_sha512_failure(self):
         test_string = "abcdefghijklmnopqrstuvwxyz"
-        self.assertFalse(helper.check_hashes(test_string,
-                                             "4dbff86cc2ca1bae1e16468a05cb9881c97f1753bce3619034898faa1aabe429955a1bf8ec483d7421fe3c1646613a59ed5441fb0f32138asdfasdf"))
+        self.assertFalse(helper.check_hashes(
+            test_string,
+            "4dbff86cc2ca1bae1e16468a05cb9881c97f1753bce3619034898faa1aabe429955a1bf8ec483d7421fe3c1646613a59ed5441fb0f32138asdfasdf"))
 
     # open_url
 
@@ -213,9 +217,10 @@ class TestHelpers(unittest.TestCase):
     # get_url_content_disposition
 
     def test_get_url_content_disposition_success(self):
-        headers = {"Content-Type": "text/html; charset=utf-8",
-                    "Content-Disposition": "attachment; filename=test.html",
-                    "Content-Length": 22
+        headers = {
+            "Content-Type": "text/html; charset=utf-8",
+            "Content-Disposition": "attachment; filename=test.html",
+            "Content-Length": 22
         }
 
         self.assertEqual("test.html", helper.get_url_content_disposition(headers))
@@ -238,5 +243,6 @@ class TestHelpers(unittest.TestCase):
 
     def test_get_url_filename_successful(self):
         expected = "googlechrome.dmg"
-        self.assertEqual(expected, helper.get_url_filename("https://dl.google.com/chrome/mac/stable/GGRO/googlechrome.dmg"))
+        self.assertEqual(expected,
+                         helper.get_url_filename("https://dl.google.com/chrome/mac/stable/GGRO/googlechrome.dmg"))
 

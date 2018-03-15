@@ -59,15 +59,15 @@ def default_for(prop, defs):
 
 def sample(source):
 
-    if not source or (not 'properties' in source) or len(source['properties']) == 0:
+    if not source or ('properties' not in source) or len(source['properties']) == 0:
         return {}
 
     schema = {
-                'title': 'Example',
-                'properties': {},
-                'type': 'object',
-                'required': [],
-                }
+        'title': 'Example',
+        'properties': {},
+        'type': 'object',
+        'required': [],
+    }
 
     definitions = {}
 
@@ -86,12 +86,11 @@ def sample(source):
 
     builder = pjs.ObjectBuilder(schema)
     ns = builder.build_classes(strict=True)
-    Obj = ns.Example
-    o = Obj(**defaults)
+    clazz = ns.Example
+    o = clazz(**defaults)
     return o.as_dict()
 
 
-def trace(exception):
+def trace():
     """Returns the trace from an exception"""
     return sys.exc_info()[2]
-

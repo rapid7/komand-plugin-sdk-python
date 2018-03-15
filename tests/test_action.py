@@ -1,6 +1,6 @@
 import unittest
-from io import StringIO
-import sys, os
+import sys
+import os
 
 from komand.action import Action, Task
 from komand.connection import Connection
@@ -60,11 +60,11 @@ class StupidAction(Action):
                 StupidActionOutput(),
                 )
 
-    def run(self):
-        return { 'price': 1100, 'name': 'Jon' }
+    def run(self, params={}):
+        return {'price': 1100, 'name': 'Jon'}
 
-    def test(self):
-        return { 'price': 100, 'name': 'Jon' }
+    def test(self, params={}):
+        return {'price': 100, 'name': 'Jon'}
 
 
 class TestActionRunner(unittest.TestCase):
@@ -72,16 +72,19 @@ class TestActionRunner(unittest.TestCase):
     def test_action_test_succeeds(self):
 
         task = Task(MyConnection(), StupidAction(), {
-            'body': { 'action': 'stupid', 
+            'body': {
+                'action': 'stupid',
                 'input': {
                     'greeting': 'hello'
-                    },
-                'meta': { 'action_id': 12345 }, 
-                }
-            })
+                },
+                'meta': {
+                    'action_id': 12345
+                },
+            }
+        })
 
         task.test()
 
+
 if __name__ == '__main__':
     unittest.main()
-

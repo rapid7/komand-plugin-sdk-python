@@ -5,7 +5,6 @@ import requests
 import os
 
 
-
 class Stdout(object):
     """ stdout dispatcher """
     def __init__(self, config={}):
@@ -44,4 +43,3 @@ class Http(object):
                           self.url,
                           os.environ['SSL_CERT_FILE'],
                           str(ex))
-
