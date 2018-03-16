@@ -3,6 +3,7 @@ import komand.message as message
 import komand.dispatcher as dispatcher
 import logging
 import inspect
+import six
 
 
 class Trigger(object):
@@ -60,8 +61,10 @@ class Task(object):
             params = {}
             if self.trigger and self.trigger.input.parameters:
                 params = self.trigger.input.parameters
-
-            args = inspect.getfullargspec(self.trigger.test).args
+            if six.PY3:
+                args = inspect.getfullargspec(self.trigger.test).args
+            else:
+                args = inspect.getargspec(self.trigger.test).args
 
             if len(args) == 1:
                 output = self.trigger.test()

@@ -4,7 +4,7 @@ import komand.dispatcher as dispatcher
 import logging
 import sys
 import inspect
-
+import six
 
 class Action(object):
     """A action"""
@@ -43,7 +43,10 @@ class Task(object):
         """ Run test """
         try:
             self._setup(True)
-            args = inspect.getfullargspec(self.action.test).args
+            if six.PY3:
+                args = inspect.getfullargspec(self.action.test).args
+            else:
+                args = inspect.getargspec(self.action.test).args
 
             if len(args) == 1:
                 output = self.action.test()
