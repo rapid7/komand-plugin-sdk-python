@@ -21,7 +21,7 @@ install:
 	python setup.py install
 
 test:
-	python setup.py test
+	tox
 
 tag: image
 	@echo version is $(VERSION)
