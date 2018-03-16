@@ -11,7 +11,7 @@ env:
     - SSL_CERT_DIR=/etc/ssl/certs
     - REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
 install:
-  - pip install tox
+  - pip install tox-travis
 script:
   - make test
   - make tag
