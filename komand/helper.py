@@ -8,6 +8,7 @@ import ssl
 import subprocess
 import os
 import time
+import six
 
 # Python 2/3 compatibility
 from six.moves.urllib import request
@@ -304,7 +305,8 @@ def exec_command(command):
 def encode_string(s):
     """Returns a base64 encoded string given a string"""
     if type(s) is str:
-        _bytes = base64.b64encode(s.encode())
+        to_encode = s if six.PY2 else s.encode('utf-8')
+        _bytes = base64.b64encode(to_encode)
         return _bytes
     return None
 

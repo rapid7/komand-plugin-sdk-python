@@ -6,6 +6,7 @@ import sys
 import inspect
 import six
 
+
 class Action(object):
     """A action"""
     def __init__(self, name, description, input, output):
