@@ -1,100 +1,84 @@
-import unittest
-import sys
-import os
-
 from komand.action import Action, Task
 from komand.connection import Connection
 from komand.variables import Input, Output
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
+def test_action_test_succeeds():
 
-class MyConnection(Connection):
-    schema = {
-        "type": "object",
-        "properties": {
-            "price": {
-                "type": "number"
-            },
-            "name": {
-                "type": "string"
-            },
-        }
-    }
-
-    def __init__(self):
-        super(self.__class__, self).__init__(self.schema)
-
-    def connect(self, params={}):
-        return None
-
-
-class StupidActionInput(Input):
-    schema = {
-        "type": "object",
-        "properties": {
-            "greeting": {
-                "type": "string"
-            },
-        }
-    }
-
-    def __init__(self):
-        super(self.__class__, self).__init__(schema=self.schema)
-
-
-class StupidActionOutput(Output):
-    schema = {
-        "type": "object",
-        "required": ["price", "name"],
-        "properties": {
-            "price": {
-                "type": "number"
-            },
-            "name": {
-                "type": "string"
-            },
-        }
-    }
-
-    def __init__(self):
-        super(self.__class__, self).__init__(schema=self.schema)
-
-
-class StupidAction(Action):
-    def __init__(self):
-        super(self.__class__, self).__init__(
-            'stupid',
-            'an action',
-            StupidActionInput(),
-            StupidActionOutput(),
-        )
-
-    def run(self, params={}):
-        return {'price': 1100, 'name': 'Jon'}
-
-    def test(self, params={}):
-        return {'price': 100, 'name': 'Jon'}
-
-
-class TestActionRunner(unittest.TestCase):
-
-    def test_action_test_succeeds(self):
-
-        task = Task(MyConnection(), StupidAction(), {
-            'body': {
-                'action': 'stupid',
-                'input': {
-                    'greeting': 'hello'
+    class MyConnection(Connection):
+        schema = {
+            "type": "object",
+            "properties": {
+                "price": {
+                    "type": "number"
                 },
-                'meta': {
-                    'action_id': 12345
+                "name": {
+                    "type": "string"
                 },
             }
-        })
+        }
 
-        task.test()
+        def __init__(self):
+            super(self.__class__, self).__init__(self.schema)
 
+        def connect(self, params={}):
+            return None
 
-if __name__ == '__main__':
-    unittest.main()
+    class StupidActionInput(Input):
+        schema = {
+            "type": "object",
+            "properties": {
+                "greeting": {
+                    "type": "string"
+                },
+            }
+        }
+
+        def __init__(self):
+            super(self.__class__, self).__init__(schema=self.schema)
+
+    class StupidActionOutput(Output):
+        schema = {
+            "type": "object",
+            "required": ["price", "name"],
+            "properties": {
+                "price": {
+                    "type": "number"
+                },
+                "name": {
+                    "type": "string"
+                },
+            }
+        }
+
+        def __init__(self):
+            super(self.__class__, self).__init__(schema=self.schema)
+
+    class StupidAction(Action):
+        def __init__(self):
+            super(self.__class__, self).__init__(
+                'stupid',
+                'an action',
+                StupidActionInput(),
+                StupidActionOutput(),
+            )
+
+        def run(self, params={}):
+            return {'price': 1100, 'name': 'Jon'}
+
+        def test(self, params={}):
+            return {'price': 100, 'name': 'Jon'}
+
+    task = Task(MyConnection(), StupidAction(), {
+        'body': {
+            'action': 'stupid',
+            'input': {
+                'greeting': 'hello'
+            },
+            'meta': {
+                'action_id': 12345
+            },
+        }
+    })
+
+    task.test()

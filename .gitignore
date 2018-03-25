@@ -7,4 +7,4 @@ dist/
 .DS_STORE
 .tox
 .pytest_cache
-
+.coverage
