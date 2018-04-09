@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from jsonschema import validate
 import komand.util as util
 
@@ -6,11 +7,12 @@ class Input(object):
     """ Input variables """
     def __init__(self, schema):
         self.schema = schema
+        self.parameters = None
 
-    def set(self, parameters, validate=True):
+    def set(self, parameters, should_validate=True):
         """ Set parameters """
         self.parameters = parameters
-        if validate:
+        if should_validate:
             self.validate(self.parameters)
 
     def validate(self, parameters):
@@ -20,18 +22,18 @@ class Input(object):
     def sample(self):
         """ Sample object """
         return util.sample(self.schema)
-    
 
 
 class Output(object):
     """ Output variables """
     def __init__(self, schema):
         self.schema = schema
+        self.parameters = None
 
-    def set(self, parameters, validate=True):
+    def set(self, parameters, should_validate=True):
         """ Set parameters """
         self.parameters = parameters
-        if validate:
+        if should_validate:
             self.validate(self.parameters)
 
     def validate(self, parameters):
@@ -41,4 +43,3 @@ class Output(object):
     def sample(self):
         """ Sample object """
         return util.sample(self.schema)
-    

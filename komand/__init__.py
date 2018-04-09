@@ -1,10 +1,12 @@
-import komand.plugin
+# -*- coding: utf-8 -*-
 import komand.action
-import komand.trigger
-import komand.connection
 import komand.cli
+import komand.connection
+import komand.plugin
+import komand.trigger
+import komand.variables
+import komand.helper
 import certifi
-import logging
 import os
 
 __all__ = ['message', 'plugin', 'connection', 'trigger', 'action', 'variables', 'cli', 'helper']
@@ -19,9 +21,9 @@ CLI = komand.cli.CLI
 
 
 # Many plugins use the certifi package, particularly indirectly through
-# the requests package. Certifi can be monkey-patched to not use the 
-# dedicated CA bundle, which is exactly what we will do. In fact, the 
-# requests package even suggests to do exactly this: 
+# the requests package. Certifi can be monkey-patched to not use the
+# dedicated CA bundle, which is exactly what we will do. In fact, the
+# requests package even suggests to do exactly this:
 # https://github.com/requests/requests/blob/master/requests/certs.py
 # http://docs.python-requests.org/en/master/user/advanced/#ca-certificates
 # So, we'll ask it to use SSL_CERT_FILE, one of the most common env vars
@@ -50,4 +52,3 @@ def where():
 
 # and here's the monkey-patch itself.
 certifi.where = where
-

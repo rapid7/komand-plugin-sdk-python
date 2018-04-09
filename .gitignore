@@ -3,5 +3,9 @@
 build/
 dist/
 .eggs
-.DS_STORE
 .idea/
+.DS_STORE
+.tox
+.pytest_cache
+.coverage
+htmlcov/

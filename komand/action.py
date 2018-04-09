@@ -1,16 +1,18 @@
+# -*- coding: utf-8 -*-
 import komand.message as message
 import komand.dispatcher as dispatcher
-import komand.helper as helper
 import logging
 import sys
 import inspect
+import six
+
 
 class Action(object):
     """A action"""
     def __init__(self, name, description, input, output):
         self.name = name
-        self.description = description 
-        self.input = input 
+        self.description = description
+        self.input = input
         self.output = output
         self.connection = None
         self.debug = False
@@ -30,7 +32,7 @@ class Task(object):
         if dispatch is None:
             dispatch = dispatcher.Stdout({
                 "custom_encoder": custom_encoder,
-                "custom_decoder":custom_decoder
+                "custom_decoder": custom_decoder
             })
         self.connection = connection
         self.action = action
@@ -38,12 +40,14 @@ class Task(object):
         self.dispatcher = dispatch
         self.meta = None
 
-
     def test(self):
         """ Run test """
         try:
             self._setup(True)
-            args = inspect.getargspec(self.action.test).args
+            if six.PY3:
+                args = inspect.getfullargspec(self.action.test).args
+            else:
+                args = inspect.getargspec(self.action.test).args
 
             if len(args) == 1:
                 output = self.action.test()
@@ -51,23 +55,21 @@ class Task(object):
                 output = self.action.test({})
 
             schema = self.action.output
-    
+
             if schema:
                 schema.validate(output)
-    
 
         except Exception as e:
             logging.exception('Action test failure: %s', e)
-            err = message.ActionError(
+            err = message.action_error(
                     meta=self.meta,
                     error=str(e))
             self.dispatcher.write(err)
             return False
 
-        ok = message.ActionSuccess(meta=self.meta, output=output)
+        ok = message.action_success(meta=self.meta, output=output)
         self.dispatcher.write(ok)
         return True
-
 
     def run(self):
         """ Run the action"""
@@ -79,19 +81,17 @@ class Task(object):
             output = self.action.run(params)
 
             schema = self.action.output
-    
+
             if schema:
                 schema.validate(output)
         except Exception as e:
             logging.exception('Action run failure: %s', e)
-            err = message.ActionError(meta=self.meta, error=str(e))
+            err = message.action_error(meta=self.meta, error=str(e))
             self.dispatcher.write(err)
             sys.exit(1)
-            return
 
-        ok = message.ActionSuccess(meta=self.meta, output=output)
+        ok = message.action_success(meta=self.meta, output=output)
         self.dispatcher.write(ok)
-
 
     def _setup(self, test_mode=False):
         action_msg = self.msg
@@ -107,13 +107,11 @@ class Task(object):
             self.connection.connect(params)
             self.action.connection = self.connection
 
-
         input = self.action.input
 
         if input:
             try:
                 input.set(action_msg.get('input'))
-            except: 
+            except:
                 if not test_mode:
                     raise
-

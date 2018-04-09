@@ -1,9 +1,9 @@
-from komand.action import Action, Task
+from komand.trigger import Trigger, Task
 from komand.connection import Connection
 from komand.variables import Input, Output
 
 
-def test_action_test_succeeds():
+def test_trigger_test_succeeds():
 
     class MyConnection(Connection):
         schema = {
@@ -24,7 +24,7 @@ def test_action_test_succeeds():
         def connect(self, params={}):
             return None
 
-    class StupidActionInput(Input):
+    class StupidTriggerInput(Input):
         schema = {
             "type": "object",
             "properties": {
@@ -37,7 +37,7 @@ def test_action_test_succeeds():
         def __init__(self):
             super(self.__class__, self).__init__(schema=self.schema)
 
-    class StupidActionOutput(Output):
+    class StupidTriggerOutput(Output):
         schema = {
             "type": "object",
             "required": ["price", "name"],
@@ -54,13 +54,13 @@ def test_action_test_succeeds():
         def __init__(self):
             super(self.__class__, self).__init__(schema=self.schema)
 
-    class StupidAction(Action):
+    class StupidTrigger(Trigger):
         def __init__(self):
             super(self.__class__, self).__init__(
                 'stupid',
                 'an action',
-                StupidActionInput(),
-                StupidActionOutput(),
+                StupidTriggerInput(),
+                StupidTriggerOutput(),
             )
 
         def run(self, params={}):
@@ -69,7 +69,7 @@ def test_action_test_succeeds():
         def test(self, params={}):
             return {'price': 100, 'name': 'Jon'}
 
-    task = Task(MyConnection(), StupidAction(), {
+    task = Task(MyConnection(), StupidTrigger(), {
         'body': {
             'action': 'stupid',
             'input': {
@@ -80,5 +80,6 @@ def test_action_test_succeeds():
             },
         }
     })
+    task.debug = True
 
     assert task.test()

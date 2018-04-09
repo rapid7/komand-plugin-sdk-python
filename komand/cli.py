@@ -1,5 +1,4 @@
-# -*- coding: utf-8 -*- 
-
+# -*- coding: utf-8 -*-
 import sys
 import argparse
 import komand.message as message
@@ -17,10 +16,9 @@ class CLI(object):
         self.msg = None
 
         if "--" in self.args:
-            index = self.args.index("--") 
+            index = self.args.index("--")
             self.msg = " ".join(self.args[index+1:])
             self.args = self.args[:index]
-
 
     def test(self, args):
         if args.debug:
@@ -34,19 +32,19 @@ class CLI(object):
         if trig:
             conn = self.plugin.connection
             input = trig.input
-            dispatcher = { 'url': 'http://localhost:8000', 'webhook_url': '' }
+            dispatcher = {'url': 'http://localhost:8000', 'webhook_url': ''}
 
             if conn:
                 conn = conn.sample()
             if input:
                 input = input.sample()
 
-            msg = message.TriggerStart(
+            msg = message.trigger_start(
                     trigger=trig.name,
                     connection=conn,
                     input=input,
                     dispatcher=dispatcher)
-            
+
             message.marshal(msg)
             return
 
@@ -60,37 +58,36 @@ class CLI(object):
             if input:
                 input = input.sample()
 
-            msg = message.ActionStart(
+            msg = message.action_start(
                     action=act.name,
                     connection=conn,
                     input=input)
-            
+
             message.marshal(msg)
             return
-
 
         raise ValueError('Invalid trigger or action name.')
 
     def info(self, args):
         result = ''
-        result += ('Name:        %s%s%s\n') % (GREEN, self.plugin.name, RESET)
-        result += ('Vendor:      %s%s%s\n') % (GREEN, self.plugin.vendor, RESET)
-        result += ('Version:     %s%s%s\n') % (GREEN, self.plugin.version, RESET)
-        result += ('Description: %s%s%s\n') % (GREEN, self.plugin.description, RESET)
+        result += 'Name:        %s%s%s\n' % (GREEN, self.plugin.name, RESET)
+        result += 'Vendor:      %s%s%s\n' % (GREEN, self.plugin.vendor, RESET)
+        result += 'Version:     %s%s%s\n' % (GREEN, self.plugin.version, RESET)
+        result += 'Description: %s%s%s\n' % (GREEN, self.plugin.description, RESET)
 
         if len(self.plugin.triggers) > 0:
             result += '\n'
-            result += ('Triggers (%s%d%s): \n') % (GREEN, len(self.plugin.triggers), RESET)
+            result += 'Triggers (%s%d%s): \n' % (GREEN, len(self.plugin.triggers), RESET)
 
             for name, item in self.plugin.triggers.items():
-                result += ('└── %s%s%s (%s%s)\n') % (GREEN, name, RESET, item.description, RESET)
+                result += '└── %s%s%s (%s%s)\n' % (GREEN, name, RESET, item.description, RESET)
 
         if len(self.plugin.actions) > 0:
             result += '\n'
-            result += ('Actions (%s%d%s): \n') % (GREEN, len(self.plugin.actions), RESET)
+            result += 'Actions (%s%d%s): \n' % (GREEN, len(self.plugin.actions), RESET)
 
             for name, item in self.plugin.actions.items():
-                result += ('└── %s%s%s (%s%s)\n') % (GREEN, name, RESET, item.description, RESET)
+                result += '└── %s%s%s (%s%s)\n' % (GREEN, name, RESET, item.description, RESET)
 
         print(result)
 
@@ -114,12 +111,14 @@ class CLI(object):
         info_command = subparsers.add_parser('info', help='Display plugin info (triggers and actions).')
         info_command.set_defaults(func=self.info)
 
-
-        sample_command = subparsers.add_parser('sample', help='Show a sample start message for the provided trigger or action.')
+        sample_command = subparsers.add_parser('sample',
+                                               help='Show a sample start message for the provided trigger or action.')
         sample_command.add_argument('name', help='trigger or action name')
         sample_command.set_defaults(func=self.sample)
 
-        run_command = subparsers.add_parser('run', help='Run the plugin (default command). You must supply the start message on stdin.')
+        run_command = subparsers.add_parser('run',
+                                            help='Run the plugin (default command).'
+                                                 'You must supply the start message on stdin.')
         run_command.set_defaults(func=self._run)
 
         args = parser.parse_args(self.args)
@@ -130,7 +129,6 @@ class CLI(object):
             logging.basicConfig(level=logging.INFO)
 
         if not hasattr(args, 'func') or not args.func:
-            return parser.print_help() 
+            return parser.print_help()
 
         args.func(args)
-

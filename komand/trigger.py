@@ -1,16 +1,16 @@
+# -*- coding: utf-8 -*-
 import komand.message as message
 import komand.dispatcher as dispatcher
-import komand.helper as helper
 import logging
-import komand.variables as variables
-import sys
 import inspect
+import six
+
 
 class Trigger(object):
     """A trigger"""
     def __init__(self, name, description, input, output):
-        self.name = name 
-        self.description = description 
+        self.name = name
+        self.description = description
         self.connection = None
         self._sender = None
         self.input = input
@@ -20,7 +20,7 @@ class Trigger(object):
     def send(self, event):
         schema = self.output
         if schema:
-          schema.validate(event)
+            schema.validate(event)
 
         self._sender.send(event)
 
@@ -46,7 +46,7 @@ class Task(object):
         self.debug = False
 
     def send(self, output):
-        msg = message.TriggerEvent(meta=self.meta, output=output)
+        msg = message.trigger_event(meta=self.meta, output=output)
         self.dispatcher.write(msg)
 
     def test(self):
@@ -61,8 +61,10 @@ class Task(object):
             params = {}
             if self.trigger and self.trigger.input.parameters:
                 params = self.trigger.input.parameters
-
-            args = inspect.getargspec(self.trigger.test).args
+            if six.PY3:
+                args = inspect.getfullargspec(self.trigger.test).args
+            else:
+                args = inspect.getargspec(self.trigger.test).args
 
             if len(args) == 1:
                 output = self.trigger.test()
@@ -73,7 +75,7 @@ class Task(object):
             logging.exception('trigger test failure: %s', e)
             return False
 
-        msg = message.TriggerEvent(meta=self.meta, output=output)
+        msg = message.trigger_event(meta=self.meta, output=output)
         dispatch.write(msg)
         return True
 
@@ -87,12 +89,10 @@ class Task(object):
                 params = self.trigger.input.parameters
 
             self.trigger.run(params)
-        except:
-            e = sys.exc_info()[0]
+        except Exception as e:
             logging.exception('trigger test failure: %s', e)
             # XXX: exit code??
             return
-
 
     def _setup(self, validate=True):
         trigger_msg = self.msg
@@ -119,8 +119,7 @@ class Task(object):
             self.connection.connect(params)
             self.trigger.connection = self.connection
 
-        input = self.trigger.input
+        input_data = self.trigger.input
 
-        if input:
-            input.set(trigger_msg.get('input'), validate)
-
+        if input_data:
+            input_data.set(trigger_msg.get('input'), validate)

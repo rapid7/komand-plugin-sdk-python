@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import komand.message as message
 import sys
 import logging
@@ -14,6 +15,7 @@ class Stdout(object):
 
     def write(self, msg):
         message.marshal(msg, sys.stdout, ce=self.custom_encoder)
+
 
 class Http(object):
     """ HTTP dispatcher """
@@ -42,4 +44,3 @@ class Http(object):
                           self.url,
                           os.environ['SSL_CERT_FILE'],
                           str(ex))
-
