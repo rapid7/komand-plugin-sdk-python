@@ -1,7 +1,6 @@
 from flask import g, Flask, jsonify, request
 import logging
 import copy
-from io import StringIO
 import komand.message as message
 import komand.action
 import komand.dispatcher
@@ -29,7 +28,7 @@ def create_flask_app():
                 result = g.control.handle_action(name, msg, is_test)
             except Exception as ex:
                 logging.fatal("Exception while running http handler for action: %s", ex)
-                response = jsonify(message.ActionError(meta={}))
+                response = jsonify(message.action_error(meta={}))
                 response.status_code = 400
                 return response
         elif prefix == "triggers" and is_test:
@@ -37,14 +36,14 @@ def create_flask_app():
                 result = g.control.handle_trigger(name, msg)
             except Exception as ex:
                 logging.fatal("Exception while running http handler for trigger: %s", ex)
-                response = jsonify(message.TriggerEvent(meta={}, output={}))
+                response = jsonify(message.trigger_event(meta={}, output={}))
                 response.status_code = 400
                 return response
         else:
             # It wasn't an action, and it wasn't a trigger test, so it was a trigger non test
             # Not supported, return error
             logging.fatal("Fatal error - must specify either actions or triggers in the url")
-            response = jsonify(message.TriggerEvent(meta={}, output={}))
+            response = jsonify(message.trigger_event(meta={}, output={}))
             response.status_code = 400
             return response
 
@@ -79,7 +78,7 @@ class Server(object):
     def handle_action(self, name, msg, is_test):
         """Run handler"""
         if name not in self.plugin.actions:
-            return message.ActionError({}, ('No action found %s' % name), "")
+            return message.action_error({}, ('No action found %s' % name), "")
         meta = {}
         if 'body' in msg and msg['body']['meta']:
             meta = msg['body']['meta']
@@ -88,7 +87,7 @@ class Server(object):
         act.setupLogger()
 
         if msg['type'] != message.ACTION_START:
-            return message.ActionError(meta, ('Invalid message type %s' % msg['type']), "")
+            return message.action_error(meta, ('Invalid message type %s' % msg['type']), "")
 
         dispatch = komand.dispatcher.Noop()
 
@@ -110,7 +109,7 @@ class Server(object):
     def handle_trigger(self, name, msg):
         """Run handler"""
         if name not in self.plugin.triggers:
-            return message.ActionError({}, ('No action found %s' % name), "")
+            return message.action_error({}, ('No action found %s' % name), "")
         meta = {}
         if 'body' in msg and msg['body']['meta']:
             meta = msg['body']['meta']
@@ -119,7 +118,7 @@ class Server(object):
         trig.setupLogger()
 
         if msg['type'] != message.TRIGGER_START:
-            return message.ActionError(meta, ('Invalid message type %s' % msg['type']), "")
+            return message.action_error(meta, ('Invalid message type %s' % msg['type']), "")
 
         dispatch = komand.dispatcher.Noop()
 
@@ -143,14 +142,17 @@ class ApplicationServer(gunicorn.app.base.BaseApplication):
         self.application = app
         super(ApplicationServer, self).__init__()
 
+    def init(self, parser, opts, args):
+        pass
+
+    def load(self):
+        return self.application
+
     def load_config(self):
         config = dict([(key, value) for key, value in iteritems(self.options)
                        if key in self.cfg.settings and value is not None])
         for key, value in iteritems(config):
             self.cfg.set(key.lower(), value)
-
-    def load(self):
-        return self.application
 
     @staticmethod
     def number_of_workers():
