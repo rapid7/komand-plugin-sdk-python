@@ -45,7 +45,7 @@ class CLI(object):
             if trig.input:
                 trig.input = trig.input.sample()
 
-            msg = message.TriggerStart(
+            msg = message.trigger_start(
                 trigger=trig.name,
                 connection=conn,
                 input=trig.input,
@@ -63,7 +63,7 @@ class CLI(object):
             if act.input:
                 act.input = act.input.sample()
 
-            msg = message.ActionStart(
+            msg = message.action_start(
                 action=act.name,
                 connection=conn,
                 input=act.input
@@ -71,29 +71,28 @@ class CLI(object):
             message.marshal(msg)
             return
 
-
         raise ValueError('Invalid trigger or action name.')
 
     def info(self, args):
         result = ''
-        result += ('Name:        %s%s%s\n') % (GREEN, self.plugin.name, RESET)
-        result += ('Vendor:      %s%s%s\n') % (GREEN, self.plugin.vendor, RESET)
-        result += ('Version:     %s%s%s\n') % (GREEN, self.plugin.version, RESET)
-        result += ('Description: %s%s%s\n') % (GREEN, self.plugin.description, RESET)
+        result += 'Name:        %s%s%s\n' % (GREEN, self.plugin.name, RESET)
+        result += 'Vendor:      %s%s%s\n' % (GREEN, self.plugin.vendor, RESET)
+        result += 'Version:     %s%s%s\n' % (GREEN, self.plugin.version, RESET)
+        result += 'Description: %s%s%s\n' % (GREEN, self.plugin.description, RESET)
 
         if len(self.plugin.triggers) > 0:
             result += '\n'
-            result += ('Triggers (%s%d%s): \n') % (GREEN, len(self.plugin.triggers), RESET)
+            result += 'Triggers (%s%d%s): \n' % (GREEN, len(self.plugin.triggers), RESET)
 
             for name, item in self.plugin.triggers.items():
-                result += ('└── %s%s%s (%s%s)\n') % (GREEN, name, RESET, item.description, RESET)
+                result += '└── %s%s%s (%s%s)\n' % (GREEN, name, RESET, item.description, RESET)
 
         if len(self.plugin.actions) > 0:
             result += '\n'
-            result += ('Actions (%s%d%s): \n') % (GREEN, len(self.plugin.actions), RESET)
+            result += 'Actions (%s%d%s): \n' % (GREEN, len(self.plugin.actions), RESET)
 
             for name, item in self.plugin.actions.items():
-                result += ('└── %s%s%s (%s%s)\n') % (GREEN, name, RESET, item.description, RESET)
+                result += '└── %s%s%s (%s%s)\n' % (GREEN, name, RESET, item.description, RESET)
 
         print(result)
 
@@ -117,12 +116,14 @@ class CLI(object):
         info_command = subparsers.add_parser('info', help='Display plugin info (triggers and actions).')
         info_command.set_defaults(func=self.info)
 
-
-        sample_command = subparsers.add_parser('sample', help='Show a sample start message for the provided trigger or action.')
+        sample_command = subparsers.add_parser('sample',
+                                               help='Show a sample start message for the provided trigger or action.')
         sample_command.add_argument('name', help='trigger or action name')
         sample_command.set_defaults(func=self.sample)
 
-        run_command = subparsers.add_parser('run', help='Run the plugin (default command). You must supply the start message on stdin.')
+        run_command = subparsers.add_parser('run',
+                                            help='Run the plugin (default command).'
+                                                 'You must supply the start message on stdin.')
         run_command.set_defaults(func=self._run)
 
         http_command = subparsers.add_parser('http', help='Run a server. You must supply a port, otherwise will listen on 10001.')
@@ -140,4 +141,3 @@ class CLI(object):
             return parser.print_help()
 
         args.func(args)
-

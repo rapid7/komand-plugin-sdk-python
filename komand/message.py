@@ -1,6 +1,6 @@
+# -*- coding: utf-8 -*-
 import sys
 import json
-import komand.util as util
 
 
 # version
@@ -20,22 +20,25 @@ valid_types = [
 SUCCESS = 'ok'
 ERROR = 'error'
 
+
 def envelope(msg_type, body={}):
     return {
         'body': body,
         'type': msg_type,
         'version': VERSION,
-        }
+    }
 
-def ActionStart(action='', meta={}, input={}, connection={}):
+
+def action_start(action='', meta={}, input={}, connection={}):
     return envelope(ACTION_START, {
         'action': action,
         'meta': meta,
         'input': input,
         'connection': connection,
-        })
+    })
 
-def TriggerStart(trigger='', meta={}, dispatcher={}, input={}, connection={}):
+
+def trigger_start(trigger='', meta={}, dispatcher={}, input={}, connection={}):
     return envelope(TRIGGER_START, {
         'trigger': trigger,
         'meta': meta,
@@ -44,48 +47,57 @@ def TriggerStart(trigger='', meta={}, dispatcher={}, input={}, connection={}):
         'connection': connection,
         })
 
-def TriggerEvent(meta={}, output={}, log=""):
+
+def trigger_event(meta={}, output={}, log=""):
     return envelope(TRIGGER_EVENT, {'meta': meta, 'output': output, 'log': log})
 
-def ActionSuccess(meta={}, output={}, log=""):
+
+def action_success(meta={}, output={}, log=""):
     return envelope(ACTION_EVENT, {'meta': meta, 'output': output, 'status': SUCCESS, 'log': log})
 
-def ActionError(meta={}, error='', log=""):
+
+def action_error(meta={}, error='', log=""):
     err = "%s" % error
     return envelope(ACTION_EVENT, {'meta': meta, 'error': err, 'status': ERROR, 'log': log})
 
-def validateTriggerStart(body):
+
+def validate_trigger_start(body):
     if not body:
         raise Exception('No body: %s' % body)
-    if not 'trigger' in body:
+
+    if 'trigger' not in body:
         raise Exception('Missing trigger in %s' % body)
 
-    if not 'connection' in body:
+    if 'connection' not in body:
         body['connection'] = {}
-    if not 'dispatcher' in body:
+
+    if 'dispatcher' not in body:
         body['dispatcher'] = {}
-    if not 'input' in body:
+
+    if 'input' not in body:
         body['input'] = {}
 
 
-def validateActionStart(body):
+def validate_action_start(body):
     if not body:
         raise Exception('No body: %s' % body)
-    if not 'action' in body:
+
+    if 'action' not in body:
         raise Exception('Missing action in %s' % body)
 
-    if not 'connection' in body:
+    if 'connection' not in body:
         body['connection'] = {}
-    if not 'dispatcher' in body:
+    if 'dispatcher' not in body:
         body['dispatcher'] = {}
-    if not 'input' in body:
+    if 'input' not in body:
         body['input'] = {}
 
 
 validators = {
-    TRIGGER_START: validateTriggerStart,
-    ACTION_START:  validateActionStart,
+    TRIGGER_START: validate_trigger_start,
+    ACTION_START:  validate_action_start,
 }
+
 
 def marshal(msg, fd=sys.stdout, ce=None):
     """ Marshal a message to fd"""
@@ -95,6 +107,7 @@ def marshal(msg, fd=sys.stdout, ce=None):
         json.dump(msg, fd, cls=ce)
     fd.flush()
 
+
 def marshal_string(msg, ce=None):
     """ Marshal a message to a string"""
     if ce is None:
@@ -102,10 +115,10 @@ def marshal_string(msg, ce=None):
     else:
         return json.dumps(msg, cls=ce)
 
+
 def unmarshal(fd=sys.stdin, cd=None):
     """Unmarshals a message"""
     try:
-        msg = None
         if cd is None:
             msg = json.load(fd)
         else:
@@ -119,21 +132,19 @@ def unmarshal(fd=sys.stdin, cd=None):
 
 def validate(msg):
     """Validate the message is good"""
-    if not 'version' in msg:
+    if 'version' not in msg:
         raise Exception("No message version: %s" % msg)
+
     if msg['version'] != VERSION:
         raise Exception("Invalid version: %s in %s" % (msg['version'], msg))
 
-    if not 'type' in msg:
+    if 'type' not in msg:
         raise Exception("No message type: %s" % msg)
 
-    if not msg['type'] in valid_types:
+    if msg['type'] not in valid_types:
         raise Exception("Invalid type: %s in %s" % (msg['type'], msg))
 
-    if not 'body' in msg:
+    if 'body' not in msg:
         raise Exception("No message body: %s" % msg)
 
     validators[msg['type']](msg['body'])
-
-
-# unmarshal()

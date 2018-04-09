@@ -1,13 +1,15 @@
+# -*- coding: utf-8 -*-
 from jsonschema import validate
 import komand.util as util
-import komand.helper as helper
 import json
 import hashlib
 import copy
 
+
 def key(parameters):
-   """key is a unique connection key"""
-   return hashlib.sha1(json.dumps(parameters, sort_keys=True).encode('utf-8')).hexdigest()
+    """key is a unique connection key"""
+    return hashlib.sha1(json.dumps(parameters, sort_keys=True).encode('utf-8')).hexdigest()
+
 
 class ConnectionCache(object):
     def __init__(self, prototype):
@@ -34,7 +36,6 @@ class ConnectionCache(object):
         conn.connect(parameters)
         self.connections[conn.key()] = conn
         return conn
-
 
 
 class Connection(object):

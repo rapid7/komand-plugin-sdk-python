@@ -1,11 +1,14 @@
+# -*- coding: utf-8 -*-
 import komand.message as message
 import komand.dispatcher as dispatcher
-import komand.helper as helper
 import logging
 import sys
 import inspect
+import six
+
 
 from io import StringIO
+
 
 class Action(object):
     """A action"""
@@ -56,12 +59,14 @@ class Task(object):
         self.connection_cache = connection_cache
         self.meta = None
 
-
     def test(self):
         """ Run test """
         try:
             self._setup(True)
-            args = inspect.getargspec(self.action.test).args
+            if six.PY3:
+                args = inspect.getfullargspec(self.action.test).args
+            else:
+                args = inspect.getargspec(self.action.test).args
 
             if len(args) == 1:
                 output = self.action.test()
@@ -71,19 +76,19 @@ class Task(object):
             schema = self.action.output
             if schema:
                 schema.validate(output)
+
         except Exception as e:
             logging.exception('Action test failure: %s', e)
-            err = message.ActionError(
+            err = message.action_error(
                 meta=self.meta,
                 error=str(e),
                 log=self.action.logs())
             self.dispatcher.write(err)
             return False
 
-        success = message.ActionSuccess(meta=self.meta, output=output, log=self.action.logs())
+        success = message.action_success(meta=self.meta, output=output, log=self.action.logs())
         self.dispatcher.write(success)
         return True
-
 
     def run(self):
         """ Run the action"""
@@ -96,16 +101,15 @@ class Task(object):
 
             if self.action.output:
                 self.action.output.validate(output)
+
         except Exception as e:
             logging.exception('Action run failure: %s', e)
-            err = message.ActionError(meta=self.meta, error=str(e), log=self.action.logs())
+            err = message.action_error(meta=self.meta, error=str(e), log=self.action.logs())
             self.dispatcher.write(err)
             sys.exit(1)
-            return
 
-        ok = message.ActionSuccess(meta=self.meta, output=output, log=self.action.logs())
+        ok = message.action_success(meta=self.meta, output=output, log=self.action.logs())
         self.dispatcher.write(ok)
-
 
     def _setup(self, test_mode=False):
         action_msg = self.msg
@@ -131,4 +135,3 @@ class Task(object):
             except Exception:
                 if not test_mode:
                     raise
-

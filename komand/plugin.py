@@ -1,21 +1,18 @@
+# -*- coding: utf-8 -*-
+from six.moves import StringIO
 import sys
 import komand.message as message
 import komand.action as action
 import komand.trigger as trigger
 import komand.server
-import komand.dispatcher as dispatcher
 from .connection import ConnectionCache
-
-try:
-    from StringIO import StringIO
-except ImportError:
-    from io import StringIO
 
 
 class Plugin(object):
-    """An Komand Plugin."""
+    """A Komand Plugin."""
 
-    def __init__(self, name='', vendor='', description='', version='', connection=None, custom_encoder=None, custom_decoder=None):
+    def __init__(self, name='', vendor='', description='', version='', connection=None, custom_encoder=None,
+                 custom_decoder=None):
         self.name = name
         self.vendor = vendor
         self.description = description
@@ -59,11 +56,8 @@ class Plugin(object):
 
     def run(self, msg=None):
         """Run the plugin."""
-        inp = sys.stdin
-        if msg:
-            inp = StringIO(msg)
-
-        msg = message.unmarshal(inp, cd=self.custom_decoder)
+        input_data = StringIO(msg) if msg else sys.stdin
+        msg = message.unmarshal(input_data, cd=self.custom_decoder)
         runner = self._lookup(msg)
         if self.debug:
             runner.debug = True
@@ -72,11 +66,8 @@ class Plugin(object):
 
     def test(self, msg=None):
         """Test the plugin."""
-        inp = sys.stdin
-        if msg:
-            inp = StringIO(msg)
-
-        msg = message.unmarshal(inp, cd=self.custom_decoder)
+        input_data = StringIO(msg) if msg else sys.stdin
+        msg = message.unmarshal(input_data, cd=self.custom_decoder)
 
         if not msg:
             msg = message.unmarshal(sys.stdin)
