@@ -133,6 +133,6 @@ class Task(object):
         if self.action.input:
             try:
                 self.action.input.set(action_msg.get('input'))
-            except Exception:
+            except Exception as e:
                 if not test_mode:
-                    raise
+                    raise e
