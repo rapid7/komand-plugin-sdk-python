@@ -143,7 +143,7 @@ def open_file(file_path):
     if os.path.isdir(dirname):
         if os.path.isfile(file_path):
             f = open(file_path, 'rb')
-            if isinstance(f, IOBase) or isinstance(f, file):
+            if isinstance(f, IOBase) or isinstance(f, file):  # IOBase for Py3 compatibility
                 return f
             return None
         else:
@@ -324,7 +324,7 @@ def encode_file(file_path):
         logging.error('EncodeFile: Failed to open file: %s', e.strerror)
         raise Exception('EncodeFile')
     finally:
-        if isinstance(f, IOBase) or isinstance(f, file):
+        if isinstance(f, IOBase) or isinstance(f, file):  # IOBase for Py3 compatibility
             f.close()
 
 
