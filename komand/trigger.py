@@ -54,7 +54,8 @@ class Trigger(object):
 
 class Task(object):
     """Task to run or test an trigger"""
-    def __init__(self, connection, trigger, msg, dispatch=None, custom_encoder=None, custom_decoder=None, connection_cache=None, stream=None):
+    def __init__(self, connection, trigger, msg, dispatch=None, custom_encoder=None, custom_decoder=None,
+                 connection_cache=None, stream=None):
         self.connection = connection
         self.trigger = trigger
         self.msg = msg

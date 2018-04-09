@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 import komand.message as message
 import sys
 import logging
@@ -14,8 +15,10 @@ class Noop(object):
     def write(self, msg):
         self.msg = msg
 
+
 class Stdout(object):
-    """ stdout dispatcher 
+    """
+    stdout dispatcher.
     actually can support any stream now
     """
     def __init__(self, config={}, stream=sys.stdout):

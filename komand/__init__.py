@@ -9,8 +9,6 @@ import komand.helper
 import certifi
 import os
 
-__all__ = ['message', 'plugin', 'connection', 'trigger', 'action', 'variables', 'cli', 'helper']
-
 Plugin = komand.plugin.Plugin
 Action = komand.action.Action
 Trigger = komand.trigger.Trigger

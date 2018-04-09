@@ -54,6 +54,7 @@ def create_flask_app():
         return response
     return app
 
+
 class Server(object):
     """Server runs the plugin in server mode"""
     def __init__(self, plugin, port=10001, debug=False):
@@ -77,7 +78,7 @@ class Server(object):
 
     def handle_action(self, name, msg, is_test):
         """Run handler"""
-        if not name in self.plugin.actions:
+        if name not in self.plugin.actions:
             return message.ActionError({}, ('No action found %s' % name), "")
         meta = {}
         if 'body' in msg and msg['body']['meta']:
@@ -108,7 +109,7 @@ class Server(object):
 
     def handle_trigger(self, name, msg):
         """Run handler"""
-        if not name in self.plugin.triggers:
+        if name not in self.plugin.triggers:
             return message.ActionError({}, ('No action found %s' % name), "")
         meta = {}
         if 'body' in msg and msg['body']['meta']:
