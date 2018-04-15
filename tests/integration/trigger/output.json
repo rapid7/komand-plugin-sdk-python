@@ -1,0 +1,10 @@
+{
+    "body": {
+        "meta": {},
+        "output": {
+            "text": "Hello, World!"
+        }
+    },
+    "type": "trigger_event",
+    "version": "v1"
+}

@@ -12,6 +12,12 @@ MAKE_VERBOSE=0
 image:
 	docker build -t komand/python-$(PYTHON_MAJOR_VERSION)-plugin -f Dockerfile-python$(PYTHON_MAJOR_VERSION) .
 
+python-2-image:
+	docker build -t komand/python-2-plugin:test -f Dockerfile-python2 .
+
+python-3-image:
+	docker build -t komand/python-3-plugin:test -f Dockerfile-python3 .
+
 all: test tag
 
 build:

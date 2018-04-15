@@ -13,10 +13,13 @@ class Hello(komand.Action):
                 description='Print information',
                 input=HelloInput(),
                 output=HelloOutput())
+        self.count = 0
 
     def run(self, params={}):
+        message = 'Hello {} from Proc {} Thread {}'.format(self.count, os.getpid(), threading.current_thread()._name)
+        self.count = self.count + 1
         return {
-            'message': 'Hello from Proc {} Thread {}'.format(os.getpid(), threading.current_thread()._name)
+            'message': message
         }
 
     def test(self, params={}):

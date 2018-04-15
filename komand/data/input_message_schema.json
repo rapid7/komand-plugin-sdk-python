@@ -1,0 +1,80 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "definitions": {
+    "action_start": {
+      "type": "object",
+      "properties": {
+        "action": {
+          "type": "string"
+        },
+        "meta": {
+          "type": "object"
+        },
+        "input": {
+          "type": "object"
+        },
+        "connection": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "object"
+            }
+          ]
+        }
+      },
+      "required": ["action", "meta", "input", "connection"]
+    },
+    "trigger_start": {
+      "type": "object",
+      "properties": {
+        "action": {
+          "type": "string"
+        },
+        "meta": {
+          "type": "object"
+        },
+        "input": {
+          "type": "object"
+        },
+        "connection": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "object"
+            }
+          ]
+        },
+        "dispatcher": {
+          "type": "object"
+        }
+      },
+      "required": ["action", "meta", "input", "connection", "dispatcher"]
+    }
+  },
+  "properties": {
+    "body": {
+      "oneOf": [
+        {
+          "$ref": "#/definitions/action_start"
+        },
+        {
+          "$ref": "#/definitions/trigger_start"
+        }
+      ]
+    },
+    "type": {
+      "type": "string",
+      "enum": ["action_start", "trigger_start"]
+    },
+    "version": {
+      "type": "string",
+      "enum": ["v1", "v2"]
+    }
+  },
+  "required": ["body", "type", "version"]
+}

@@ -1,0 +1,11 @@
+{
+  "body": {
+    "meta": {},
+    "output": {
+        "text": "Hello, World!"
+    },
+    "status": "ok"
+  },
+  "type": "action_event",
+  "version": "v1"
+}

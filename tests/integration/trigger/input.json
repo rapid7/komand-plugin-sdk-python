@@ -1,0 +1,14 @@
+{
+  "body": {
+    "meta": {},
+    "connection": {
+        "greeting": "Hello, {}!"
+    },
+    "input": {
+        "name": "World"
+    },
+    "trigger": "receive_message"
+  },
+  "type": "trigger_start",
+  "version": "v1"
+}

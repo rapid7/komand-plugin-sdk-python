@@ -1,0 +1,49 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "definitions": {
+
+  },
+  "properties": {
+    "body": {
+      "type": "object",
+      "properties": {
+        "meta": {
+          "type": "object"
+        },
+        "error": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "output": {
+          "type": "object"
+        }
+      },
+      "oneOf": [
+        {
+          "properties": {
+            "status": { "enum": ["ok"] }
+          },
+          "required": ["output"]
+        },
+        {
+          "properties": {
+            "status": { "enum": ["error"] }
+          },
+          "required": ["error"]
+        }
+      ],
+      "required": ["meta", "status"]
+    },
+    "type": {
+      "type": "string"
+    },
+    "version": {
+      "type": "string",
+      "enum": ["v1", "v2"]
+    }
+  },
+  "required": ["body", "type", "version"]
+}

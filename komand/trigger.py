@@ -1,28 +1,19 @@
 # -*- coding: utf-8 -*-
 import komand.message as message
 import komand.dispatcher as dispatcher
+from komand.step import Step
 import logging
 import inspect
 import six
 
 
-from io import StringIO
-
-
-class Trigger(object):
+class Trigger(Step):
     """A trigger"""
+
     def __init__(self, name, description, input, output):
-        self.name = name
-        self.description = description
-        self.connection = None
+        super(Trigger, self).__init__(name, description, input, output)
         self._sender = None
-        self.input = input
-        self.output = output
         self.webhook_url = ''
-        self.debug = False
-        self.stream = StringIO()
-        self.handler = logging.StreamHandler(self.stream)
-        self.logger = logging.getLogger(self.name)
 
     def send(self, event):
         schema = self.output
@@ -30,26 +21,6 @@ class Trigger(object):
             schema.validate(event)
 
         self._sender.send(event)
-
-    def setupLogger(self):
-        if self.debug:
-            self.logger.setLevel(logging.DEBUG)
-        else:
-            self.logger.setLevel(logging.INFO)
-        self.logger.addHandler(self.handler)
-
-    def logs(self):
-        """ Get logs from action """
-        self.handler.flush()
-        return self.stream.getvalue()
-
-    def run(self, params={}):
-        """ Run a trigger. Returns nothing """
-        raise NotImplementedError
-
-    def test(self, params={}):
-        """ Test a trigger.  Should return output JSON """
-        raise NotImplementedError
 
 
 class Task(object):
