@@ -11,9 +11,6 @@ root_logger = logging.getLogger()
 root_logger.setLevel('INFO')
 root_logger.addHandler(logging.StreamHandler())
 
-logger = logging.getLogger('step_handler')
-logger.setLevel('INFO')
-
 input_message_schema = json.load(
     pkg_resources.resource_stream(__name__, '/'.join(('data', 'input_message_schema.json'))))
 output_message_schema = json.load(
@@ -90,6 +87,8 @@ class StepHandler:
 
         log_stream = io.StringIO()
         stream_handler = logging.StreamHandler(log_stream)
+        logger = logging.getLogger('step_handler')
+        logger.setLevel('INFO')
         logger.addHandler(stream_handler)
 
         success = True
@@ -130,7 +129,7 @@ class StepHandler:
             output = None
 
             try:
-                output = StepHandler.handle_action_start(self, input_message['body'], is_test, is_debug)
+                output = StepHandler.handle_action_start(self, input_message['body'], logger, is_test, is_debug)
             except ClientException as e:
                 success = False
                 error_message = str(e)
@@ -148,7 +147,7 @@ class StepHandler:
 
         elif message_type == 'trigger_start':
             try:
-                StepHandler.handle_trigger_start(self, input_message['body'], is_test, is_debug)
+                StepHandler.handle_trigger_start(self, input_message['body'], logger, log_stream, is_test, is_debug)
             except ClientException as e:
                 success = False
                 error_message = str(e)
@@ -165,7 +164,7 @@ class StepHandler:
                 if not success:
                     return StepHandler.envelope(None, input_message, log_stream.getvalue(), success, None, error_message)
 
-    def handle_action_start(self, message_body, is_test=False, is_debug=False):
+    def handle_action_start(self, message_body, logger, is_test=False, is_debug=False):
         """
         Starts an action.
         :param message_body: The action_start message.
@@ -186,6 +185,7 @@ class StepHandler:
 
         step.debug = is_debug
         step.connection = message_body['connection']
+        step.logger = logger
 
         params = message_body['input']
 
@@ -198,7 +198,7 @@ class StepHandler:
 
         return output
 
-    def handle_trigger_start(self, message_body, is_test=False, is_debug=False):
+    def handle_trigger_start(self, message_body, logger, log_stream, is_test=False, is_debug=False):
         """
         Starts a trigger.
         :param message_body: The trigger_start message.
@@ -219,6 +219,8 @@ class StepHandler:
 
         step.debug = is_debug
         step.connection = message_body['connection']
+        step.logger = logger
+        step.log_stream = log_stream
         step.meta = message_body['meta']
 
         step.webhook_url = message_body['dispatcher']['webhook_url']

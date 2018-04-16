@@ -16,13 +16,14 @@ class Trigger(Step):
         self.url = ''
         self.webhook_url = ''
         self.dispatcher = None
+        self.log_stream = None
 
     def send(self, event):
         schema = self.output
         if schema:
             schema.validate(event)
 
-        msg = message.trigger_event(meta=self.meta, output=event)
+        msg = message.trigger_event(meta=self.meta, output=event, log=self.log_stream.getvalue())
         self.dispatcher.write(msg)
 
 

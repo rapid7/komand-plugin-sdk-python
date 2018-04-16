@@ -4,7 +4,6 @@ import komand
 import komand.handler
 import json
 import time
-import sys
 
 import concurrent.futures.thread as thread
 import concurrent.futures as futures
@@ -48,7 +47,7 @@ class Action(komand.Action):
         )
 
     def run(self, params={}):
-        sys.stderr.write('I am the log\n')
+        self.logger.info('I am the log')
         return {
             'text': self.connection['greeting'].format(params['name'])
         }
@@ -66,7 +65,7 @@ class Trigger(komand.Trigger):
 
     def run(self, params={}):
         while True:
-            sys.stderr.write('I am the log\n')
+            self.logger.info('I am the log')
             self.send({
                 'text': self.connection['greeting'].format(params['name'])
             })
@@ -129,17 +128,17 @@ def test_trigger():
     input_message = json.load(open('./tests/integration/trigger/input.json'))
     expected_output = json.load(open('./tests/integration/trigger/output.json'))
 
-    e = thread.ThreadPoolExecutor()
-    trigger_future = e.submit(handler.handle_step, input_message, is_debug=True)
-    future = e.submit(wait_for_caught_message)
+    executor = thread.ThreadPoolExecutor()
+    executor.submit(handler.handle_step, input_message, is_debug=True)
+    future = executor.submit(wait_for_caught_message)
     out = futures.wait([future], timeout=10)
     done = out.done
-    trigger_future.cancel()
-    future.cancel()
+
+    # Non-graceful shutdown
+    executor._threads.clear()
+    futures.thread._threads_queues.clear()
 
     if len(done) <= 0:
         raise Exception('Timeout')
 
     assert caught_message == expected_output
-
-
