@@ -1,21 +1,30 @@
 from flask import Flask, jsonify, request
 import logging
-import komand.message as message
-import komand.action
-import komand.dispatcher
 import gunicorn.app.base
 from gunicorn.six import iteritems
+from komand.handler import StepHandler
 
 SERVER_INSTANCE = None
 
 
-class Server(object):
-    """Server runs the plugin in server mode"""
+class PluginServer(object):
+    """
+    Server which runs the plugin as an HTTP server.
+
+    From the Komand Proxy:
+
+      // const URLPattern = "<vendor>/<plugin>/<version>/<type>/<name>[/<test>]"
+      // EX: komand/slack/1.0.1/actions/post_message/
+      // EX: komand/slack/1.0.1/actions/post_message/test
+      // EX: komand/slack/1.0.1/triggers/message/test
+      // Non tests of triggers are not supported
+    """
     def __init__(self, plugin, port=10001, debug=False):
         self.plugin = plugin
         self.port = port
         self.debug = debug
         self.app = self.create_flask_app()
+        self.step_handler = StepHandler(plugin)
 
     def create_flask_app(self):
         app = Flask(__name__)
@@ -23,38 +32,11 @@ class Server(object):
         @app.route('/<string:prefix>/<string:name>', defaults={'test': None}, methods=['POST'])
         @app.route('/<string:prefix>/<string:name>/<string:test>', methods=['POST'])
         def handler(prefix, name, test):
-
-            msg = request.get_json()
-
-            is_test = test is not None
-            logging.info('request json: %s', msg)
-            if prefix == "actions":
-                try:
-                    result = SERVER_INSTANCE.handle_action(name, msg, is_test)
-                except Exception as ex:
-                    logging.fatal("Exception while running http handler for action: %s", ex)
-                    response = jsonify(message.action_error(meta={}))
-                    response.status_code = 400
-                    return response
-            elif prefix == "triggers" and is_test:
-                try:
-                    result = SERVER_INSTANCE.handle_trigger(name, msg)
-                except Exception as ex:
-                    logging.fatal("Exception while running http handler for trigger: %s", ex)
-                    response = jsonify(message.trigger_event(meta={}, output={}))
-                    response.status_code = 400
-                    return response
-            else:
-                # It wasn't an action, and it wasn't a trigger test, so it was a trigger non test
-                # Not supported, return error
-                logging.fatal("Fatal error - must specify either actions or triggers in the url")
-                response = jsonify(message.trigger_event(meta={}, output={}))
-                response.status_code = 400
-                return response
-
-            response = jsonify(result)
-            if 'plugin_error' in result:
-                response.status_code = 500
+            input_message = request.get_json()
+            logging.info('request json: %s', input_message)
+            output = self.step_handler.handle_step(input_message, is_debug=self.debug, is_test=test is not None)
+            response = jsonify(output)
+            response.status_code = 200  # fix this later
             return response
         return app
 
@@ -65,73 +47,18 @@ class Server(object):
             SERVER_INSTANCE = self
             options = {
                 'bind': '%s:%s' % ('0.0.0.0', self.port),
-                'workers': ApplicationServer.number_of_workers(),
+                'workers': GunicornServer.number_of_workers(),
                 'threads': 4
             }
-            ApplicationServer(self.app, options).run()
-
-    def handle_action(self, name, msg, is_test):
-        """Run handler"""
-        if name not in self.plugin.actions:
-            return message.action_error({}, ('No action found %s' % name), "")
-        meta = {}
-        if 'body' in msg and msg['body']['meta']:
-            meta = msg['body']['meta']
-        act = self.plugin.actions[name]
-
-        if msg['type'] != message.ACTION_START:
-            return message.action_error(meta, ('Invalid message type %s' % msg['type']), "")
-
-        dispatch = komand.dispatcher.Noop()
-
-        task = komand.action.Task(
-            connection=self.plugin.connection_cache.get(msg['body']['connection']),
-            action=act,
-            msg=msg['body'],
-            connection_cache=self.plugin.connection_cache,
-            dispatch=dispatch,
-            custom_encoder=self.plugin.custom_encoder,
-            custom_decoder=self.plugin.custom_decoder)
-        if is_test:
-            task.test()
-        else:
-            task.run()
-        # dispatch.msg has the envelope and message body with error codes and logs
-        return dispatch.msg
-
-    def handle_trigger(self, name, msg):
-        """Run handler"""
-        if name not in self.plugin.triggers:
-            return message.action_error({}, ('No action found %s' % name), "")
-        meta = {}
-        if 'body' in msg and msg['body']['meta']:
-            meta = msg['body']['meta']
-        trig = self.plugin.triggers[name]
-
-        if msg['type'] != message.TRIGGER_START:
-            return message.action_error(meta, ('Invalid message type %s' % msg['type']), "")
-
-        dispatch = komand.dispatcher.Noop()
-
-        task = komand.trigger.Task(
-            connection=self.plugin.connection_cache.get(msg['body']['connection']),
-            trigger=trig,
-            msg=msg['body'],
-            connection_cache=self.plugin.connection_cache,
-            dispatch=dispatch,
-            custom_encoder=self.plugin.custom_encoder,
-            custom_decoder=self.plugin.custom_decoder)
-        task.test()
-        # dispatch.msg has the envelope and message body with error codes and logs
-        return dispatch.msg
+            GunicornServer(self.app, options).run()
 
 
-class ApplicationServer(gunicorn.app.base.BaseApplication):
+class GunicornServer(gunicorn.app.base.BaseApplication):
 
     def __init__(self, app, options=None):
         self.options = options or {}
         self.application = app
-        super(ApplicationServer, self).__init__()
+        super(GunicornServer, self).__init__()
 
     def init(self, parser, opts, args):
         pass

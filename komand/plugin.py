@@ -21,7 +21,7 @@ class Plugin(object):
         self.custom_encoder = custom_encoder
 
     def server(self, port=8001):
-        server = komand.server.Server(
+        server = komand.server.PluginServer(
             plugin=self,
             port=port,
             debug=self.debug,
