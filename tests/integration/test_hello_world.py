@@ -47,7 +47,7 @@ class Action(komand.Action):
         )
 
     def run(self, params={}):
-        self.logger.info('I am the log')
+        self.logger.info(u'I am the log')
         return {
             'text': self.connection['greeting'].format(params['name'])
         }
@@ -65,7 +65,7 @@ class Trigger(komand.Trigger):
 
     def run(self, params={}):
         while True:
-            self.logger.info('I am the log')
+            self.logger.info(u'I am the log')
             self.send({
                 'text': self.connection['greeting'].format(params['name'])
             })

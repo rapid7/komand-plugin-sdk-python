@@ -6,6 +6,7 @@ import pkg_resources
 import json
 import copy
 import komand.dispatcher as dispatcher
+import uuid
 
 root_logger = logging.getLogger()
 root_logger.setLevel('INFO')
@@ -85,9 +86,10 @@ class StepHandler:
         :return:
         """
 
+        request_id = uuid.uuid4()
         log_stream = io.StringIO()
         stream_handler = logging.StreamHandler(log_stream)
-        logger = logging.getLogger('step_handler')
+        logger = logging.getLogger('step_handler_{}'.format(request_id))
         logger.setLevel('INFO')
         logger.addHandler(stream_handler)
 
