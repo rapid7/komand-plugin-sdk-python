@@ -9,7 +9,7 @@ import komand.dispatcher as dispatcher
 import uuid
 
 root_logger = logging.getLogger()
-root_logger.setLevel('INFO')
+root_logger.setLevel('DEBUG')
 root_logger.addHandler(logging.StreamHandler())
 
 input_message_schema = json.load(
@@ -90,7 +90,7 @@ class StepHandler:
         log_stream = io.StringIO()
         stream_handler = logging.StreamHandler(log_stream)
         logger = logging.getLogger('step_handler_{}'.format(request_id))
-        logger.setLevel('INFO')
+        logger.setLevel('DEBUG' if is_debug else 'INFO')
         logger.addHandler(stream_handler)
 
         success = True
@@ -193,12 +193,26 @@ class StepHandler:
 
         params = message_body['input']
 
+        try:
+            step.input.validate(params)
+        except jsonschema.exceptions.ValidationError as e:
+            raise ClientException('action input JSON was invalid', e)
+        except Exception as e:
+            raise Exception('Unable to validate action input JSON', e)
+
         if is_test:
             func = step.test
         else:
             func = step.run
 
         output = func(params)
+
+        try:
+            step.output.validate(output)
+        except jsonschema.exceptions.ValidationError as e:
+            raise ClientException('action output JSON was invalid', e)
+        except Exception as e:
+            raise Exception('Unable to validate action output JSON', e)
 
         return output
 
@@ -239,6 +253,13 @@ class StepHandler:
                 step.dispatcher = dispatcher.Http(message_body['dispatcher'])
 
         params = message_body['input']
+
+        try:
+            step.input.validate(params)
+        except jsonschema.exceptions.ValidationError as e:
+            raise ClientException('action input JSON was invalid', e)
+        except Exception as e:
+            raise Exception('Unable to validate action input JSON', e)
 
         if is_test:
             func = step.test

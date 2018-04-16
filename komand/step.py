@@ -16,19 +16,6 @@ class Step(object):
         self.stream = StringIO()
         self.handler = logging.StreamHandler(self.stream)
         self.logger = logging.getLogger(self.name)
-        self._setup_logger()
-
-    def _setup_logger(self):
-        if self.debug:
-            self.logger.setLevel(logging.DEBUG)
-        else:
-            self.logger.setLevel(logging.INFO)
-        self.logger.addHandler(self.handler)
-
-    def logs(self):
-        """ Get logs from action """
-        self.handler.flush()
-        return self.stream.getvalue()
 
     def run(self, params={}):
         """ Run a action, return output or raise error """

@@ -2,7 +2,6 @@
 
 import sys
 import argparse
-import logging
 import komand.message as message
 from komand.handler import StepHandler
 import json
@@ -88,14 +87,12 @@ class CLI(object):
 
         raise ValueError('Invalid trigger or action name.')
 
-    def execute_step(self, args, is_test=False):
-        if args.debug:
-            self.plugin.debug = True
+    def execute_step(self, is_test=False, is_debug=False):
 
         input_data = sys.stdin
         msg = message.unmarshal(input_data)
         ret = 0
-        output = self.step_handler.handle_step(msg, is_test=is_test, is_debug=self.plugin.debug)
+        output = self.step_handler.handle_step(msg, is_test=is_test, is_debug=is_debug)
         if output:
             sys.stdout.write(json.dumps(output))
             if output['status'] != 'ok':
@@ -104,10 +101,10 @@ class CLI(object):
             ret = 1
 
     def run_step(self, args):
-        self.execute_step(args, is_test=False)
+        self.execute_step(is_test=False, is_debug=args.debug)
 
     def test_step(self, args):
-        self.execute_step(args, is_test=True)
+        self.execute_step(is_test=True, is_debug=args.debug)
 
     def server(self, args):
         if args.debug:
@@ -124,7 +121,7 @@ class CLI(object):
         subparsers = parser.add_subparsers(help='Commands')
 
         test_command = subparsers.add_parser('test', help='Run a test using the start message on stdin')
-        test_command.set_defaults(func=self.run_input_message)
+        test_command.set_defaults(func=self.run_step)
 
         info_command = subparsers.add_parser('info', help='Display plugin info (triggers and actions).')
         info_command.set_defaults(func=self.info)
@@ -137,7 +134,7 @@ class CLI(object):
         run_command = subparsers.add_parser('run',
                                             help='Run the plugin (default command).'
                                                  'You must supply the start message on stdin.')
-        run_command.set_defaults(func=self.test_input_message)
+        run_command.set_defaults(func=self.test_step)
 
         http_command = subparsers.add_parser('http', help='Run a server. ' +
                                                           'You must supply a port, otherwise will listen on 10001.')
@@ -145,11 +142,6 @@ class CLI(object):
         http_command.set_defaults(func=self.server)
 
         args = parser.parse_args(self.args)
-
-        if args.debug:
-            logging.basicConfig(level=logging.DEBUG)
-        else:
-            logging.basicConfig(level=logging.INFO)
 
         if not hasattr(args, 'func') or not args.func:
             return parser.print_help()
