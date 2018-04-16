@@ -14,6 +14,15 @@ Vendor = 'komand'
 Version = '1.0.0'
 Description = 'Hello World plugin'
 
+connection_schema = {
+    'type': 'object',
+    'properties': {
+        'greeting': {
+            'type': 'string'
+        }
+    },
+    'required': ['greeting']
+}
 
 input_schema = {
     'type': 'object',
@@ -36,6 +45,15 @@ output_schema = {
 }
 
 
+class Connection(komand.Connection):
+    def __init__(self):
+        super(self.__class__, self).__init__(komand.Input(connection_schema))
+        self.greeting = None
+
+    def connect(self, params={}):
+        self.greeting = params.get('greeting', 'no greeting for {}')
+
+
 class Action(komand.Action):
 
     def __init__(self):
@@ -49,7 +67,7 @@ class Action(komand.Action):
     def run(self, params={}):
         self.logger.info(u'I am the log')
         return {
-            'text': self.connection['greeting'].format(params['name'])
+            'text': self.connection.greeting.format(params['name'])
         }
 
 
@@ -67,7 +85,7 @@ class Trigger(komand.Trigger):
         while True:
             self.logger.info(u'I am the log')
             self.send({
-                'text': self.connection['greeting'].format(params['name'])
+                'text': self.connection.greeting.format(params['name'])
             })
             time.sleep(10)
 
@@ -79,15 +97,7 @@ class Plugin(komand.Plugin):
             vendor=Vendor,
             version=Version,
             description=Description,
-            connection=komand.Connection(input=komand.Input(schema={
-                'type': 'object',
-                'properties': {
-                    'greeting': {
-                        'type': 'string'
-                    }
-                },
-                'required': ['greeting']
-            }))
+            connection=Connection()
         )
 
         self.add_action(Action())

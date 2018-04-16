@@ -181,12 +181,14 @@ class StepHandler:
 
         action = self.plugin.actions[action_name]
 
+        connection = self.plugin.connection_cache.get(message_body['connection'])
+
         # Copy the action for thread safety.
         # This is necessary because the object itself contains state like connection and debug.
         step = copy.copy(action)
 
         step.debug = is_debug
-        step.connection = message_body['connection']
+        step.connection = connection
         step.logger = logger
 
         params = message_body['input']
@@ -215,12 +217,14 @@ class StepHandler:
 
         trigger = self.plugin.triggers[trigger_name]
 
+        connection = self.plugin.connection_cache.get(message_body['connection'])
+
         # Copy the action for thread safety.
         # This is necessary because the object itself contains state like connection and debug.
         step = copy.copy(trigger)
 
         step.debug = is_debug
-        step.connection = message_body['connection']
+        step.connection = connection
         step.logger = logger
         step.log_stream = log_stream
         step.meta = message_body['meta']
