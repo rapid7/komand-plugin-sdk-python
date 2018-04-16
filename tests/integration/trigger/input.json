@@ -7,7 +7,11 @@
     "input": {
         "name": "World"
     },
-    "trigger": "receive_message"
+    "trigger": "trigger",
+    "dispatcher": {
+      "url": "localhost:10003",
+      "webhook_url": "localhost:10002"
+    }
   },
   "type": "trigger_start",
   "version": "v1"

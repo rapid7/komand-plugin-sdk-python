@@ -1,5 +1,6 @@
 {
   "body": {
+    "log": "I am the log",
     "meta": {},
     "output": {
         "text": "Hello, World!"

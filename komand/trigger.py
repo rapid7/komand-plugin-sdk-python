@@ -12,15 +12,18 @@ class Trigger(Step):
 
     def __init__(self, name, description, input, output):
         super(Trigger, self).__init__(name, description, input, output)
-        self._sender = None
+        self.meta = {}
+        self.url = ''
         self.webhook_url = ''
+        self.dispatcher = None
 
     def send(self, event):
         schema = self.output
         if schema:
             schema.validate(event)
 
-        self._sender.send(event)
+        msg = message.trigger_event(meta=self.meta, output=event)
+        self.dispatcher.write(msg)
 
 
 class Task(object):

@@ -30,7 +30,7 @@
     "trigger_start": {
       "type": "object",
       "properties": {
-        "action": {
+        "trigger": {
           "type": "string"
         },
         "meta": {
@@ -53,7 +53,7 @@
           "type": "object"
         }
       },
-      "required": ["action", "meta", "input", "connection", "dispatcher"]
+      "required": ["trigger", "meta", "input", "connection"]
     }
   },
   "properties": {

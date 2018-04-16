@@ -2,12 +2,12 @@
   "body": {
     "meta": {},
     "connection": {
-        "greeting": "Hello, {}!"
+      "greeting": "Hello, {}!"
     },
     "input": {
-        "name": "World"
+      "name": "World"
     },
-    "action": "receive_message"
+    "action": "action"
   },
   "type": "action_start",
   "version": "v1"
