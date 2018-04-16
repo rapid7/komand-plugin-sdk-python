@@ -1,0 +1,12 @@
+{
+  "body": {
+    "log": "This was a test\n",
+    "meta": {},
+    "output": {
+        "text": "Test greeting"
+    },
+    "status": "ok"
+  },
+  "type": "trigger_event",
+  "version": "v1"
+}

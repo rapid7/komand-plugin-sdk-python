@@ -4,6 +4,8 @@ import sys
 import argparse
 import logging
 import komand.message as message
+from komand.handler import StepHandler
+import json
 
 GREEN = '\033[92m'
 RESET = '\033[0m'
@@ -15,6 +17,7 @@ class CLI(object):
         self.plugin = plugin
         self.args = args or []
         self.msg = None
+        self.step_handler = StepHandler(plugin)
 
         if "--" in self.args:
             index = self.args.index("--")
@@ -28,10 +31,15 @@ class CLI(object):
         self.plugin.server(port=args.port)
 
     def test(self, args):
+
         if args.debug:
             self.plugin.debug = True
 
-        self.plugin.test(self.msg)
+        input_data = sys.stdin
+        msg = message.unmarshal(input_data)
+        output = self.step_handler.handle_step(msg, is_test=True, is_debug=self.plugin.debug)
+        if output:
+            sys.stdout.write(json.dumps(output))
 
     def sample(self, args):
         name = args.name
@@ -51,7 +59,7 @@ class CLI(object):
                 input=trig.input,
                 dispatcher=dispatcher
             )
-            message.marshal(msg)
+            message.marshal(msg, sys.stdout)
             return
 
         act = self.plugin.actions.get(name)
@@ -68,7 +76,7 @@ class CLI(object):
                 connection=conn,
                 input=act.input
             )
-            message.marshal(msg)
+            message.marshal(msg, sys.stdout)
             return
 
         raise ValueError('Invalid trigger or action name.')
@@ -100,7 +108,11 @@ class CLI(object):
         if args.debug:
             self.plugin.debug = True
 
-        self.plugin.run(self.msg)
+        input_data = sys.stdin
+        msg = message.unmarshal(input_data)
+        output = self.step_handler.handle_step(msg, is_test=False, is_debug=self.plugin.debug)
+        if output:
+            sys.stdout.write(json.dumps(output))
 
     def run(self):
         """Run the CLI tool"""
