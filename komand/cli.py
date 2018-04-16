@@ -13,6 +13,7 @@ RESET = '\033[0m'
 
 class CLI(object):
     """ CLI is a cli for komand """
+
     def __init__(self, plugin, args=sys.argv[1:]):
         self.plugin = plugin
         self.args = args or []
@@ -24,22 +25,28 @@ class CLI(object):
             self.msg = " ".join(self.args[index+1:])
             self.args = self.args[:index]
 
-    def server(self, args):
-        if args.debug:
-            self.plugin.debug = True
+    def info(self, args):
+        result = ''
+        result += 'Name:        %s%s%s\n' % (GREEN, self.plugin.name, RESET)
+        result += 'Vendor:      %s%s%s\n' % (GREEN, self.plugin.vendor, RESET)
+        result += 'Version:     %s%s%s\n' % (GREEN, self.plugin.version, RESET)
+        result += 'Description: %s%s%s\n' % (GREEN, self.plugin.description, RESET)
 
-        self.plugin.server(port=args.port)
+        if len(self.plugin.triggers) > 0:
+            result += '\n'
+            result += 'Triggers (%s%d%s): \n' % (GREEN, len(self.plugin.triggers), RESET)
 
-    def test(self, args):
+            for name, item in self.plugin.triggers.items():
+                result += '└── %s%s%s (%s%s)\n' % (GREEN, name, RESET, item.description, RESET)
 
-        if args.debug:
-            self.plugin.debug = True
+        if len(self.plugin.actions) > 0:
+            result += '\n'
+            result += 'Actions (%s%d%s): \n' % (GREEN, len(self.plugin.actions), RESET)
 
-        input_data = sys.stdin
-        msg = message.unmarshal(input_data)
-        output = self.step_handler.handle_step(msg, is_test=True, is_debug=self.plugin.debug)
-        if output:
-            sys.stdout.write(json.dumps(output))
+            for name, item in self.plugin.actions.items():
+                result += '└── %s%s%s (%s%s)\n' % (GREEN, name, RESET, item.description, RESET)
+
+        print(result)
 
     def sample(self, args):
         name = args.name
@@ -81,38 +88,32 @@ class CLI(object):
 
         raise ValueError('Invalid trigger or action name.')
 
-    def info(self, args):
-        result = ''
-        result += 'Name:        %s%s%s\n' % (GREEN, self.plugin.name, RESET)
-        result += 'Vendor:      %s%s%s\n' % (GREEN, self.plugin.vendor, RESET)
-        result += 'Version:     %s%s%s\n' % (GREEN, self.plugin.version, RESET)
-        result += 'Description: %s%s%s\n' % (GREEN, self.plugin.description, RESET)
-
-        if len(self.plugin.triggers) > 0:
-            result += '\n'
-            result += 'Triggers (%s%d%s): \n' % (GREEN, len(self.plugin.triggers), RESET)
-
-            for name, item in self.plugin.triggers.items():
-                result += '└── %s%s%s (%s%s)\n' % (GREEN, name, RESET, item.description, RESET)
-
-        if len(self.plugin.actions) > 0:
-            result += '\n'
-            result += 'Actions (%s%d%s): \n' % (GREEN, len(self.plugin.actions), RESET)
-
-            for name, item in self.plugin.actions.items():
-                result += '└── %s%s%s (%s%s)\n' % (GREEN, name, RESET, item.description, RESET)
-
-        print(result)
-
-    def _run(self, args):
+    def execute_step(self, args, is_test=False):
         if args.debug:
             self.plugin.debug = True
 
         input_data = sys.stdin
         msg = message.unmarshal(input_data)
-        output = self.step_handler.handle_step(msg, is_test=False, is_debug=self.plugin.debug)
+        ret = 0
+        output = self.step_handler.handle_step(msg, is_test=is_test, is_debug=self.plugin.debug)
         if output:
             sys.stdout.write(json.dumps(output))
+            if output['status'] != 'ok':
+                ret = 1
+        else:
+            ret = 1
+
+    def run_step(self, args):
+        self.execute_step(args, is_test=False)
+
+    def test_step(self, args):
+        self.execute_step(args, is_test=True)
+
+    def server(self, args):
+        if args.debug:
+            self.plugin.debug = True
+
+        self.plugin.server(port=args.port)
 
     def run(self):
         """Run the CLI tool"""
@@ -123,7 +124,7 @@ class CLI(object):
         subparsers = parser.add_subparsers(help='Commands')
 
         test_command = subparsers.add_parser('test', help='Run a test using the start message on stdin')
-        test_command.set_defaults(func=self.test)
+        test_command.set_defaults(func=self.run_input_message)
 
         info_command = subparsers.add_parser('info', help='Display plugin info (triggers and actions).')
         info_command.set_defaults(func=self.info)
@@ -136,7 +137,7 @@ class CLI(object):
         run_command = subparsers.add_parser('run',
                                             help='Run the plugin (default command).'
                                                  'You must supply the start message on stdin.')
-        run_command.set_defaults(func=self._run)
+        run_command.set_defaults(func=self.test_input_message)
 
         http_command = subparsers.add_parser('http', help='Run a server. ' +
                                                           'You must supply a port, otherwise will listen on 10001.')
