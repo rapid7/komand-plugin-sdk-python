@@ -19,11 +19,11 @@ class KomandHelloWorld(komand.Plugin):
                 description=Description,
                 connection=connection.Connection()
                 )
-        self.add_trigger(triggers.Hello())
+        self.add_trigger(triggers.HelloTrigger())
 
-        self.add_trigger(triggers.ReturnBadJson())
+        self.add_trigger(triggers.ReturnBadJsonTrigger())
 
-        self.add_trigger(triggers.ThrowException())
+        self.add_trigger(triggers.ThrowExceptionTrigger())
 
         self.add_action(actions.Hello())
 

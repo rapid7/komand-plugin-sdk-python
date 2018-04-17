@@ -1,17 +1,17 @@
 import komand
 import time
-from .schema import HelloInput, HelloOutput
+from .schema import ThrowExceptionTriggerInput, ThrowExceptionTriggerOutput
 # Custom imports below
 
 
-class Hello(komand.Trigger):
+class ThrowExceptionTrigger(komand.Trigger):
 
     def __init__(self):
         super(self.__class__, self).__init__(
-                name='hello',
-                description='Prints a greeting every 10 seconds',
-                input=HelloInput(),
-                output=HelloOutput())
+                name='throw_exception_trigger',
+                description='This trigger will always throw an exception as soon as its invoked',
+                input=ThrowExceptionTriggerInput(),
+                output=ThrowExceptionTriggerOutput())
 
     def run(self, params={}):
         """Run the trigger"""

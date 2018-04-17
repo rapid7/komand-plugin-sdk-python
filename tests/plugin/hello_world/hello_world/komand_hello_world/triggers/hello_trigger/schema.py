@@ -3,7 +3,7 @@ import komand
 import json
 
 
-class HelloInput(komand.Input):
+class HelloTriggerInput(komand.Input):
     schema = json.loads("""
    {
   "type": "object",
@@ -26,7 +26,7 @@ class HelloInput(komand.Input):
         super(self.__class__, self).__init__(self.schema)
 
 
-class HelloOutput(komand.Output):
+class HelloTriggerOutput(komand.Output):
     schema = json.loads("""
    {
   "type": "object",

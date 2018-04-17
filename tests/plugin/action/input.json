@@ -7,7 +7,7 @@
     "input": {
       "name": "World"
     },
-    "action": "action"
+    "action": "hello"
   },
   "type": "action_start",
   "version": "v1"

@@ -7,7 +7,7 @@
     "input": {
         "name": "World"
     },
-    "trigger": "trigger",
+    "trigger": "hello_trigger",
     "dispatcher": {
       "url": "localhost:10003",
       "webhook_url": "localhost:10002"

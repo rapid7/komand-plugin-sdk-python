@@ -1,17 +1,17 @@
 import komand
 import time
-from .schema import ThrowExceptionInput, ThrowExceptionOutput
+from .schema import ReturnBadJsonTriggerInput, ReturnBadJsonTriggerOutput
 # Custom imports below
 
 
-class ThrowException(komand.Trigger):
+class ReturnBadJsonTrigger(komand.Trigger):
 
     def __init__(self):
         super(self.__class__, self).__init__(
-                name='throw_exception',
-                description='This trigger will always throw an exception as soon as it's invoked',
-                input=ThrowExceptionInput(),
-                output=ThrowExceptionOutput())
+                name='return_bad_json_trigger',
+                description='This trigger will return JSON which doesnt match the spec',
+                input=ReturnBadJsonTriggerInput(),
+                output=ReturnBadJsonTriggerOutput())
 
     def run(self, params={}):
         """Run the trigger"""

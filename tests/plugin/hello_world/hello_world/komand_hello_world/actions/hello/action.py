@@ -13,9 +13,13 @@ class Hello(komand.Action):
                 output=HelloOutput())
 
     def run(self, params={}):
-        # TODO: Implement run function
-        return {}
+        self.logger.info('I am the log')
+        return {
+            'message': self.connection.greeting.format(params['name'])
+        }
 
-    def test(self):
-        # TODO: Implement test function
-        return {}
+    def test(self, params={}):
+        self.logger.info('This is a test')
+        return {
+            'message': 'Test greeting'
+        }

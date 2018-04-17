@@ -7,6 +7,8 @@ import json
 import copy
 import komand.dispatcher as dispatcher
 import uuid
+import inspect
+import six
 
 root_logger = logging.getLogger()
 root_logger.setLevel('DEBUG')
@@ -16,6 +18,19 @@ input_message_schema = json.load(
     pkg_resources.resource_stream(__name__, '/'.join(('data', 'input_message_schema.json'))))
 output_message_schema = json.load(
     pkg_resources.resource_stream(__name__, '/'.join(('data', 'output_message_schema.json'))))
+
+
+class Python2StringIO(io.StringIO):
+    def write(self, s):
+        if isinstance(s, str):
+            s = s.decode('utf-8')
+        super(Python2StringIO, self).write(s)
+
+
+if six.PY2:
+    stream_class = Python2StringIO
+else:
+    stream_class = io.StringIO
 
 
 class ClientException(Exception):
@@ -103,7 +118,7 @@ class StepHandler:
         """
 
         request_id = uuid.uuid4()
-        log_stream = io.StringIO()
+        log_stream = stream_class()
         stream_handler = logging.StreamHandler(log_stream)
         logger = logging.getLogger('step_handler_{}'.format(request_id))
         logger.setLevel('DEBUG' if is_debug else 'INFO')
@@ -245,7 +260,19 @@ class StepHandler:
         else:
             func = step.run
 
-        output = func(params)
+        # Backward compatibility with tests with missing params
+        if six.PY2:
+            argspec = inspect.getargspec(func)
+            if len(argspec.args) > 1:
+                output = func(params)
+            else:
+                output = func()
+        else:
+            parameters = inspect.signature(func)
+            if len(parameters.parameters) > 0:
+                output = func(params)
+            else:
+                output = func()
 
         try:
             step.output.validate(output)

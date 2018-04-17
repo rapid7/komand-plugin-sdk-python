@@ -3,7 +3,7 @@ import komand
 import json
 
 
-class ThrowExceptionInput(komand.Input):
+class ReturnBadJsonTriggerInput(komand.Input):
     schema = json.loads("""
    {
   "type": "object",
@@ -26,7 +26,7 @@ class ThrowExceptionInput(komand.Input):
         super(self.__class__, self).__init__(self.schema)
 
 
-class ThrowExceptionOutput(komand.Output):
+class ReturnBadJsonTriggerOutput(komand.Output):
     schema = json.loads("""
    {
   "type": "object",

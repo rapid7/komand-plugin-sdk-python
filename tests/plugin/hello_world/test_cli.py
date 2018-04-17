@@ -1,27 +1,17 @@
 # -*- coding: utf-8 -*-
 import sys
 import json
-import io
 import six
-from plugin import plugin
+from . import KomandHelloWorld
 from komand.cli import CLI
+from komand.handler import stream_class
 
-cli = CLI(plugin)
-
-
-class Python2StringIO(io.StringIO):
-    def write(self, s):
-        if isinstance(s, str):
-            s = s.decode('utf-8')
-        super(Python2StringIO, self).write(s)
+cli = CLI(KomandHelloWorld())
 
 
 def capture_stdout():
     old = sys.stdout
-    if six.PY2:
-        sys.stdout = Python2StringIO()
-    else:
-        sys.stdout = io.StringIO()
+    sys.stdout = stream_class()
 
     cli.run()
 
@@ -32,37 +22,46 @@ def capture_stdout():
 
 
 def test_cli_info():
+
+    # Disabling test for python 2 because dicts are not ordered
+    if six.PY2:
+        return
+
     cli.args = ['info']
     actual_value = capture_stdout()
-    expected_value = u"""Name:        [92mHelloWorld[0m
+    expected_value = u"""Name:        [92mHello_world[0m
 Vendor:      [92mkomand[0m
 Version:     [92m1.0.0[0m
-Description: [92mHello World plugin[0m
+Description: [92mA hello world plugin for SDK testing[0m
 
-Triggers ([92m1[0m):
-└── [92mtrigger[0m (description[0m)
+Triggers ([92m3[0m):
+└── [92mhello_trigger[0m (Prints a greeting every 10 seconds[0m)
+└── [92mreturn_bad_json_trigger[0m (This trigger will return JSON which doesnt match the spec[0m)
+└── [92mthrow_exception_trigger[0m (This trigger will always throw an exception as soon as its invoked[0m)
 
-Actions ([92m1[0m):
-└── [92maction[0m (description[0m)
+Actions ([92m3[0m):
+└── [92mhello[0m (Print hello world[0m)
+└── [92mreturn_bad_json[0m (This action will return JSON which doesnt match the spec[0m)
+└── [92mthrow_exception[0m (This action will always throw an exception as soon as its invoked[0m)
 
 """
     assert actual_value == expected_value
 
 
 def test_cli_sample_action():
-    cli.args = ['sample', 'action']
+    cli.args = ['sample', 'hello']
     value = capture_stdout()
-    expected_value = u'{"body": {"action": "action", "meta": {}, "input": {"name": ""}, ' + \
-                     '"connection": {"greeting": ""}}, "type": "action_start", "version": "v1"}'
+    expected_value = u'{"body": {"action": "hello", "meta": {}, "input": {"name": ""}, ' + \
+                     '"connection": {"greeting": "Hello, {}!"}}, "type": "action_start", "version": "v1"}'
     assert json.loads(value) == json.loads(expected_value)
 
 
 def test_cli_sample_trigger():
-    cli.args = ['sample', 'trigger']
+    cli.args = ['sample', 'hello_trigger']
     value = capture_stdout()
-    expected_value = u'{"body": {"trigger": "trigger", "meta": {}, "input": {"name": ""}, ' + \
+    expected_value = u'{"body": {"trigger": "hello_trigger", "meta": {}, "input": {"name": ""}, ' + \
                      '"dispatcher": {"url": "http://localhost:8000", "webhook_url": ""}, ' + \
-                     '"connection": {"greeting": ""}}, "type": "trigger_start", "version": "v1"}'
+                     '"connection": {"greeting": "Hello, {}!"}}, "type": "trigger_start", "version": "v1"}'
     assert json.loads(value) == json.loads(expected_value)
 
 

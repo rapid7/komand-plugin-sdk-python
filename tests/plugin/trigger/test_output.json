@@ -1,9 +1,9 @@
 {
   "body": {
-    "log": "This was a test\n",
+    "log": "This is a test\n",
     "meta": {},
     "output": {
-        "text": "Test greeting"
+        "message": "Test greeting"
     },
     "status": "ok"
   },

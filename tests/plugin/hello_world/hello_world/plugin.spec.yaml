@@ -76,7 +76,7 @@ actions:
         required: true
 
 triggers:
-  hello:
+  hello_trigger:
     title: "Trigger Hello"
     description: "Prints a greeting every 10 seconds"
     input:
@@ -91,7 +91,7 @@ triggers:
         description: "The greeting"
         type: string
         required: true
-  throw_exception:
+  throw_exception_trigger:
     title: "Throw Exception"
     description: "This trigger will always throw an exception as soon as it's invoked"
     input:
@@ -106,7 +106,7 @@ triggers:
         description: "The greeting"
         type: string
         required: true
-  return_bad_json:
+  return_bad_json_trigger:
     title: "Return Bad Json"
     description: "This trigger will return JSON which doesn't match the spec"
     input:

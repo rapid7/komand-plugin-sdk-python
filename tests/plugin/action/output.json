@@ -3,7 +3,7 @@
     "log": "I am the log\n",
     "meta": {},
     "output": {
-        "text": "Hello, World!"
+        "message": "Hello, World!"
     },
     "status": "ok"
   },
