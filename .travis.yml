@@ -14,7 +14,6 @@ env:
 install:
   - pip install tox-travis
 script:
-  - env
   - make test
   - make tag
 deploy:

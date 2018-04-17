@@ -7,20 +7,22 @@ MINOR_VERSION=$(shell echo $(VERSION) | cut -d"." -f1-2)
 PYTHON_VERSION=$(shell python --version 2>&1 | cut -d ' ' -f 2)
 PYTHON_MAJOR_VERSION=$(shell echo $(PYTHON_VERSION) | cut -d"." -f1)
 
-ifndef DOCKERFILE_SUFFIX
-DOCKERFILE_SUFFIX=$(shell echo python-$(PYTHON_MAJOR_VERSION))
+ifndef TRAVIS_PYTHON_VERSION
+TRAVIS_PYTHON_VERSION=$(shell echo $(PYTHON_MAJOR_VERSION))
 endif
+
+DOCKERFILE=$(shell echo $(TRAVIS_PYTHON_VERSION) | cut -d"." -f1)
 
 MAKE_VERBOSE=0
 
 image:
-	docker build -t komand/python-$(PYTHON_MAJOR_VERSION)-plugin -f Dockerfile-python$(PYTHON_MAJOR_VERSION) .
+	docker build -t komand/python-$(DOCKERFILE)-plugin -f dockerfiles/$(DOCKERFILE) .
 
 python-2-image:
-	docker build -t komand/python-2-plugin:test -f Dockerfile-python2 .
+	docker build -t komand/python-2-plugin:test -f dockerfiles/2 .
 
 python-3-image:
-	docker build -t komand/python-3-plugin:test -f Dockerfile-python3 .
+	docker build -t komand/python-3-plugin:test -f dockerfiles/3 .
 
 all: test tag
 
@@ -35,14 +37,14 @@ test:
 
 tag: image
 	@echo version is $(VERSION)
-	docker tag komand/python-$(PYTHON_MAJOR_VERSION)-plugin komand/python-$(PYTHON_MAJOR_VERSION)-plugin:$(VERSION)
-	docker tag komand/python-$(PYTHON_MAJOR_VERSION)-plugin komand/python-$(PYTHON_MAJOR_VERSION)-plugin:$(MINOR_VERSION)
-	docker tag komand/python-$(PYTHON_MAJOR_VERSION)-plugin komand/python-$(PYTHON_MAJOR_VERSION)-plugin:$(MAJOR_VERSION)
+	docker tag komand/python-$(DOCKERFILE)-plugin komand/python-$(DOCKERFILE)-plugin:$(VERSION)
+	docker tag komand/python-$(DOCKERFILE)-plugin komand/python-$(DOCKERFILE)-plugin:$(MINOR_VERSION)
+	docker tag komand/python-$(DOCKERFILE)-plugin komand/python-$(DOCKERFILE)-plugin:$(MAJOR_VERSION)
 
 deploy: tag
 	@echo docker login -u "********" -p "********"
 	@docker login -u $(KOMAND_DOCKER_USERNAME) -p $(KOMAND_DOCKER_PASSWORD)
-	docker push komand/python-$(PYTHON_MAJOR_VERSION)-plugin
-	docker push komand/python-$(PYTHON_MAJOR_VERSION)-plugin:$(VERSION)
-	docker push komand/python-$(PYTHON_MAJOR_VERSION)-plugin:$(MINOR_VERSION)
-	docker push komand/python-$(PYTHON_MAJOR_VERSION)-plugin:$(MAJOR_VERSION)
+	docker push komand/python-$(DOCKERFILE)-plugin
+	docker push komand/python-$(DOCKERFILE)-plugin:$(VERSION)
+	docker push komand/python-$(DOCKERFILE)-plugin:$(MINOR_VERSION)
+	docker push komand/python-$(DOCKERFILE)-plugin:$(MAJOR_VERSION)
