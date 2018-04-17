@@ -1,6 +1,6 @@
 import json
 import time
-
+import re
 import concurrent.futures.thread as thread
 import concurrent.futures as futures
 
@@ -20,14 +20,20 @@ class CaptureDispatcher:
         self.caught_message = msg
 
 
-def run_action(input_file, output_file, handler):
+def run_action(input_file, output_file, handler, expect_fail=False):
     input_message = json.load(open(input_file))
     expected_output = json.load(open(output_file))
+
     output = handler.handle_step(input_message)
-    assert output == expected_output
+
+    output = json.loads(re.sub(r'File \\"[^"]+\\"', 'File \\"\\"', json.dumps(output)))
+    expected_output = json.loads(re.sub(r'File \\"[^"]+\\"', 'File \\"\\"', json.dumps(expected_output)))
+
+    if output != expected_output:
+        raise Exception('Actual output differs from expected output.{} != {}'.format(output, expected_output))
 
 
-def run_trigger(input_file, output_file, plugin):
+def run_trigger(input_file, output_file, plugin, expect_timeout=False):
 
     input_message = json.load(open(input_file))
     expected_output = json.load(open(output_file))
@@ -47,6 +53,14 @@ def run_trigger(input_file, output_file, plugin):
     futures.thread._threads_queues.clear()
 
     if len(done) <= 0:
+        if expect_timeout:
+            return
         raise Exception('Timeout')
 
-    assert capture.caught_message == expected_output
+    output = capture.caught_message
+
+    output = json.loads(re.sub(r'File \\"[^"]+\\"', 'File \\"\\"', json.dumps(output)))
+    expected_output = json.loads(re.sub(r'File \\"[^"]+\\"', 'File \\"\\"', json.dumps(expected_output)))
+
+    if output != expected_output:
+        raise Exception('Actual output differs from expected output.{} != {}'.format(output, expected_output))

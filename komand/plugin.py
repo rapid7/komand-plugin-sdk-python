@@ -130,7 +130,6 @@ class Plugin(object):
 
         success = True
         ex = None
-
         output = None
         out_type = None
 
@@ -204,13 +203,7 @@ class Plugin(object):
             func = step.run
 
         output = func(params)
-
-        try:
-            step.output.validate(output)
-        except jsonschema.exceptions.ValidationError as e:
-            raise ClientException('action output JSON was invalid', e)
-        except Exception as e:
-            raise Exception('Unable to validate action output JSON', e)
+        step.output.validate(output)
 
         return output
 
@@ -278,11 +271,6 @@ class Plugin(object):
             else:
                 output = func()
 
-        try:
-            step.output.validate(output)
-        except jsonschema.exceptions.ValidationError as e:
-            raise ClientException('action output JSON was invalid', e)
-        except Exception as e:
-            raise Exception('Unable to validate action output JSON', e)
+        step.output.validate(output)
 
         return output

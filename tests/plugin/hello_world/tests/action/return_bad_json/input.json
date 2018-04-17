@@ -1,0 +1,14 @@
+{
+  "body": {
+    "meta": {},
+    "connection": {
+      "greeting": "Hello, {}!"
+    },
+    "input": {
+      "name": "World"
+    },
+    "action": "return_bad_json"
+  },
+  "type": "action_start",
+  "version": "v1"
+}

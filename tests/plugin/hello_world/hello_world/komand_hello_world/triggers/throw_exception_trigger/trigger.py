@@ -14,12 +14,7 @@ class ThrowExceptionTrigger(komand.Trigger):
                 output=ThrowExceptionTriggerOutput())
 
     def run(self, params={}):
-        """Run the trigger"""
-        while True:
-            # TODO: Implement trigger functionality
-            self.send({})
-            time.sleep(params.get("interval", 5))
+        raise Exception('because I can')
 
-    def test(self):
-        # TODO: Implement test function
-        return {}
+    def test(self, params={}):
+        raise Exception('because I can')

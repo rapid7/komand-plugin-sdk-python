@@ -13,9 +13,7 @@ class ThrowException(komand.Action):
                 output=ThrowExceptionOutput())
 
     def run(self, params={}):
-        # TODO: Implement run function
-        return {}
+        raise Exception('because I can')
 
     def test(self):
-        # TODO: Implement test function
-        return {}
+        raise Exception('because I can')

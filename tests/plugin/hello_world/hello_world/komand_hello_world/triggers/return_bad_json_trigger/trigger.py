@@ -16,10 +16,8 @@ class ReturnBadJsonTrigger(komand.Trigger):
     def run(self, params={}):
         """Run the trigger"""
         while True:
-            # TODO: Implement trigger functionality
             self.send({})
             time.sleep(params.get("interval", 5))
 
     def test(self):
-        # TODO: Implement test function
         return {}

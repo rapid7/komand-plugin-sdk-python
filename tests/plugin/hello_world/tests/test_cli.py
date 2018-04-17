@@ -2,7 +2,7 @@
 import sys
 import json
 import six
-from . import KomandHelloWorld
+from tests.plugin.hello_world import KomandHelloWorld
 from komand.cli import CLI
 from komand.plugin import stream_class
 
@@ -67,23 +67,23 @@ def test_cli_sample_trigger():
 
 def test_cli_test_action():
     cli.args = ['test']
-    sys.stdin = open('./tests/plugin/action/input.json')
-    expected_output = json.load(open('./tests/plugin/action/test_output.json'))
+    sys.stdin = open('./tests/plugin/hello_world/tests/action/hello/input.json')
+    expected_output = json.load(open('./tests/plugin/hello_world/tests/action/hello/test_output.json'))
     actual_output = json.loads(capture_stdout())
     assert actual_output == expected_output
 
 
 def test_cli_test_trigger():
     cli.args = ['test']
-    sys.stdin = open('./tests/plugin/trigger/input.json')
-    expected_output = json.load(open('./tests/plugin/trigger/test_output.json'))
+    sys.stdin = open('./tests/plugin/hello_world/tests/trigger/hello_trigger/input.json')
+    expected_output = json.load(open('./tests/plugin/hello_world/tests/trigger/hello_trigger/test_output.json'))
     actual_output = json.loads(capture_stdout())
     assert actual_output == expected_output
 
 
 def test_cli_run_action():
     cli.args = ['run']
-    sys.stdin = open('./tests/plugin/action/input.json')
-    expected_output = json.load(open('./tests/plugin/action/output.json'))
+    sys.stdin = open('./tests/plugin/hello_world/tests/action/hello/input.json')
+    expected_output = json.load(open('./tests/plugin/hello_world/tests/action/hello/output.json'))
     actual_output = json.loads(capture_stdout())
     assert actual_output == expected_output
