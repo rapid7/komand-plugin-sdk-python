@@ -7,6 +7,10 @@ MINOR_VERSION=$(shell echo $(VERSION) | cut -d"." -f1-2)
 PYTHON_VERSION=$(shell python --version 2>&1 | cut -d ' ' -f 2)
 PYTHON_MAJOR_VERSION=$(shell echo $(PYTHON_VERSION) | cut -d"." -f1)
 
+ifndef DOCKERFILE_SUFFIX
+DOCKERFILE_SUFFIX=$(shell echo python-$(PYTHON_MAJOR_VERSION))
+endif
+
 MAKE_VERBOSE=0
 
 image:
