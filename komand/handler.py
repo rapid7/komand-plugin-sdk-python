@@ -41,6 +41,13 @@ class ServerException(Exception):
     pass
 
 
+class LoggedException(Exception):
+
+    def __init__(self, ex, output):
+        super(LoggedException, self).__init__(ex)
+        self.output = output
+
+
 class StepHandler:
 
     def __init__(self, plugin):
@@ -74,7 +81,16 @@ class StepHandler:
             'type': message_type
         }
 
-    def handle_step(self, input_message, is_test=False, is_debug=False):
+    @staticmethod
+    def validate_json(json_object, schema):
+        try:
+            jsonschema.validate(json_object, schema)
+        except jsonschema.exceptions.ValidationError as e:
+            raise ClientException('input JSON was invalid', e)
+        except Exception as e:
+            raise Exception('Unable to validate input JSON', e)
+
+    def handle_step(self, input_message, is_test=False, is_debug=False, throw_exceptions=False):
         """
         Executes a single step, given the input message dictionary.
 
@@ -94,77 +110,39 @@ class StepHandler:
         logger.addHandler(stream_handler)
 
         success = True
-        error_message = None
-        message_type = None
+        ex = None
+
+        output = None
+        out_type = None
 
         try:
-            try:
-                jsonschema.validate(input_message, input_message_schema)
-            except jsonschema.exceptions.ValidationError as e:
-                raise ClientException('input JSON was invalid', e)
-            except Exception as e:
-                raise Exception('Unable to validate input JSON', e)
-
+            StepHandler.validate_json(input_message, input_message_schema)
             message_type = input_message['type']
-
             if message_type not in ['action_start', 'trigger_start']:
                 raise ClientException('Unsupported message type "{}"'.format(message_type))
-
+            if message_type == 'action_start':
+                out_type = 'action_event'
+                output = self.handle_action_start(input_message['body'], logger, is_test, is_debug)
+            elif message_type == 'trigger_start':
+                self.handle_trigger_start(input_message['body'], logger, log_stream, is_test, is_debug)
         except ClientException as e:
             success = False
-            error_message = str(e)
+            ex = e
             logger.exception(e)
         except ServerException as e:
             success = False
-            error_message = str(e)
+            ex = e
             logger.exception(e)
         except Exception as e:
             success = False
-            error_message = str(e)
+            ex = e
             logger.exception(e)
         finally:
-            if not success:
-                return StepHandler.envelope(None, input_message, log_stream.getvalue(), success, None, error_message)
-
-        if message_type == 'action_start':
-
-            output = None
-
-            try:
-                output = StepHandler.handle_action_start(self, input_message['body'], logger, is_test, is_debug)
-            except ClientException as e:
-                success = False
-                error_message = str(e)
-                logger.exception(e)
-            except ServerException as e:
-                success = False
-                error_message = str(e)
-                logger.exception(e)
-            except Exception as e:
-                success = False
-                error_message = str(e)
-                logger.exception(e)
-            finally:
-                return StepHandler.envelope('action_event', input_message, log_stream.getvalue(), success, output, error_message)
-
-        elif message_type == 'trigger_start':
-            try:
-                StepHandler.handle_trigger_start(self, input_message['body'], logger, log_stream, is_test, is_debug)
-            except ClientException as e:
-                success = False
-                error_message = str(e)
-                logger.exception(e)
-            except ServerException as e:
-                success = False
-                error_message = str(e)
-                logger.exception(e)
-            except Exception as e:
-                success = False
-                error_message = str(e)
-                logger.exception(e)
-            finally:
-                if not success:
-                    return StepHandler.envelope(None, input_message, log_stream.getvalue(), success, None, error_message)
+            output = StepHandler.envelope(out_type, input_message, log_stream.getvalue(), success, output,
+                                        str(ex))
+            if throw_exceptions:
+                raise LoggedException(ex, output)
+            return output
 
     def handle_action_start(self, message_body, logger, is_test=False, is_debug=False):
         """

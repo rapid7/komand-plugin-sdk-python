@@ -3,7 +3,7 @@ import logging
 import gunicorn.app.base
 from gunicorn.six import iteritems
 from komand.handler import StepHandler
-
+from .handler import ClientException, ServerException, LoggedException
 SERVER_INSTANCE = None
 
 
@@ -34,10 +34,26 @@ class PluginServer(object):
         def handler(prefix, name, test):
             input_message = request.get_json()
             logging.info('request json: %s', input_message)
-            output = self.step_handler.handle_step(input_message, is_debug=self.debug, is_test=test is not None)
-            response = jsonify(output)
-            response.status_code = 200  # fix this later
-            return response
+            status_code = 200
+            output = None
+            try:
+                output = self.step_handler.handle_step(input_message, is_debug=self.debug, is_test=test is not None,
+                                                       throw_exceptions=True)
+            except LoggedException as e:
+                wrapped_exception = e.args[0]
+                output = e.args[1]
+
+                if isinstance(wrapped_exception, ClientException):
+                    status_code = 400
+                elif isinstance(wrapped_exception, ServerException):
+                    # I'm unsure about this
+                    status_code = 500
+                else:
+                    status_code = 500
+            finally:
+                response = jsonify(output)
+                response.status_code = status_code
+                return output
         return app
 
     def start(self):
