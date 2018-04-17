@@ -1,7 +1,6 @@
 from komand.action import Action
 from komand.connection import Connection
 from komand.variables import Input, Output
-from komand.handler import StepHandler
 
 
 def test_action_test_succeeds():

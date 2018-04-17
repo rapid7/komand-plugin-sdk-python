@@ -6,6 +6,7 @@ import komand.plugin
 import komand.trigger
 import komand.variables
 import komand.helper
+import komand.dispatcher
 import certifi
 import os
 

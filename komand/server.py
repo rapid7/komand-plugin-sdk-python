@@ -2,8 +2,7 @@ from flask import Flask, jsonify, request
 import logging
 import gunicorn.app.base
 from gunicorn.six import iteritems
-from komand.handler import StepHandler
-from .handler import ClientException, ServerException, LoggedException
+from .exceptions import *
 SERVER_INSTANCE = None
 
 
@@ -24,7 +23,6 @@ class PluginServer(object):
         self.port = port
         self.debug = debug
         self.app = self.create_flask_app()
-        self.step_handler = StepHandler(plugin)
 
     def create_flask_app(self):
         app = Flask(__name__)
@@ -37,8 +35,8 @@ class PluginServer(object):
             status_code = 200
             output = None
             try:
-                output = self.step_handler.handle_step(input_message, is_debug=self.debug, is_test=test is not None,
-                                                       throw_exceptions=True)
+                output = self.plugin.handle_step(input_message, is_debug=self.debug, is_test=test is not None,
+                                                 throw_exceptions=True)
             except LoggedException as e:
                 wrapped_exception = e.args[0]
                 output = e.args[1]

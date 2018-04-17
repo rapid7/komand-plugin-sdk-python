@@ -4,7 +4,7 @@ import json
 import six
 from . import KomandHelloWorld
 from komand.cli import CLI
-from komand.handler import stream_class
+from komand.plugin import stream_class
 
 cli = CLI(KomandHelloWorld())
 

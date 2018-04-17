@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
-
 import sys
 import argparse
-from komand.handler import StepHandler
-from komand.message import trigger_start, marshal, action_start, unmarshal
+from .message import trigger_start, marshal, action_start, unmarshal
 import json
-import six
+
 
 GREEN = '\033[92m'
 RESET = '\033[0m'
@@ -18,7 +16,6 @@ class CLI(object):
         self.plugin = plugin
         self.args = args or []
         self.msg = None
-        self.step_handler = StepHandler(plugin)
 
         if "--" in self.args:
             index = self.args.index("--")
@@ -93,7 +90,7 @@ class CLI(object):
         input_data = sys.stdin
         msg = unmarshal(input_data)
         ret = 0
-        output = self.step_handler.handle_step(msg, is_test=is_test, is_debug=is_debug)
+        output = self.plugin.handle_step(msg, is_test=is_test, is_debug=is_debug)
         if output:
             sys.stdout.write(json.dumps(output))
             if output['body']['status'] != 'ok':

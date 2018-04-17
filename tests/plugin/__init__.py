@@ -27,17 +27,17 @@ def run_action(input_file, output_file, handler):
     assert output == expected_output
 
 
-def run_trigger(input_file, output_file, handler):
+def run_trigger(input_file, output_file, plugin):
 
     input_message = json.load(open(input_file))
     expected_output = json.load(open(output_file))
 
     trigger_name = input_message['body']['trigger']
     capture = CaptureDispatcher()
-    handler.plugin.triggers[trigger_name].dispatcher = capture
+    plugin.triggers[trigger_name].dispatcher = capture
 
     executor = thread.ThreadPoolExecutor()
-    executor.submit(handler.handle_step, input_message)
+    executor.submit(plugin.handle_step, input_message)
     future = executor.submit(capture.wait_for_caught_message)
     out = futures.wait([future], timeout=10)
     done = out.done
