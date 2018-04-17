@@ -1,4 +1,4 @@
-from komand.trigger import Trigger, Task
+from komand.trigger import Trigger
 from komand.connection import Connection
 from komand.variables import Input, Output
 
@@ -68,18 +68,3 @@ def test_trigger_test_succeeds():
 
         def test(self, params={}):
             return {'price': 100, 'name': 'Jon'}
-
-    task = Task(MyConnection(), StupidTrigger(), {
-        'body': {
-            'action': 'stupid',
-            'input': {
-                'greeting': 'hello'
-            },
-            'meta': {
-                'action_id': 12345
-            },
-        }
-    })
-    task.debug = True
-
-    assert task.test()

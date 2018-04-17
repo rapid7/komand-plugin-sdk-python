@@ -1,0 +1,123 @@
+plugin_spec_version: v1
+name: hello_world
+description: "A hello world plugin for SDK testing"
+version: 1.0.0
+vendor: komand
+tags: ["komand", "sample", "hello", "world"]
+icon: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAjCAYAAADWtVmPAAAABGdBTUEAALGPC/xhBQAAA6hJREFUWAnVWEloFEEUnclCFE0MBqJGjYiBiHpQRMUFJbgFxQV0Bg/xogc3cEPcEBVB8aBeFIQIogdRQXPQXBRJhKighxAIeBARFxT3lWjiNr7X/go/nV5mOjPJ9IdH/V+/6td/VdXV1R1NJBLtkUikAAizxHPCnL3OnUTadEVI9Q4SmQ60hpRAAnkfB+qt/PGc9AdqgTDJeyS7uHMBYIwzBvRVwFcg26UJCY5QeQ+NoOITsFZVVsBuBrJR/iKpI0Au80U5GLgGxGi0A5QLQKE0KIB+ipVZJG+QywI14TNhP5f8uhBh3SNgomq8AvZnOvpYGjD+MJnkKPQ9wC+VUzci9HGFNikyo2E/oKMP5A/GPAhY7zuUpcANwC6OREyjK1CKZRbyoZ8wjl4qX2GcKjWhVbBZ5ySeRNjhCTBVBVsC+wMdGRbOeqlMYg50rgpXx018ibDjT2A7EJXAI6HfBTIhvxF0L2DGKoPeCPhJUkRMkOtQSoRMHvSjAI/DdMkLBJqlVn8h7LdJBk+JCGPaB6tOYTCvnOrh7MkkpUyEyTgt/22vLD183LY7ALOVyqEH2baBiJi8bkIxD2Qu9EOA1wNp+pnyKZRpaisthR30IOkRESbE49AiI8/OXNiv6fCROvito136rfNp7+fuERE+6BvMjJoSdUOAWy4jd6B+s2lrStQVAk0ufZKpDkyEW2iNSmQr7EagjHUoefbvA/g8GXkMZbLqE4PdClRInwHQG4AgEogIk6tRCe1SI/O4rFa+2bBfApeBIkm4H/TTgBH6x4qP30VOVxDT1q1MmQgvajGV6AGHyNxyfMfkSXIDVftK1Lc49OHNdoK0582b76xUJCUi3N/LVFL8LvCSe3CWq/Y1sL95dHgH3yQhkw/9qkdbuytpIj/Qc5FKKtkL5Ef0iwNn7SO72Gw/Rcjw9nDRpZ29Oikibeg1T4LzWyDTH1xfMMYMGY+HxjnAT3yJcCvMUUHP+EVMk1+Py8mr9YnrSUTPDN/c532Cpdv9HQHnq51w0mMAVyL2vXrJI0gmXfxa7fzlA/2Yy2CORHh6WN/tKHl61Ll07q1qnpbLuTIU6IcdBu5GhPek8dKB5zmv19kgfH/FLSb/yey3JdWFCN+wlUIi6BvWFj+tJm8UqxWZnSp6J5FnqBwjJHjnaVSNsknlHU//TNwiyVlEHsIYJSSKoN8RZ7YWvAJtVCuzHvZKPjzDhUQx9PtAWGSbIjPI0pF5CdAcFgYqz92GzD8I1+y51g74CAAAAABJRU5ErkJggg=="
+
+connection:
+  greeting:
+    title: "Greeting"
+    description: "A greeting"
+    type: string
+    required: false
+    default: "Hello, {}!"
+
+types:
+  my_hello:
+    greeting:
+      title: "Greeting"
+      description: "A greeting"
+      type: string
+      required: true
+    age:
+      title: "Age"
+      description: "My age"
+      type: integer
+      required: false
+      default: 16
+
+actions:
+  hello:
+    title: "Print Hello"
+    description: "Print hello world"
+    input:
+      name:
+        title: "Name"
+        description: "The Name"
+        type: string
+        required: true
+    output:
+      message:
+        title: "Message"
+        description: "The greeting"
+        type: string
+        required: true
+  throw_exception:
+    title: "Throw Exception"
+    description: "This action will always throw an exception as soon as it's invoked"
+    input:
+      name:
+        title: "Name"
+        description: "The Name"
+        type: string
+        required: true
+    output:
+      message:
+        title: "Message"
+        description: "The greeting"
+        type: string
+        required: true
+  return_bad_json:
+    title: "Return Bad Json"
+    description: "This action will return JSON which doesn't match the spec"
+    input:
+      name:
+        title: "Name"
+        description: "The Name"
+        type: string
+        required: true
+    output:
+      message:
+        title: "Message"
+        description: "The greeting"
+        type: string
+        required: true
+
+triggers:
+  hello:
+    title: "Trigger Hello"
+    description: "Prints a greeting every 10 seconds"
+    input:
+      name:
+        title: "Name"
+        description: "The Name"
+        type: string
+        required: true
+    output:
+      message:
+        title: "Message"
+        description: "The greeting"
+        type: string
+        required: true
+  throw_exception:
+    title: "Throw Exception"
+    description: "This trigger will always throw an exception as soon as it's invoked"
+    input:
+      name:
+        title: "Name"
+        description: "The Name"
+        type: string
+        required: true
+    output:
+      message:
+        title: "Message"
+        description: "The greeting"
+        type: string
+        required: true
+  return_bad_json:
+    title: "Return Bad Json"
+    description: "This trigger will return JSON which doesn't match the spec"
+    input:
+      name:
+        title: "Name"
+        description: "The Name"
+        type: string
+        required: true
+    output:
+      message:
+        title: "Message"
+        description: "The greeting"
+        type: string
+        required: true

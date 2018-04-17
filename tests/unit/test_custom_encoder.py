@@ -1,7 +1,7 @@
 import json
 import decimal
 
-from komand.action import Action, Task
+from komand.action import Action
 from komand.variables import Input, Output
 from komand.connection import Connection
 
@@ -87,17 +87,3 @@ def test_custom_encoder_action_succeeds():
                 'price': decimal.Decimal('1.1'),
                 'name': 'Jon'
             }
-
-    task = Task(CustomEncoderConnection(), CustomEncoderAction(), {
-        'body': {
-            'action': 'stupid',
-            'input': {
-                'greeting': 'hello'
-            },
-            'meta': {
-                'action_id': 12345
-            },
-        }
-    }, custom_encoder=DecimalEncoder)
-
-    task.test()

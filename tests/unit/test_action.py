@@ -1,6 +1,7 @@
-from komand.action import Action, Task
+from komand.action import Action
 from komand.connection import Connection
 from komand.variables import Input, Output
+from komand.handler import StepHandler
 
 
 def test_action_test_succeeds():
@@ -68,17 +69,3 @@ def test_action_test_succeeds():
 
         def test(self, params={}):
             return {'price': 100, 'name': 'Jon'}
-
-    task = Task(MyConnection(), StupidAction(), {
-        'body': {
-            'action': 'stupid',
-            'input': {
-                'greeting': 'hello'
-            },
-            'meta': {
-                'action_id': 12345
-            },
-        }
-    })
-
-    assert task.test()

@@ -124,7 +124,8 @@ class StepHandler:
                 out_type = 'action_event'
                 output = self.handle_action_start(input_message['body'], logger, is_test, is_debug)
             elif message_type == 'trigger_start':
-                self.handle_trigger_start(input_message['body'], logger, log_stream, is_test, is_debug)
+                out_type = 'trigger_event'
+                output = self.handle_trigger_start(input_message['body'], logger, log_stream, is_test, is_debug)
         except ClientException as e:
             success = False
             ex = e
@@ -139,7 +140,7 @@ class StepHandler:
             logger.exception(e)
         finally:
             output = StepHandler.envelope(out_type, input_message, log_stream.getvalue(), success, output,
-                                        str(ex))
+                                          str(ex))
             if throw_exceptions:
                 raise LoggedException(ex, output)
             return output
@@ -244,4 +245,13 @@ class StepHandler:
         else:
             func = step.run
 
-        func(params)
+        output = func(params)
+
+        try:
+            step.output.validate(output)
+        except jsonschema.exceptions.ValidationError as e:
+            raise ClientException('action output JSON was invalid', e)
+        except Exception as e:
+            raise Exception('Unable to validate action output JSON', e)
+
+        return output

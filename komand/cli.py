@@ -2,9 +2,10 @@
 
 import sys
 import argparse
-import komand.message as message
 from komand.handler import StepHandler
+from komand.message import trigger_start, marshal, action_start, unmarshal
 import json
+import six
 
 GREEN = '\033[92m'
 RESET = '\033[0m'
@@ -33,14 +34,14 @@ class CLI(object):
 
         if len(self.plugin.triggers) > 0:
             result += '\n'
-            result += 'Triggers (%s%d%s): \n' % (GREEN, len(self.plugin.triggers), RESET)
+            result += 'Triggers (%s%d%s):\n' % (GREEN, len(self.plugin.triggers), RESET)
 
             for name, item in self.plugin.triggers.items():
                 result += '└── %s%s%s (%s%s)\n' % (GREEN, name, RESET, item.description, RESET)
 
         if len(self.plugin.actions) > 0:
             result += '\n'
-            result += 'Actions (%s%d%s): \n' % (GREEN, len(self.plugin.actions), RESET)
+            result += 'Actions (%s%d%s):\n' % (GREEN, len(self.plugin.actions), RESET)
 
             for name, item in self.plugin.actions.items():
                 result += '└── %s%s%s (%s%s)\n' % (GREEN, name, RESET, item.description, RESET)
@@ -53,36 +54,36 @@ class CLI(object):
         if trig:
             conn = self.plugin.connection
             dispatcher = {'url': 'http://localhost:8000', 'webhook_url': ''}
-
+            input = None
             if conn:
                 conn = conn.sample()
             if trig.input:
-                trig.input = trig.input.sample()
+                input = trig.input.sample()
 
-            msg = message.trigger_start(
+            msg = trigger_start(
                 trigger=trig.name,
                 connection=conn,
-                input=trig.input,
+                input=input,
                 dispatcher=dispatcher
             )
-            message.marshal(msg, sys.stdout)
+            marshal(msg, sys.stdout)
             return
 
         act = self.plugin.actions.get(name)
         if act:
             conn = self.plugin.connection
-
+            input = None
             if conn:
                 conn = conn.sample()
             if act.input:
-                act.input = act.input.sample()
+                input = act.input.sample()
 
-            msg = message.action_start(
+            msg = action_start(
                 action=act.name,
                 connection=conn,
-                input=act.input
+                input=input
             )
-            message.marshal(msg, sys.stdout)
+            marshal(msg, sys.stdout)
             return
 
         raise ValueError('Invalid trigger or action name.')
@@ -90,12 +91,12 @@ class CLI(object):
     def execute_step(self, is_test=False, is_debug=False):
 
         input_data = sys.stdin
-        msg = message.unmarshal(input_data)
+        msg = unmarshal(input_data)
         ret = 0
         output = self.step_handler.handle_step(msg, is_test=is_test, is_debug=is_debug)
         if output:
             sys.stdout.write(json.dumps(output))
-            if output['status'] != 'ok':
+            if output['body']['status'] != 'ok':
                 ret = 1
         else:
             ret = 1
@@ -121,7 +122,7 @@ class CLI(object):
         subparsers = parser.add_subparsers(help='Commands')
 
         test_command = subparsers.add_parser('test', help='Run a test using the start message on stdin')
-        test_command.set_defaults(func=self.run_step)
+        test_command.set_defaults(func=self.test_step)
 
         info_command = subparsers.add_parser('info', help='Display plugin info (triggers and actions).')
         info_command.set_defaults(func=self.info)
@@ -134,7 +135,7 @@ class CLI(object):
         run_command = subparsers.add_parser('run',
                                             help='Run the plugin (default command).'
                                                  'You must supply the start message on stdin.')
-        run_command.set_defaults(func=self.test_step)
+        run_command.set_defaults(func=self.run_step)
 
         http_command = subparsers.add_parser('http', help='Run a server. ' +
                                                           'You must supply a port, otherwise will listen on 10001.')
