@@ -1,4 +1,4 @@
-FROM komand/python-plugin:0.3
+FROM komand/python-3-plugin:test
 LABEL organization=komand
 LABEL sdk=python
 LABEL type=plugin

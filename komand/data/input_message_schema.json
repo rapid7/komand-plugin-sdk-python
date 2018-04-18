@@ -9,7 +9,14 @@
           "type": "string"
         },
         "meta": {
-          "type": "object"
+          "oneOf": [
+            {
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "input": {
           "type": "object"

@@ -26,7 +26,7 @@ tarball:
 	tar -cvzf $(PKG) --exclude=$(PKG) *
 
 image:
-	docker build --pull -t $(VENDOR)/$(NAME):$(VERSION) .
+	docker build -t $(VENDOR)/$(NAME):$(VERSION) .
 	docker tag $(VENDOR)/$(NAME):$(VERSION) $(VENDOR)/$(NAME):latest
 
 regenerate:

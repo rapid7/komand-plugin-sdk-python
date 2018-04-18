@@ -1,4 +1,4 @@
-from flask import Flask, Response, jsonify, request
+from flask import Flask, jsonify, request
 import logging
 import gunicorn.app.base
 from gunicorn.six import iteritems
@@ -31,13 +31,14 @@ class PluginServer(object):
         @app.route('/<string:prefix>/<string:name>/<string:test>', methods=['POST'])
         def handler(prefix, name, test):
             input_message = request.get_json(force=True)
-            logging.info('request json: %s', input_message)
+            logging.info('request input: %s', input_message)
             status_code = 200
             output = None
             try:
                 output = self.plugin.handle_step(input_message, is_debug=self.debug, is_test=test is not None)
             except LoggedException as e:
                 wrapped_exception = e.ex
+                logging.exception(wrapped_exception)
                 output = e.output
 
                 if isinstance(wrapped_exception, ClientException):
@@ -48,6 +49,7 @@ class PluginServer(object):
                 else:
                     status_code = 500
             finally:
+                logging.info('request output: %s', output)
                 r = jsonify(output)
                 r.status_code = status_code
                 return r
