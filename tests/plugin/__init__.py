@@ -27,6 +27,7 @@ def run_action(input_file, output_file, handler, expect_fail=False):
     output = handler.handle_step(input_message)
 
     output = json.loads(re.sub(r'File \\"[^"]+\\"', 'File \\"\\"', json.dumps(output)))
+    output = json.loads(re.sub(r"u\'", "\'", json.dumps(output)))
     expected_output = json.loads(re.sub(r'File \\"[^"]+\\"', 'File \\"\\"', json.dumps(expected_output)))
 
     if output != expected_output:
@@ -60,6 +61,7 @@ def run_trigger(input_file, output_file, plugin, expect_timeout=False):
     output = capture.caught_message
 
     output = json.loads(re.sub(r'File \\"[^"]+\\"', 'File \\"\\"', json.dumps(output)))
+    output = json.loads(re.sub(r"u\'", "\'", json.dumps(output)))
     expected_output = json.loads(re.sub(r'File \\"[^"]+\\"', 'File \\"\\"', json.dumps(expected_output)))
 
     if output != expected_output:
