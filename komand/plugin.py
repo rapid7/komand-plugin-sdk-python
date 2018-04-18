@@ -109,7 +109,7 @@ class Plugin(object):
         except Exception as e:
             raise Exception('Unable to validate input JSON', e)
 
-    def handle_step(self, input_message, is_test=False, is_debug=False, throw_exceptions=False):
+    def handle_step(self, input_message, is_test=False, is_debug=False):
         """
         Executes a single step, given the input message dictionary.
 
@@ -159,7 +159,7 @@ class Plugin(object):
         finally:
             output = Plugin.envelope(out_type, input_message, log_stream.getvalue(), success, output,
                                      str(ex))
-            if throw_exceptions:
+            if not success:
                 raise LoggedException(ex, output)
             return output
 

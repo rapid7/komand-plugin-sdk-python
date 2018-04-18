@@ -86,23 +86,24 @@ class CLI(object):
         raise ValueError('Invalid trigger or action name.')
 
     def execute_step(self, is_test=False, is_debug=False):
-
         input_data = sys.stdin
         msg = unmarshal(input_data)
         ret = 0
-        output = self.plugin.handle_step(msg, is_test=is_test, is_debug=is_debug)
-        if output:
-            sys.stdout.write(json.dumps(output))
-            if output['body']['status'] != 'ok':
-                ret = 1
-        else:
+        output = None
+        try:
+            output = self.plugin.handle_step(msg, is_test=is_test, is_debug=is_debug)
+        except Exception as e:
             ret = 1
 
+        if output:
+            sys.stdout.write(json.dumps(output))
+        return ret
+
     def run_step(self, args):
-        self.execute_step(is_test=False, is_debug=args.debug)
+        return self.execute_step(is_test=False, is_debug=args.debug)
 
     def test_step(self, args):
-        self.execute_step(is_test=True, is_debug=args.debug)
+        return self.execute_step(is_test=True, is_debug=args.debug)
 
     def server(self, args):
         if args.debug:
@@ -144,4 +145,4 @@ class CLI(object):
         if not hasattr(args, 'func') or not args.func:
             return parser.print_help()
 
-        args.func(args)
+        return args.func(args)

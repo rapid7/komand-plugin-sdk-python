@@ -2,7 +2,7 @@
 from tests.plugin.hello_world import KomandHelloWorld
 from tests.plugin import run_action, run_trigger
 import six
-
+import pytest
 plugin = KomandHelloWorld()
 
 
@@ -17,8 +17,9 @@ def test_simple_trigger():
 
 
 def test_bad_action():
-    run_action('./tests/plugin/hello_world/tests/action/throw_exception/input.json',
-               './tests/plugin/hello_world/tests/action/throw_exception/output.json', plugin)
+    with pytest.raises(Exception):
+        run_action('./tests/plugin/hello_world/tests/action/throw_exception/input.json',
+                   './tests/plugin/hello_world/tests/action/throw_exception/output.json', plugin)
 
 
 def test_bad_trigger():
@@ -31,8 +32,9 @@ def test_bad_json_action():
     if six.PY2:
         return
 
-    run_action('./tests/plugin/hello_world/tests/action/return_bad_json/input.json',
-               './tests/plugin/hello_world/tests/action/return_bad_json/output.json', plugin)
+    with pytest.raises(Exception):
+        run_action('./tests/plugin/hello_world/tests/action/return_bad_json/input.json',
+                   './tests/plugin/hello_world/tests/action/return_bad_json/output.json', plugin)
 
 
 def test_bad_json_trigger():

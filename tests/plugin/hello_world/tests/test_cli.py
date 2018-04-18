@@ -13,12 +13,12 @@ def capture_stdout():
     old = sys.stdout
     sys.stdout = stream_class()
 
-    cli.run()
+    ret = cli.run()
 
     value = sys.stdout.getvalue()
     sys.stdout = old
 
-    return value
+    return value, ret
 
 
 def test_cli_info():
@@ -28,7 +28,7 @@ def test_cli_info():
         return
 
     cli.args = ['info']
-    actual_value = capture_stdout()
+    actual_value, ret = capture_stdout()
     expected_value = u"""Name:        [92mHello_world[0m
 Vendor:      [92mkomand[0m
 Version:     [92m1.0.0[0m
@@ -50,7 +50,7 @@ Actions ([92m3[0m):
 
 def test_cli_sample_action():
     cli.args = ['sample', 'hello']
-    value = capture_stdout()
+    value, ret = capture_stdout()
     expected_value = u'{"body": {"action": "hello", "meta": {}, "input": {"name": ""}, ' + \
                      '"connection": {"greeting": "Hello, {}!"}}, "type": "action_start", "version": "v1"}'
     assert json.loads(value) == json.loads(expected_value)
@@ -58,7 +58,7 @@ def test_cli_sample_action():
 
 def test_cli_sample_trigger():
     cli.args = ['sample', 'hello_trigger']
-    value = capture_stdout()
+    value, ret = capture_stdout()
     expected_value = u'{"body": {"trigger": "hello_trigger", "meta": {}, "input": {"name": ""}, ' + \
                      '"dispatcher": {"url": "http://localhost:8000", "webhook_url": ""}, ' + \
                      '"connection": {"greeting": "Hello, {}!"}}, "type": "trigger_start", "version": "v1"}'
@@ -69,21 +69,27 @@ def test_cli_test_action():
     cli.args = ['test']
     sys.stdin = open('./tests/plugin/hello_world/tests/action/hello/input.json')
     expected_output = json.load(open('./tests/plugin/hello_world/tests/action/hello/test_output.json'))
-    actual_output = json.loads(capture_stdout())
+    value, ret = capture_stdout()
+    actual_output = json.loads(value)
     assert actual_output == expected_output
+    assert ret == 0
 
 
 def test_cli_test_trigger():
     cli.args = ['test']
     sys.stdin = open('./tests/plugin/hello_world/tests/trigger/hello_trigger/input.json')
     expected_output = json.load(open('./tests/plugin/hello_world/tests/trigger/hello_trigger/test_output.json'))
-    actual_output = json.loads(capture_stdout())
+    value, ret = capture_stdout()
+    actual_output = json.loads(value)
     assert actual_output == expected_output
+    assert ret == 0
 
 
 def test_cli_run_action():
     cli.args = ['run']
     sys.stdin = open('./tests/plugin/hello_world/tests/action/hello/input.json')
     expected_output = json.load(open('./tests/plugin/hello_world/tests/action/hello/output.json'))
-    actual_output = json.loads(capture_stdout())
+    value, ret = capture_stdout()
+    actual_output = json.loads(value)
     assert actual_output == expected_output
+    assert ret == 0

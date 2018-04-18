@@ -25,4 +25,5 @@ class LoggedException(Exception):
 
     def __init__(self, ex, output):
         super(LoggedException, self).__init__(ex)
+        self.ex = ex
         self.output = output

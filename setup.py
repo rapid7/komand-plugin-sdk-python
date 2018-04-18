@@ -19,6 +19,6 @@ setup(name='komand',
       extras_require={
           ':python_version == "2.7"': ['futures']
       },
-      test_suite="tests.komand_test_suite",
+      test_suite="tests",
       include_package_data=True
       )
