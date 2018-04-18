@@ -59,6 +59,8 @@ def run_action(input_file, output_file, expect_code=200, is_test=False):
 
     output = json.loads(re.sub(r'File \\"[^"]+\\"', 'File \\"\\"', json.dumps(output)))
     output = json.loads(re.sub(r"u\'", "\'", json.dumps(output)))
+    output = json.loads(re.sub(r"line [0-9]+,", "line 0,", json.dumps(output)))
+
     expected_output = json.loads(re.sub(r'File \\"[^"]+\\"', 'File \\"\\"', json.dumps(expected_output)))
 
     if output != expected_output:

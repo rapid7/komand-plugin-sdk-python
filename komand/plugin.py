@@ -202,7 +202,20 @@ class Plugin(object):
         else:
             func = step.run
 
-        output = func(params)
+        # Backward compatibility with tests with missing params
+        if six.PY2:
+            argspec = inspect.getargspec(func)
+            if len(argspec.args) > 1:
+                output = func(params)
+            else:
+                output = func()
+        else:
+            parameters = inspect.signature(func)
+            if len(parameters.parameters) > 0:
+                output = func(params)
+            else:
+                output = func()
+
         step.output.validate(output)
 
         return output
