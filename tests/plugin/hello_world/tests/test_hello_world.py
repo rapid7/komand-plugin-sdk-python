@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from tests.plugin.hello_world import KomandHelloWorld
 from tests.plugin import run_action, run_trigger
+import six
 
 plugin = KomandHelloWorld()
 
@@ -27,6 +28,9 @@ def test_bad_trigger():
 
 
 def test_bad_json_action():
+    if six.PY2:
+        return
+
     run_action('./tests/plugin/hello_world/tests/action/return_bad_json/input.json',
                './tests/plugin/hello_world/tests/action/return_bad_json/output.json', plugin)
 
