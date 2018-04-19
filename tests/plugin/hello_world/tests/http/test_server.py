@@ -57,11 +57,11 @@ def run_action(input_file, output_file, expect_code=200, is_test=False):
 
     output = response.json()
 
-    output = json.loads(re.sub(r'File \\"[^"]+\\"', 'File \\"\\"', json.dumps(output)))
-    output = json.loads(re.sub(r"u\'", "\'", json.dumps(output)))
-    output = json.loads(re.sub(r"line [0-9]+,", "line 0,", json.dumps(output)))
+    if 'body' in output and 'log' in output['body']:
+        output['body']['log'] = ''
 
-    expected_output = json.loads(re.sub(r'File \\"[^"]+\\"', 'File \\"\\"', json.dumps(expected_output)))
+    if 'body' in expected_output and 'log' in expected_output['body']:
+        expected_output['body']['log'] = ''
 
     if output != expected_output:
         raise Exception('Actual output differs from expected output.{} != {}'.format(output, expected_output))

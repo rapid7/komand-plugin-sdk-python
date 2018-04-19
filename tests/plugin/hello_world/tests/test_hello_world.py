@@ -29,6 +29,7 @@ def test_bad_trigger():
 
 
 def test_bad_json_action():
+
     if six.PY2:
         return
 

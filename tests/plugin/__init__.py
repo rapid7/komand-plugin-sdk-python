@@ -1,6 +1,5 @@
 import json
 import time
-import re
 import concurrent.futures.thread as thread
 import concurrent.futures as futures
 from komand.exceptions import LoggedException
@@ -33,9 +32,11 @@ def run_action(input_file, output_file, handler, expect_fail=False):
         else:
             raise e
 
-    output = json.loads(re.sub(r'File \\"[^"]+\\"', 'File \\"\\"', json.dumps(output)))
-    output = json.loads(re.sub(r"u\'", "\'", json.dumps(output)))
-    expected_output = json.loads(re.sub(r'File \\"[^"]+\\"', 'File \\"\\"', json.dumps(expected_output)))
+    if 'body' in output and 'log' in output['body']:
+        output['body']['log'] = ''
+
+    if 'body' in expected_output and 'log' in expected_output['body']:
+        expected_output['body']['log'] = ''
 
     if output != expected_output:
         raise Exception('Actual output differs from expected output.{} != {}'.format(output, expected_output))
@@ -67,9 +68,11 @@ def run_trigger(input_file, output_file, plugin, expect_timeout=False):
 
     output = capture.caught_message
 
-    output = json.loads(re.sub(r'File \\"[^"]+\\"', 'File \\"\\"', json.dumps(output)))
-    output = json.loads(re.sub(r"u\'", "\'", json.dumps(output)))
-    expected_output = json.loads(re.sub(r'File \\"[^"]+\\"', 'File \\"\\"', json.dumps(expected_output)))
+    if 'body' in output and 'log' in output['body']:
+        output['body']['log'] = ''
+
+    if 'body' in expected_output and 'log' in expected_output['body']:
+        expected_output['body']['log'] = ''
 
     if output != expected_output:
         raise Exception('Actual output differs from expected output.{} != {}'.format(output, expected_output))

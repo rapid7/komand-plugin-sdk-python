@@ -2,8 +2,6 @@
 import logging
 import io
 import jsonschema
-import pkg_resources
-import json
 import copy
 import uuid
 import inspect
@@ -15,22 +13,7 @@ from .connection import ConnectionCache
 
 from .exceptions import *
 
-
-root_logger = logging.getLogger()
-root_logger.setLevel('DEBUG')
-root_logger.addHandler(logging.StreamHandler())
-
-input_message_schema = pkg_resources.resource_stream(__name__, '/'.join(('data', 'input_message_schema.json')))
-input_message_schema = input_message_schema.read()
-if isinstance(input_message_schema, bytes):
-    input_message_schema = input_message_schema.decode('utf-8')
-input_message_schema = json.loads(input_message_schema)
-
-output_message_schema = pkg_resources.resource_stream(__name__, '/'.join(('data', 'output_message_schema.json')))
-output_message_schema = output_message_schema.read()
-if isinstance(output_message_schema, bytes):
-    output_message_schema = output_message_schema.decode('utf-8')
-output_message_schema = json.loads(output_message_schema)
+from komand.schema import input_message_schema
 
 
 class Python2StringIO(io.StringIO):
@@ -44,6 +27,11 @@ if six.PY2:
     stream_class = Python2StringIO
 else:
     stream_class = io.StringIO
+
+message_output_type = {
+    'action_start': 'action_event',
+    'trigger_start': 'trigger_event',
+}
 
 
 class Plugin(object):
@@ -143,16 +131,21 @@ class Plugin(object):
         out_type = None
 
         try:
-            Plugin.validate_json(input_message, input_message_schema)
-            message_type = input_message['type']
+
+            # Attempt to grab message type first
+            message_type = input_message.get('type')
+            out_type = message_output_type.get(message_type)
             if message_type not in ['action_start', 'trigger_start']:
                 raise ClientException('Unsupported message type "{}"'.format(message_type))
+
+            Plugin.validate_json(input_message, input_message_schema)
+
             if message_type == 'action_start':
                 out_type = 'action_event'
-                output = self.handle_action_start(input_message['body'], logger, is_test, is_debug)
+                output = self.start_step(input_message['body'], 'action', logger, log_stream, is_test, is_debug)
             elif message_type == 'trigger_start':
                 out_type = 'trigger_event'
-                output = self.handle_trigger_start(input_message['body'], logger, log_stream, is_test, is_debug)
+                output = self.start_step(input_message['body'], 'trigger', logger, log_stream, is_test, is_debug)
         except ClientException as e:
             success = False
             ex = e
@@ -172,7 +165,7 @@ class Plugin(object):
                 raise LoggedException(ex, output)
             return output
 
-    def handle_action_start(self, message_body, logger, is_test=False, is_debug=False):
+    def start_step(self, message_body, key, logger, log_stream, is_test=False, is_debug=False):
         """
         Starts an action.
         :param message_body: The action_start message.
@@ -181,11 +174,14 @@ class Plugin(object):
         :return: An action_event message
         """
 
-        action_name = message_body['action']
-        if action_name not in self.actions:
-            raise ClientException('Unknown action "{}"'.format(action_name))
+        action_name = message_body[key]
 
-        action = self.actions[action_name]
+        dictionary = getattr(self, key + 's')
+
+        if action_name not in dictionary:
+            raise ClientException('Unknown {} "{}"'.format(key, action_name))
+
+        action = dictionary[action_name]
 
         connection = self.connection_cache.get(message_body['connection'])
 
@@ -197,73 +193,17 @@ class Plugin(object):
         step.connection = connection
         step.logger = logger
 
-        params = message_body['input']
+        if key == 'trigger':
+            step.log_stream = log_stream
+            step.meta = message_body['meta']
+            step.webhook_url = message_body['dispatcher']['webhook_url']
+            step.url = message_body['dispatcher']['url']
 
-        try:
-            step.input.validate(params)
-        except jsonschema.exceptions.ValidationError as e:
-            raise ClientException('action input JSON was invalid', e)
-        except Exception as e:
-            raise Exception('Unable to validate action input JSON', e)
-
-        if is_test:
-            func = step.test
-        else:
-            func = step.run
-
-        # Backward compatibility with tests with missing params
-        if six.PY2:
-            argspec = inspect.getargspec(func)
-            if len(argspec.args) > 1:
-                output = func(params)
-            else:
-                output = func()
-        else:
-            parameters = inspect.signature(func)
-            if len(parameters.parameters) > 0:
-                output = func(params)
-            else:
-                output = func()
-
-        step.output.validate(output)
-
-        return output
-
-    def handle_trigger_start(self, message_body, logger, log_stream, is_test=False, is_debug=False):
-        """
-        Starts a trigger.
-        :param message_body: The trigger_start message.
-        :param is_test: True if the action's test method should execute
-        :param is_debug: True if debug is enabled
-        :return:
-        """
-
-        trigger_name = message_body['trigger']
-        if trigger_name not in self.triggers:
-            raise ClientException('Unknown trigger "{}"'.format(trigger_name))
-
-        trigger = self.triggers[trigger_name]
-
-        connection = self.connection_cache.get(message_body['connection'])
-
-        # Copy the action for thread safety.
-        # This is necessary because the object itself contains state like connection and debug.
-        step = copy.copy(trigger)
-
-        step.debug = is_debug
-        step.connection = connection
-        step.logger = logger
-        step.log_stream = log_stream
-        step.meta = message_body['meta']
-
-        step.webhook_url = message_body['dispatcher']['webhook_url']
-        step.url = message_body['dispatcher']['url']
-
-        if not step.dispatcher:
-            if step.debug:
-                step.dispatcher = Stdout(message_body['dispatcher'])
-            else:
-                step.dispatcher = Http(message_body['dispatcher'])
+            if not step.dispatcher:
+                if step.debug:
+                    step.dispatcher = Stdout(message_body['dispatcher'])
+                else:
+                    step.dispatcher = Http(message_body['dispatcher'])
 
         params = message_body['input']
 

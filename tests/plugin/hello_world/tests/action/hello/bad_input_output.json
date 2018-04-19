@@ -1,1 +1,11 @@
-{"body": {"log": "('input JSON was invalid', <ValidationError: \"{'connection': {'greeting': 'Hello, {}!'}, 'input': {'name': 'World'}, 'action': 'hello'} is not valid under any of the given schemas\">)\nTraceback (most recent call last):\n  File \"\", line 124, in validate_json\n    jsonschema.validate(json_object, schema)\n  File \"\", line 432, in validate\n    cls(schema, *args, **kwargs).validate(instance)\n  File \"\", line 117, in validate\n    raise error\njsonschema.exceptions.ValidationError: {'connection': {'greeting': 'Hello, {}!'}, 'input': {'name': 'World'}, 'action': 'hello'} is not valid under any of the given schemas\n\nFailed validating 'oneOf' in schema['properties']['body']:\n    {'oneOf': [{'$ref': '#/definitions/action_start'},\n               {'$ref': '#/definitions/trigger_start'}]}\n\nOn instance['body']:\n    {'action': 'hello',\n     'connection': {'greeting': 'Hello, {}!'},\n     'input': {'name': 'World'}}\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"\", line 155, in handle_step\n    Plugin.validate_json(input_message, input_message_schema)\n  File \"\", line 126, in validate_json\n    raise ClientException('input JSON was invalid', e)\nkomand.exceptions.ClientException: ('input JSON was invalid', <ValidationError: \"{'connection': {'greeting': 'Hello, {}!'}, 'input': {'name': 'World'}, 'action': 'hello'} is not valid under any of the given schemas\">)\n", "status": "error", "meta": null, "error": "('input JSON was invalid', <ValidationError: \"{'connection': {'greeting': 'Hello, {}!'}, 'input': {'name': 'World'}, 'action': 'hello'} is not valid under any of the given schemas\">)"}, "version": "v1", "type": null}
+{
+  "body": {
+    "log": "",
+    "status": "error",
+    "meta": null,
+    "error": "('input JSON was invalid', <ValidationError: \"{'connection': {'greeting': 'Hello, {}!'}, 'input': {'name': 'World'}, 'action': 'hello'} is not valid under any of the given schemas\">)"
+  },
+  "version": "v1",
+  "type": "action_event"
+}
+

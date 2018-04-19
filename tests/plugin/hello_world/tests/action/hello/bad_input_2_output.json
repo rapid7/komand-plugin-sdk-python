@@ -1,1 +1,10 @@
-{"body": {"log": "'greeting'\nTraceback (most recent call last):\n  File \"\", line 161, in handle_step\n    output = self.handle_action_start(input_message['body'], logger, is_test, is_debug)\n  File \"\", line 199, in handle_action_start\n    connection = self.connection_cache.get(message_body['connection'])\n  File \"\", line 36, in get\n    conn.connect(parameters)\n  File \"\", line 15, in connect\n    self.greeting = params['greeting']\nKeyError: 'greeting'\n", "status": "error", "meta": {}, "error": "'greeting'"}, "version": "v1", "type": "action_event"}
+{
+  "body": {
+    "log": "",
+    "status": "error",
+    "meta": {},
+    "error": "'greeting'"
+  },
+  "version": "v1",
+  "type": "action_event"
+}
