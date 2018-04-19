@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
-import sys
-import logging
-import requests
-import os
 import json
+import logging
+import os
+import requests
+import sys
 
 
 class Noop(object):
@@ -20,6 +20,7 @@ class Stdout(object):
     stdout dispatcher.
     actually can support any stream now
     """
+
     def __init__(self, config={}, stream=sys.stdout):
         self.webhook_url = config.get('webhook_url')
         self.custom_encoder = config.get('custom_encoder')
@@ -33,6 +34,7 @@ class Stdout(object):
 
 class Http(object):
     """ HTTP dispatcher """
+
     def __init__(self, config={}):
         if not config:
             raise ValueError('missing HTTP dispatcher config')

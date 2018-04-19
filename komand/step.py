@@ -6,6 +6,7 @@ from io import StringIO
 
 class Step(object):
     """A action"""
+
     def __init__(self, name, description, input, output):
         self.name = name
         self.description = description

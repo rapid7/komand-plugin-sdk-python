@@ -2,18 +2,17 @@
 import base64
 import hashlib
 import logging
+import os
 import re
-import requests
 import ssl
 import subprocess
-import os
 import time
-import six
+from io import IOBase
 
-# Python 2/3 compatibility
+import requests
+import six
 from six.moves.urllib import request
 from six.moves.urllib.error import HTTPError, URLError
-from io import IOBase
 
 
 def extract_value(begin, key, end, s):

@@ -1,19 +1,18 @@
 # -*- coding: utf-8 -*-
-import logging
-import io
-import jsonschema
 import copy
-import uuid
 import inspect
+import io
+import logging
+
+import jsonschema
 import six
+import uuid
 
-import komand.server
-from .dispatcher import Stdout, Http
 from .connection import ConnectionCache
-
-from .exceptions import *
-
-from komand.schema import input_message_schema
+from .dispatcher import Stdout, Http
+from .exceptions import ClientException, ServerException, LoggedException
+from .schema import input_message_schema
+from .server import PluginServer
 
 
 class Python2StringIO(io.StringIO):
@@ -51,12 +50,12 @@ class Plugin(object):
         self.custom_decoder = custom_decoder
         self.custom_encoder = custom_encoder
 
-    def server(self, port=8001):
-        server = komand.server.PluginServer(
+    def server(self, port=10001):
+        server = PluginServer(
             plugin=self,
             port=port,
             debug=self.debug,
-            )
+        )
 
         server.start()
 

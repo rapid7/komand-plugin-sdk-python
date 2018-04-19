@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from komand.step import Step
+from .step import Step
 
 
 class Trigger(Step):

@@ -20,7 +20,6 @@ Input = komand.variables.Input
 Output = komand.variables.Output
 CLI = komand.cli.CLI
 
-
 # Many plugins use the certifi package, particularly indirectly through
 # the requests package. Certifi can be monkey-patched to not use the
 # dedicated CA bundle, which is exactly what we will do. In fact, the

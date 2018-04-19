@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-import sys
-import argparse
 import json
+import sys
 
+import argparse
 
 GREEN = '\033[92m'
 RESET = '\033[0m'
@@ -39,7 +39,7 @@ class CLI(object):
 
         if "--" in self.args:
             index = self.args.index("--")
-            self.msg = " ".join(self.args[index+1:])
+            self.msg = " ".join(self.args[index + 1:])
             self.args = self.args[:index]
 
     def info(self, args):

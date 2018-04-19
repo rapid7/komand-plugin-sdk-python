@@ -1,8 +1,11 @@
-from flask import Flask, jsonify, request
 import logging
+
 import gunicorn.app.base
+from flask import Flask, jsonify, request, abort
 from gunicorn.six import iteritems
-from .exceptions import *
+
+from .exceptions import ClientException, ServerException, LoggedException
+
 SERVER_INSTANCE = None
 
 
@@ -10,14 +13,16 @@ class PluginServer(object):
     """
     Server which runs the plugin as an HTTP server.
 
-    From the Komand Proxy:
+    Serves the following endpoints:
 
-      // const URLPattern = "<vendor>/<plugin>/<version>/<type>/<name>[/<test>]"
-      // EX: komand/slack/1.0.1/actions/post_message/
-      // EX: komand/slack/1.0.1/actions/post_message/test
-      // EX: komand/slack/1.0.1/triggers/message/test
-      // Non tests of triggers are not supported
+    POST http://host/actions/[action]        Executes action's run method
+    POST http://host/actions/[action]/test   Executes action's test method
+    POST http://host/triggers/[trigger]/test Executes trigger's test method
+
+    NOTE: starting a trigger is not supported. Triggers should be started in legacy mode.
+
     """
+
     def __init__(self, plugin, port=10001, debug=False):
         self.plugin = plugin
         self.port = port
@@ -30,6 +35,11 @@ class PluginServer(object):
         @app.route('/<string:prefix>/<string:name>', defaults={'test': None}, methods=['POST'])
         @app.route('/<string:prefix>/<string:name>/<string:test>', methods=['POST'])
         def handler(prefix, name, test):
+
+            if test is None and prefix == 'triggers':
+                # Guard against starting triggers
+                return abort(404)
+
             input_message = request.get_json(force=True)
             logging.info('request input: %s', input_message)
             status_code = 200
