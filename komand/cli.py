@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import sys
 import argparse
-from .message import trigger_start, marshal, action_start, unmarshal
 import json
 
 
@@ -10,7 +9,28 @@ RESET = '\033[0m'
 
 
 class CLI(object):
-    """ CLI is a cli for komand """
+    """
+    A command line interface for the komand plugin CLI API.
+
+    komand plugins are launched via the command line.
+
+    Parameters:
+     - info:   Display plugin info message
+     - sample: Output a sample input JSON object for an action/trigger (step name 2nd parameter)
+     - run:    Execute run method of an action/trigger
+     - test:   Execute test method of an action/trigger
+     - http:   Launch plugin in server mode
+
+    Legacy mode:
+     - read input JSON from stdin
+     - output logs to stderr
+     - output result JSON to stdout
+
+    Server mode:
+     - the 'http' parameter starts the plugin in server mode
+     - HTTP POST requests replace the stdin/stdout communication
+
+    """
 
     def __init__(self, plugin, args=sys.argv[1:]):
         self.plugin = plugin
@@ -57,13 +77,20 @@ class CLI(object):
             if trig.input:
                 input = trig.input.sample()
 
-            msg = trigger_start(
-                trigger=trig.name,
-                connection=conn,
-                input=input,
-                dispatcher=dispatcher
-            )
-            marshal(msg, sys.stdout)
+            msg = {
+                'body': {
+                    'trigger': trig.name,
+                    'meta': {},
+                    'input': input,
+                    'dispatcher': dispatcher,
+                    'connection': conn,
+                },
+                'type': 'trigger_start',
+                'version': 'v1',
+            }
+
+            json.dump(msg, sys.stdout)
+            sys.stdout.flush()
             return
 
         act = self.plugin.actions.get(name)
@@ -75,19 +102,25 @@ class CLI(object):
             if act.input:
                 input = act.input.sample()
 
-            msg = action_start(
-                action=act.name,
-                connection=conn,
-                input=input
-            )
-            marshal(msg, sys.stdout)
+            msg = {
+                'body': {
+                    'action': act.name,
+                    'meta': {},
+                    'input': input,
+                    'connection': conn,
+                },
+                'type': 'action_start',
+                'version': 'v1',
+            }
+            json.dump(msg, sys.stdout)
+            sys.stdout.flush()
             return
 
         raise ValueError('Invalid trigger or action name.')
 
     def execute_step(self, is_test=False, is_debug=False):
         input_data = sys.stdin
-        msg = unmarshal(input_data)
+        msg = json.load(sys.stdin)
         ret = 0
         output = None
         try:

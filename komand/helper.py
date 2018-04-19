@@ -17,7 +17,9 @@ from io import IOBase
 
 
 def extract_value(begin, key, end, s):
-    """Returns a string from a given key/pattern using provided regexes
+    """
+    Returns a string from a given key/pattern using provided regular expressions.
+
     It takes 4 arguments:
     * begin: a regex/pattern to match left side
     * key: a regex/pattern that should be the key
@@ -39,7 +41,8 @@ def extract_value(begin, key, end, s):
 
 
 def clean_dict(dictionary):
-    """Returns a new but cleaned dictionary:
+    """
+    Returns a new but cleaned dictionary.
 
     * Keys with None type values are removed
     * Keys with empty string values are removed
@@ -57,7 +60,8 @@ def clean_dict(dictionary):
 
 
 def clean_list(lst):
-    """Returns a new but cleaned list:
+    """
+    Returns a new but cleaned list.
 
     * None type values are removed
     * Empty string values are removed
@@ -74,7 +78,9 @@ def clean_list(lst):
 
 
 def clean(obj):
-    """ Returns a new but cleaned JSON object
+    """
+    Returns a new but cleaned JSON object.
+
     * Recursively iterates through the collection
     * None type values are removed
     * Empty string values are removed
@@ -98,7 +104,7 @@ def clean(obj):
 
 
 def get_hashes_string(s):
-    """Return a dictionary of hashes for a string"""
+    """Return a dictionary of hashes for a string."""
     s = s.encode("utf-8")
     hashes = {
         'md5': hashlib.md5(s).hexdigest(),
@@ -110,7 +116,7 @@ def get_hashes_string(s):
 
 
 def check_hashes(src, checksum):
-    """Return boolean on whether a hash matches a file or string"""
+    """Return boolean on whether a hash matches a file or string."""
     if type(src) is str:
         hashes = get_hashes_string(src)
     else:
@@ -124,7 +130,7 @@ def check_hashes(src, checksum):
 
 
 def check_cachefile(cache_file):
-    """Return boolean on whether cachefile exists"""
+    """Return boolean on whether cachefile exists."""
     cache_dir = '/var/cache'
     if cache_dir not in cache_file:
         cache_file = cache_dir + '/' + cache_file
@@ -137,7 +143,7 @@ def check_cachefile(cache_file):
 
 
 def open_file(file_path):
-    """Return file object if it exists"""
+    """Return file object if it exists."""
     dirname = os.path.dirname(file_path)
     filename = os.path.basename(file_path)
     if os.path.isdir(dirname):
@@ -153,7 +159,7 @@ def open_file(file_path):
 
 
 def open_cachefile(cache_file, append=False):
-    """Return file object if cachefile exists, create and return new cachefile if it doesn't exist"""
+    """Return file object if cachefile exists, create and return new cachefile if it doesn't exist."""
     cache_dir = '/var/cache'
     if cache_dir not in cache_file:
         cache_file = cache_dir + '/' + cache_file
@@ -173,7 +179,7 @@ def open_cachefile(cache_file, append=False):
 
 
 def remove_cachefile(cache_file):
-    """Returns boolean on whether cachefile was removed"""
+    """Returns boolean on whether cachefile was removed."""
     cache_dir = '/var/cache'
     if cache_dir not in cache_file:
         cache_file = cache_dir + '/' + cache_file
@@ -186,7 +192,7 @@ def remove_cachefile(cache_file):
 
 
 def lock_cache(lock_file):
-    """Returns boolean on whether lock was created"""
+    """Returns boolean on whether lock was created."""
     lock_dir = '/var/cache/lock'
     if not os.path.isdir(lock_dir):
         os.makedirs(lock_dir)
@@ -207,7 +213,8 @@ def lock_cache(lock_file):
 
 def unlock_cache(lock_file, wait_time):
     """
-    Returns boolean on whether lock was released
+    Returns boolean on whether lock was released.
+
     Wait_time value used to wait before unlocking and is measured in seconds
     """
     lock_dir = '/var/cache/lock'
@@ -224,7 +231,7 @@ def unlock_cache(lock_file, wait_time):
 
 def open_url(url, timeout=None, verify=True, **kwargs):
     """
-    Returns a urllib.request object given a URL as a string
+    Returns a urllib.request object given a URL as a string.
 
     Optional parameters include
     * timeout - Timeout value for request as int
@@ -257,7 +264,7 @@ def open_url(url, timeout=None, verify=True, **kwargs):
 
 def check_url(url):
     """
-    Return boolean on whether we can access url successfully
+    Return boolean on whether we can access url successfully.
 
     We submit an HTTP HEAD request to check the status. This way we don't download the file for performance.
     If the server doesn't support HEAD we try a Range of bytes so we don't download the entire file.
@@ -289,7 +296,7 @@ def check_url(url):
 
 
 def exec_command(command):
-    """Return dict with keys stdout, stderr, and return code of executed subprocess command"""
+    """Return dict with keys stdout, stderr, and return code of executed subprocess command."""
     try:
         p = subprocess.Popen(command, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                              close_fds=True)
@@ -303,7 +310,7 @@ def exec_command(command):
 
 
 def encode_string(s):
-    """Returns a base64 encoded string given a string"""
+    """Returns a base64 encoded string given a string."""
     if type(s) is str:
         to_encode = s if six.PY2 else s.encode('utf-8')
         _bytes = base64.b64encode(to_encode)
@@ -312,7 +319,7 @@ def encode_string(s):
 
 
 def encode_file(file_path):
-    """Return a string of base64 encoded file provided as an absolute file path"""
+    """Return a string of base64 encoded file provided as an absolute file path."""
     f = None
     try:
         f = open_file(file_path)
@@ -354,7 +361,7 @@ def check_url_modified(url):
 
 
 def get_url_content_disposition(headers):
-    """Return filename as string from content-disposition by supplying requests headers"""
+    """Return filename as string from content-disposition by supplying requests headers."""
     # Dict is case-insensitive
     for key, value in headers.items():
         if key.lower() == "content-disposition":
@@ -379,7 +386,7 @@ def get_url_path_filename(url):
 
 
 def get_url_filename(url):
-    """Return filename as string from url by content-disposition or url path, or return None if not found"""
+    """Return filename as string from url by content-disposition or url path, or return None if not found."""
     resp = None
     try:
         resp = requests.head(url)

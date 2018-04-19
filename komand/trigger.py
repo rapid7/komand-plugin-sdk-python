@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import komand.message as message
 from komand.step import Step
 
 
@@ -19,5 +18,13 @@ class Trigger(Step):
         if schema:
             schema.validate(event)
 
-        msg = message.trigger_event(meta=self.meta, output=event, log=self.log_stream.getvalue())
+        msg = {
+            'body': {
+                'meta': self.meta,
+                'output': event,
+                'log': self.log_stream.getvalue()
+            },
+            'type': 'trigger_event',
+            'version': 'v1',
+        }
         self.dispatcher.write(msg)

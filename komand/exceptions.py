@@ -22,6 +22,9 @@ class ServerException(Exception):
 
 
 class LoggedException(Exception):
+    """
+    An Exception which holds the step output dictionary.
+    """
 
     def __init__(self, ex, output):
         super(LoggedException, self).__init__(ex)

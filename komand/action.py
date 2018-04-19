@@ -3,4 +3,7 @@ from komand.step import Step
 
 
 class Action(Step):
+    """
+    Represents a Komand Action.
+    """
     pass

@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
-
-import komand.message as message
 import sys
 import logging
 import requests
 import os
+import json
 
 
 class Noop(object):
@@ -28,7 +27,8 @@ class Stdout(object):
         self.stream = stream or sys.stdout
 
     def write(self, msg):
-        message.marshal(msg, self.stream, ce=self.custom_encoder)
+        json.dump(msg, self.stream, ce=self.custom_encoder)
+        self.stream.flush()
 
 
 class Http(object):
