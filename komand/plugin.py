@@ -15,7 +15,6 @@ from .connection import ConnectionCache
 
 from .exceptions import *
 
-import sys
 
 root_logger = logging.getLogger()
 root_logger.setLevel('DEBUG')
@@ -23,17 +22,9 @@ root_logger.addHandler(logging.StreamHandler())
 
 input_message_schema = pkg_resources.resource_stream(__name__, '/'.join(('data', 'input_message_schema.json')))
 input_message_schema = input_message_schema.read()
-
-sys.stderr.write('{}\n'.format(type(input_message_schema)))
-
 if isinstance(input_message_schema, bytes):
     input_message_schema = input_message_schema.decode('utf-8')
-
-sys.stderr.write('{}\n'.format(type(input_message_schema)))
-
-
 input_message_schema = json.loads(input_message_schema)
-
 
 output_message_schema = pkg_resources.resource_stream(__name__, '/'.join(('data', 'output_message_schema.json')))
 output_message_schema = output_message_schema.read()

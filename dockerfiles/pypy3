@@ -1,5 +1,7 @@
 FROM pypy:3-5.10
 
+RUN rm /usr/bin/python && ln -s $(which pypy3) /usr/bin/python
+
 LABEL organization=komand
 LABEL sdk=python
 LABEL type=plugin
