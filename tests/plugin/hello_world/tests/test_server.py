@@ -7,7 +7,6 @@ import requests
 import time
 import json
 import six
-import re
 
 cli_pid = None
 
