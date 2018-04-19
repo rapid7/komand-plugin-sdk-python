@@ -3,6 +3,7 @@ import time
 import re
 import concurrent.futures.thread as thread
 import concurrent.futures as futures
+from komand.exceptions import LoggedException
 
 
 class CaptureDispatcher:
@@ -24,7 +25,13 @@ def run_action(input_file, output_file, handler, expect_fail=False):
     input_message = json.load(open(input_file))
     expected_output = json.load(open(output_file))
 
-    output = handler.handle_step(input_message)
+    try:
+        output = handler.handle_step(input_message)
+    except LoggedException as e:
+        if expect_fail:
+            output = e.output
+        else:
+            raise e
 
     output = json.loads(re.sub(r'File \\"[^"]+\\"', 'File \\"\\"', json.dumps(output)))
     output = json.loads(re.sub(r"u\'", "\'", json.dumps(output)))
