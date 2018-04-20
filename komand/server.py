@@ -23,9 +23,11 @@ class PluginServer(object):
 
     """
 
-    def __init__(self, plugin, port=10001, debug=False):
+    def __init__(self, plugin, port=10001, process_workers=1, threads_per_worker=4, debug=False):
         self.plugin = plugin
         self.port = port
+        self.process_workers = process_workers
+        self.threads_per_worker = threads_per_worker
         self.debug = debug
         self.app = self.create_flask_app()
 
@@ -73,8 +75,8 @@ class PluginServer(object):
             SERVER_INSTANCE = self
             options = {
                 'bind': '%s:%s' % ('0.0.0.0', self.port),
-                'workers': GunicornServer.number_of_workers(),
-                'threads': 4
+                'workers': self.process_workers,
+                'threads': self.threads_per_worker
             }
             GunicornServer(self.app, options).run()
 
@@ -97,7 +99,3 @@ class GunicornServer(gunicorn.app.base.BaseApplication):
                        if key in self.cfg.settings and value is not None])
         for key, value in iteritems(config):
             self.cfg.set(key.lower(), value)
-
-    @staticmethod
-    def number_of_workers():
-        return 1

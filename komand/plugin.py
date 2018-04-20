@@ -58,10 +58,12 @@ class Plugin(object):
         self.custom_decoder = custom_decoder
         self.custom_encoder = custom_encoder
 
-    def server(self, port=10001):
+    def server(self, port=10001, process_workers=1, threads_per_worker=4):
         server = PluginServer(
             plugin=self,
             port=port,
+            process_workers=process_workers,
+            threads_per_worker=threads_per_worker,
             debug=self.debug,
         )
 

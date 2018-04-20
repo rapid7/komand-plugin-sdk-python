@@ -142,7 +142,8 @@ class CLI(object):
         if args.debug:
             self.plugin.debug = True
 
-        self.plugin.server(port=args.port)
+        self.plugin.server(port=args.port, process_workers=args.process_workers,
+                           threads_per_worker=args.threads_per_worker)
 
     def run(self):
         """Run the CLI tool"""
@@ -170,7 +171,11 @@ class CLI(object):
 
         http_command = subparsers.add_parser('http', help='Run a server. ' +
                                                           'You must supply a port, otherwise will listen on 10001.')
-        http_command.add_argument('-port', help='--port', default=10001, type=int)
+        http_command.add_argument('--port', help='--port', default=10001, type=int)
+        http_command.add_argument('--process_workers', help='The number of child processes to spawn',
+                                  default=1, type=int)
+        http_command.add_argument('--threads_per_worker', help='The number of threads per worker process',
+                                  default=4, type=int)
         http_command.set_defaults(func=self.server)
 
         args = parser.parse_args(self.args)
