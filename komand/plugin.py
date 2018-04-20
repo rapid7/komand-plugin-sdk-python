@@ -2,6 +2,7 @@
 import copy
 import inspect
 import io
+import json
 import logging
 
 import jsonschema
@@ -16,6 +17,13 @@ from .server import PluginServer
 
 
 class Python2StringIO(io.StringIO):
+    """
+    Python2 compatible StringIO class.
+
+    This was a hack to get log saving to work.
+    There's definitely a better solution.
+    """
+
     def write(self, s):
         if isinstance(s, str):
             s = s.decode('utf-8')
@@ -96,6 +104,24 @@ class Plugin(object):
             'type': message_type
         }
 
+    def marshal(self, msg, fd):
+        """ Marshal a message to fd. """
+
+        if self.custom_encoder is None:
+            json.dump(msg, fd)
+        else:
+            json.dump(msg, fd, cls=self.custom_encoder)
+        fd.flush()
+
+    def unmarshal(self, fd):
+        """ Unmarshal a message. """
+
+        if self.custom_decoder is None:
+            msg = json.load(fd)
+        else:
+            msg = json.load(fd, cls=self.custom_decoder)
+        return msg
+
     @staticmethod
     def validate_json(json_object, schema):
         try:
@@ -164,35 +190,36 @@ class Plugin(object):
                 raise LoggedException(ex, output)
             return output
 
-    def start_step(self, message_body, key, logger, log_stream, is_test=False, is_debug=False):
+    def start_step(self, message_body, step_key, logger, log_stream, is_test=False, is_debug=False):
         """
         Starts an action.
         :param message_body: The action_start message.
+        :param step_key: The type of step to execute
+        :param logger the logger for logging
+        :param log_stream the raw stream for the log
         :param is_test: True if the action's test method should execute
         :param is_debug: True if debug is enabled
         :return: An action_event message
         """
 
-        action_name = message_body[key]
-
-        dictionary = getattr(self, key + 's')
-
+        action_name = message_body[step_key]
+        dictionary = getattr(self, step_key + 's')
         if action_name not in dictionary:
-            raise ClientException('Unknown {} "{}"'.format(key, action_name))
-
+            raise ClientException('Unknown {} "{}"'.format(step_key, action_name))
         action = dictionary[action_name]
 
         connection = self.connection_cache.get(message_body['connection'])
 
         # Copy the action for thread safety.
-        # This is necessary because the object itself contains state like connection and debug.
+        # This is necessary because the object itself contains stateful fields like connection and debug.
         step = copy.copy(action)
 
         step.debug = is_debug
         step.connection = connection
         step.logger = logger
 
-        if key == 'trigger':
+        # Extra setup for triggers
+        if step_key == 'trigger':
             step.log_stream = log_stream
             step.meta = message_body['meta']
             step.webhook_url = message_body['dispatcher']['webhook_url']
@@ -206,19 +233,22 @@ class Plugin(object):
 
         params = message_body['input']
 
+        # Validate input message
         try:
             step.input.validate(params)
         except jsonschema.exceptions.ValidationError as e:
-            raise ClientException('action input JSON was invalid', e)
+            raise ClientException('{} input JSON was invalid'.format(step_key), e)
         except Exception as e:
-            raise Exception('Unable to validate action input JSON', e)
+            raise Exception('Unable to validate {} input JSON'.format(step_key), e)
 
         if is_test:
             func = step.test
         else:
             func = step.run
 
-        # Backward compatibility with tests with missing params
+        # Backward compatibility with steps with missing argument params
+        # The SDK has always defined the signature of the run/test methods to include the params dictionary.
+        # However, the code generation generates the test method without the params argument.
         if six.PY2:
             argspec = inspect.getargspec(func)
             if len(argspec.args) > 1:

@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
-import json
 import sys
 
 import argparse
+
+from .exceptions import LoggedException
 
 GREEN = '\033[92m'
 RESET = '\033[0m'
@@ -89,8 +90,7 @@ class CLI(object):
                 'version': 'v1',
             }
 
-            json.dump(msg, sys.stdout)
-            sys.stdout.flush()
+            self.plugin.marshal(msg, sys.stdout)
             return
 
         act = self.plugin.actions.get(name)
@@ -112,24 +112,25 @@ class CLI(object):
                 'type': 'action_start',
                 'version': 'v1',
             }
-            json.dump(msg, sys.stdout)
-            sys.stdout.flush()
+            self.plugin.marshal(msg, sys.stdout)
             return
 
         raise ValueError('Invalid trigger or action name.')
 
     def execute_step(self, is_test=False, is_debug=False):
-        msg = json.load(sys.stdin)
-        ret = 0
-        output = None
+        msg = self.plugin.unmarshal(sys.stdin)
+        exception = None
         try:
             output = self.plugin.handle_step(msg, is_test=is_test, is_debug=is_debug)
-        except Exception as e:
-            ret = 1
+        except LoggedException as e:
+            output = e.output
+            exception = e
 
         if output:
-            sys.stdout.write(json.dumps(output))
-        return ret
+            self.plugin.marshal(output, sys.stdout)
+
+        if exception:
+            raise exception
 
     def run_step(self, args):
         return self.execute_step(is_test=False, is_debug=args.debug)
@@ -177,4 +178,4 @@ class CLI(object):
         if not hasattr(args, 'func') or not args.func:
             return parser.print_help()
 
-        return args.func(args)
+        args.func(args)
