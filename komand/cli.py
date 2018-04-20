@@ -119,7 +119,6 @@ class CLI(object):
         raise ValueError('Invalid trigger or action name.')
 
     def execute_step(self, is_test=False, is_debug=False):
-        input_data = sys.stdin
         msg = json.load(sys.stdin)
         ret = 0
         output = None

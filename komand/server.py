@@ -100,4 +100,4 @@ class GunicornServer(gunicorn.app.base.BaseApplication):
 
     @staticmethod
     def number_of_workers():
-        return 4
+        return 1
