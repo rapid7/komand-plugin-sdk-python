@@ -13,7 +13,6 @@ from .connection import ConnectionCache
 from .dispatcher import Stdout, Http
 from .exceptions import ClientException, ServerException, LoggedException
 from .schema import input_message_schema
-from .server import PluginServer
 
 
 class Python2StringIO(io.StringIO):
@@ -57,17 +56,6 @@ class Plugin(object):
         self.debug = False
         self.custom_decoder = custom_decoder
         self.custom_encoder = custom_encoder
-
-    def server(self, port=10001, process_workers=1, threads_per_worker=4):
-        server = PluginServer(
-            plugin=self,
-            port=port,
-            process_workers=process_workers,
-            threads_per_worker=threads_per_worker,
-            debug=self.debug,
-        )
-
-        server.start()
 
     def add_trigger(self, trigger):
         """ add a new trigger """

@@ -4,6 +4,7 @@ import sys
 import argparse
 
 from .exceptions import LoggedException
+from .server import PluginServer
 
 GREEN = '\033[92m'
 RESET = '\033[0m'
@@ -142,8 +143,8 @@ class CLI(object):
         if args.debug:
             self.plugin.debug = True
 
-        self.plugin.server(port=args.port, process_workers=args.process_workers,
-                           threads_per_worker=args.threads_per_worker)
+        PluginServer(self.plugin, port=args.port, workers=args.process_workers, threads=args.threads_per_worker,
+                     debug=args.debug).start()
 
     def run(self):
         """Run the CLI tool"""

@@ -1,15 +1,14 @@
-import logging
+import sys
 
 import gunicorn.app.base
 from flask import Flask, jsonify, request, abort
+from gunicorn.arbiter import Arbiter
 from gunicorn.six import iteritems
 
 from .exceptions import ClientException, ServerException, LoggedException
 
-SERVER_INSTANCE = None
 
-
-class PluginServer(object):
+class PluginServer(gunicorn.app.base.BaseApplication):
     """
     Server which runs the plugin as an HTTP server.
 
@@ -23,13 +22,29 @@ class PluginServer(object):
 
     """
 
-    def __init__(self, plugin, port=10001, process_workers=1, threads_per_worker=4, debug=False):
+    def __init__(self, plugin, port=10001, workers=1, threads=4, debug=False):
+        self.gunicorn_config = {
+            'bind': '%s:%s' % ('0.0.0.0', port),
+            'workers': workers,
+            'threads': threads,
+            'loglevel': 'debug' if debug else 'info'
+        }
+        super(PluginServer, self).__init__()
         self.plugin = plugin
-        self.port = port
-        self.process_workers = process_workers
-        self.threads_per_worker = threads_per_worker
         self.debug = debug
         self.app = self.create_flask_app()
+
+    def init(self, parser, opts, args):
+        pass
+
+    def load(self):
+        return self.app
+
+    def load_config(self):
+        config = dict([(key, value) for key, value in iteritems(self.gunicorn_config)
+                       if key in self.cfg.settings and value is not None])
+        for key, value in iteritems(config):
+            self.cfg.set(key.lower(), value)
 
     def create_flask_app(self):
         app = Flask(__name__)
@@ -43,14 +58,14 @@ class PluginServer(object):
                 return abort(404)
 
             input_message = request.get_json(force=True)
-            logging.info('request input: %s', input_message)
+            self.logger.debug('Request input: %s', input_message)
             status_code = 200
             output = None
             try:
                 output = self.plugin.handle_step(input_message, is_debug=self.debug, is_test=test is not None)
             except LoggedException as e:
                 wrapped_exception = e.ex
-                logging.exception(wrapped_exception)
+                self.logger.exception(wrapped_exception)
                 output = e.output
 
                 if isinstance(wrapped_exception, ClientException):
@@ -61,7 +76,7 @@ class PluginServer(object):
                 else:
                     status_code = 500
             finally:
-                logging.info('request output: %s', output)
+                self.logger.debug('Request output: %s', output)
                 r = jsonify(output)
                 r.status_code = status_code
                 return r
@@ -71,31 +86,12 @@ class PluginServer(object):
     def start(self):
         """ start server """
         with self.app.app_context():
-            global SERVER_INSTANCE
-            SERVER_INSTANCE = self
-            options = {
-                'bind': '%s:%s' % ('0.0.0.0', self.port),
-                'workers': self.process_workers,
-                'threads': self.threads_per_worker
-            }
-            GunicornServer(self.app, options).run()
+            try:
+                arbiter = Arbiter(self)
+                self.logger = arbiter.log
+                arbiter.run()
 
-
-class GunicornServer(gunicorn.app.base.BaseApplication):
-
-    def __init__(self, app, options=None):
-        self.options = options or {}
-        self.application = app
-        super(GunicornServer, self).__init__()
-
-    def init(self, parser, opts, args):
-        pass
-
-    def load(self):
-        return self.application
-
-    def load_config(self):
-        config = dict([(key, value) for key, value in iteritems(self.options)
-                       if key in self.cfg.settings and value is not None])
-        for key, value in iteritems(config):
-            self.cfg.set(key.lower(), value)
+            except RuntimeError as e:
+                sys.stderr.write("\nError: %s\n" % e)
+                sys.stderr.flush()
+                sys.exit(1)
