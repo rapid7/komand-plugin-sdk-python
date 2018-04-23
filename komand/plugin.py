@@ -12,7 +12,7 @@ import uuid
 from .connection import ConnectionCache
 from .dispatcher import Stdout, Http
 from .exceptions import ClientException, ServerException, LoggedException
-from .schema import input_message_schema
+from six import string_types
 
 
 class Python2StringIO(io.StringIO):
@@ -143,17 +143,18 @@ class Plugin(object):
         if type == 'action_start':
             if 'action' not in body:
                 raise ClientException('Message is action_start but field "action" is missing from body')
-            if not isinstance(body['action'], str):
+            if not isinstance(body['action'], string_types):
                 raise ClientException('Action field must be a string')
         elif type == 'trigger_start':
             if 'trigger' not in body:
                 raise ClientException('Message is trigger_start but field "trigger" is missing from body')
-            if not isinstance(body['trigger'], str):
+            if not isinstance(body['trigger'], string_types):
                 raise ClientException('Trigger field must be a string')
         else:
             raise ClientException('Unsupported message type %s. Must be action_start or trigger_start')
+
         if 'meta' not in body:
-            raise ClientException('Field "meta" missing from body')
+            body['meta'] = {}
 
         # This is existing behavior.
         if 'connection' not in body:
