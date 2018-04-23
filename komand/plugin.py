@@ -121,6 +121,48 @@ class Plugin(object):
         except Exception as e:
             raise Exception('Unable to validate input JSON', e)
 
+    @staticmethod
+    def validate_input_message(input_message):
+        if input_message is None:
+            raise ClientException('Input message was None')
+        if not isinstance(input_message, dict):
+            raise ClientException('Input message is not a dictionary')
+        if 'type' not in input_message:
+            raise ClientException('"type" missing from input message')
+        if 'version' not in input_message:
+            raise ClientException('"version" missing from input message')
+        if 'body' not in input_message:
+            raise ClientException('"body" missing from input message')
+
+        version = input_message['version']
+        type = input_message['type']
+        body = input_message['body']
+
+        if version != 'v1':
+            raise ClientException('Unsupported version %s. Only v1 is supported'.format(version))
+        if type == 'action_start':
+            if 'action' not in body:
+                raise ClientException('Message is action_start but field "action" is missing from body')
+            if not isinstance(body['action'], str):
+                raise ClientException('Action field must be a string')
+        elif type == 'trigger_start':
+            if 'trigger' not in body:
+                raise ClientException('Message is trigger_start but field "trigger" is missing from body')
+            if not isinstance(body['trigger'], str):
+                raise ClientException('Trigger field must be a string')
+        else:
+            raise ClientException('Unsupported message type %s. Must be action_start or trigger_start')
+        if 'meta' not in body:
+            raise ClientException('Field "meta" missing from body')
+
+        # This is existing behavior.
+        if 'connection' not in body:
+            body['connection'] = {}
+        if 'dispatcher' not in body:
+            body['dispatcher'] = {}
+        if 'input' not in body:
+            body['input'] = {}
+
     def handle_step(self, input_message, is_test=False, is_debug=False):
         """
         Executes a single step, given the input message dictionary.
@@ -153,7 +195,7 @@ class Plugin(object):
             if message_type not in ['action_start', 'trigger_start']:
                 raise ClientException('Unsupported message type "{}"'.format(message_type))
 
-            Plugin.validate_json(input_message, input_message_schema)
+            Plugin.validate_input_message(input_message)
 
             if message_type == 'action_start':
                 out_type = 'action_event'

@@ -2,7 +2,6 @@
   "$schema": "http://json-schema.org/draft-04/schema#",
   "type": "object",
   "definitions": {
-
   },
   "properties": {
     "body": {
@@ -24,26 +23,47 @@
       "oneOf": [
         {
           "properties": {
-            "status": { "enum": ["ok"] }
+            "status": {
+              "enum": [
+                "ok"
+              ]
+            }
           },
-          "required": ["output"]
+          "required": [
+            "output"
+          ]
         },
         {
           "properties": {
-            "status": { "enum": ["error"] }
+            "status": {
+              "enum": [
+                "error"
+              ]
+            }
           },
-          "required": ["error"]
+          "required": [
+            "error"
+          ]
         }
       ],
-      "required": ["meta", "status"]
+      "required": [
+        "meta",
+        "status"
+      ]
     },
     "type": {
       "type": "string"
     },
     "version": {
       "type": "string",
-      "enum": ["v1", "v2"]
+      "enum": [
+        "v1"
+      ]
     }
   },
-  "required": ["body", "type", "version"]
+  "required": [
+    "body",
+    "type",
+    "version"
+  ]
 }

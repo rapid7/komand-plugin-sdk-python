@@ -1,8 +1,8 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
   "type": "object",
-  "definitions": {
-    "action_start": {
+  "properties": {
+    "body": {
       "type": "object",
       "properties": {
         "action": {
@@ -19,7 +19,14 @@
           ]
         },
         "input": {
-          "type": "object"
+          "oneOf": [
+            {
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "connection": {
           "oneOf": [
@@ -32,56 +39,62 @@
           ]
         }
       },
-      "required": ["action", "meta", "input", "connection"]
-    },
-    "trigger_start": {
-      "type": "object",
-      "properties": {
-        "trigger": {
-          "type": "string"
-        },
-        "meta": {
-          "type": "object"
-        },
-        "input": {
-          "type": "object"
-        },
-        "connection": {
-          "oneOf": [
-            {
-              "type": "null"
-            },
-            {
-              "type": "object"
+      "required": [
+        "meta",
+        "input",
+        "connection"
+      ],
+      "anyOf": [
+        {
+          "properties": {
+            "action": {
+              "type": "string"
             }
+          },
+          "required": [
+            "action"
           ]
         },
-        "dispatcher": {
-          "type": "object"
-        }
-      },
-      "required": ["trigger", "meta", "input", "connection"]
-    }
-  },
-  "properties": {
-    "body": {
-      "oneOf": [
         {
-          "$ref": "#/definitions/action_start"
-        },
-        {
-          "$ref": "#/definitions/trigger_start"
+          "properties": {
+            "trigger": {
+              "type": "string"
+            },
+            "dispatcher": {
+              "oneOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "object"
+                }
+              ]
+            }
+          },
+          "required": [
+            "action",
+            "dispatcher"
+          ]
         }
       ]
     },
     "type": {
       "type": "string",
-      "enum": ["action_start", "trigger_start"]
+      "enum": [
+        "action_start",
+        "trigger_start"
+      ]
     },
     "version": {
       "type": "string",
-      "enum": ["v1", "v2"]
+      "enum": [
+        "v1"
+      ]
     }
   },
-  "required": ["body", "type", "version"]
+  "required": [
+    "body",
+    "type",
+    "version"
+  ]
 }
