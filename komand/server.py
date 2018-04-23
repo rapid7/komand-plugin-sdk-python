@@ -53,12 +53,25 @@ class PluginServer(gunicorn.app.base.BaseApplication):
         @app.route('/<string:prefix>/<string:name>/<string:test>', methods=['POST'])
         def handler(prefix, name, test):
 
-            if test is None and prefix == 'triggers':
-                # Guard against starting triggers
-                return abort(404)
-
             input_message = request.get_json(force=True)
             self.logger.debug('Request input: %s', input_message)
+
+            if input_message is None:
+                return abort(400)
+
+            # Ensure url matches action/trigger name in body
+            if prefix == 'actions':
+                if input_message.get('body', {}).get('action', None) == name:
+                    return abort(400)
+            elif prefix == 'triggers':
+                if test is None:
+                    # Guard against starting triggers
+                    return abort(404)
+                if input_message.get('body', {}).get('trigger', None) == name:
+                    return abort(400)
+            else:
+                return abort(404)
+
             status_code = 200
             output = None
             try:
