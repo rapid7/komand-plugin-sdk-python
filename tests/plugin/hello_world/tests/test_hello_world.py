@@ -44,15 +44,6 @@ def test_bad_json_trigger():
                 expect_timeout=True)
 
 
-def test_good_action_bad_input_1():
-
-    if six.PY2:
-        return
-
-    run_action('./tests/plugin/hello_world/tests/action/hello/bad_input.json',
-               './tests/plugin/hello_world/tests/action/hello/bad_input_output.json', plugin, expect_fail=True)
-
-
 def test_good_action_bad_input_2():
 
     if six.PY2:
