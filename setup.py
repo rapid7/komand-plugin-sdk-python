@@ -16,5 +16,14 @@ setup(name='komand',
           'Flask==0.12.2',
           'gunicorn==19.7.1'
       ],
-      test_suite="tests.komand_test_suite"
+      tests_require=[
+          'pytest',
+          'docker',
+          'dockerpty'
+      ],
+      extras_require={
+          ':python_version == "2.7"': ['futures']
+      },
+      test_suite="tests",
+      include_package_data=True
       )

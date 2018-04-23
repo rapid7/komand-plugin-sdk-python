@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
-from jsonschema import validate
-import komand.util as util
-import json
-import hashlib
 import copy
+import hashlib
+import json
+
+from jsonschema import validate
+
+from .util import sample as utilsample
 
 
 def key(parameters):
@@ -40,6 +42,7 @@ class ConnectionCache(object):
 
 class Connection(object):
     """Komand connection"""
+
     def __init__(self, input):
         # Maintain backwards compatibility here - if Input object passed in it will have a 'schema' property so use that
         # Otherwise, the input is a JSON schema, so just use it directly
@@ -70,4 +73,4 @@ class Connection(object):
     def sample(self):
         """ Sample object """
         if self.schema:
-            return util.sample(self.schema)
+            return utilsample(self.schema)

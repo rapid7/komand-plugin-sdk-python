@@ -1,0 +1,11 @@
+{
+  "body": {
+    "log": "",
+    "status": "error",
+    "meta": null,
+    "error": "('input JSON was invalid', <ValidationError: \"{'connection': {'greeting': 'Hello, {}!'}, 'input': {'name': 'World'}, 'action': 'hello'} is not valid under any of the given schemas\">)"
+  },
+  "version": "v1",
+  "type": "action_event"
+}
+

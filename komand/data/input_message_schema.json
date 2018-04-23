@@ -1,0 +1,100 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "properties": {
+    "body": {
+      "type": "object",
+      "properties": {
+        "action": {
+          "type": "string"
+        },
+        "meta": {
+          "oneOf": [
+            {
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "input": {
+          "oneOf": [
+            {
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "connection": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "object"
+            }
+          ]
+        }
+      },
+      "required": [
+        "meta",
+        "input",
+        "connection"
+      ],
+      "anyOf": [
+        {
+          "properties": {
+            "action": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "action"
+          ]
+        },
+        {
+          "properties": {
+            "trigger": {
+              "type": "string"
+            },
+            "dispatcher": {
+              "oneOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "object"
+                }
+              ]
+            }
+          },
+          "required": [
+            "action",
+            "dispatcher"
+          ]
+        }
+      ]
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "action_start",
+        "trigger_start"
+      ]
+    },
+    "version": {
+      "type": "string",
+      "enum": [
+        "v1"
+      ]
+    }
+  },
+  "required": [
+    "body",
+    "type",
+    "version"
+  ]
+}
