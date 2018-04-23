@@ -47,9 +47,9 @@ def run_action(input_file, output_file, expect_code=200, is_test=False):
     headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
 
     if is_test:
-        url = 'http://localhost:10001/{}/{}/test'.format('action', input_message['body']['action'])
+        url = 'http://localhost:10001/{}/{}/test'.format('actions', input_message['body']['action'])
     else:
-        url = 'http://localhost:10001/{}/{}'.format('action', input_message['body']['action'])
+        url = 'http://localhost:10001/{}/{}'.format('actions', input_message['body']['action'])
 
     response = requests.post(url, json=input_message, headers=headers)
     assert response.status_code == expect_code

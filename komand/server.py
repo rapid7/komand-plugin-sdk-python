@@ -61,13 +61,13 @@ class PluginServer(gunicorn.app.base.BaseApplication):
 
             # Ensure url matches action/trigger name in body
             if prefix == 'actions':
-                if input_message.get('body', {}).get('action', None) == name:
+                if input_message.get('body', {}).get('action', None) != name:
                     return abort(400)
             elif prefix == 'triggers':
                 if test is None:
                     # Guard against starting triggers
                     return abort(404)
-                if input_message.get('body', {}).get('trigger', None) == name:
+                if input_message.get('body', {}).get('trigger', None) != name:
                     return abort(400)
             else:
                 return abort(404)
