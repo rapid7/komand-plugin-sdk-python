@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
-import sys
-import python_jsonschema_objects as pjs
 import copy
+import sys
+
+import python_jsonschema_objects as pjs
 
 
 def default_for_object(obj, defs):
@@ -16,7 +17,6 @@ def default_for_object(obj, defs):
 
 
 def default_for(prop, defs):
-
     if 'default' in prop:
         return prop['default']
 
@@ -59,7 +59,6 @@ def default_for(prop, defs):
 
 
 def sample(source):
-
     if not source or ('properties' not in source) or len(source['properties']) == 0:
         return {}
 

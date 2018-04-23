@@ -1,0 +1,10 @@
+{
+  "body": {
+    "log": "",
+    "status": "error",
+    "meta": {},
+    "error": "because I can"
+  },
+  "version": "v1",
+  "type": "action_event"
+}

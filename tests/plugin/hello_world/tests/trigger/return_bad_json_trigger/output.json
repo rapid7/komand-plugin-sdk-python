@@ -1,0 +1,10 @@
+{
+  "body": {
+    "log": "",
+    "status": "error",
+    "meta": {},
+    "error": "('action output JSON was invalid', <ValidationError: \"'message' is a required property\">)"
+  },
+  "version": "v1",
+  "type": "action_event"
+}

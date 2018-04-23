@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 from jsonschema import validate
+
 import komand.util as util
 
 
 class Input(object):
     """ Input variables """
+
     def __init__(self, schema):
         self.schema = schema
         self.parameters = None
@@ -26,6 +28,7 @@ class Input(object):
 
 class Output(object):
     """ Output variables """
+
     def __init__(self, schema):
         self.schema = schema
         self.parameters = None

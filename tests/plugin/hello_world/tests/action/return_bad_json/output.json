@@ -1,0 +1,10 @@
+{
+  "body": {
+    "log": "",
+    "status": "error",
+    "meta": {},
+    "error": "'message' is a required property\n\nFailed validating 'required' in schema:\n    {'properties': {'message': {'description': 'The greeting',\n                                'order': 1,\n                                'title': 'Message',\n                                'type': 'string'}},\n     'required': ['message'],\n     'title': 'Variables',\n     'type': 'object'}\n\nOn instance:\n    {}"
+  },
+  "version": "v1",
+  "type": "action_event"
+}

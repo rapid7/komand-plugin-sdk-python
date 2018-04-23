@@ -12,7 +12,18 @@ setup(name='komand',
           'python_jsonschema_objects==0.3.2',
           'jsonschema==2.3.0',
           'certifi==2017.11.5',
-          'six==1.11.0'
+          'six==1.11.0',
+          'Flask==0.12.2',
+          'gunicorn==19.7.1'
       ],
-      test_suite="tests.komand_test_suite",
+      tests_require=[
+          'pytest',
+          'docker',
+          'dockerpty'
+      ],
+      extras_require={
+          ':python_version == "2.7"': ['futures']
+      },
+      test_suite="tests",
+      include_package_data=True
       )

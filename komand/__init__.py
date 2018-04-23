@@ -3,13 +3,14 @@ import komand.action
 import komand.cli
 import komand.connection
 import komand.plugin
+import komand.schema
 import komand.trigger
 import komand.variables
 import komand.helper
+import komand.dispatcher
 import certifi
 import os
-
-__all__ = ['message', 'plugin', 'connection', 'trigger', 'action', 'variables', 'cli', 'helper']
+import logging
 
 Plugin = komand.plugin.Plugin
 Action = komand.action.Action
@@ -18,7 +19,6 @@ Connection = komand.connection.Connection
 Input = komand.variables.Input
 Output = komand.variables.Output
 CLI = komand.cli.CLI
-
 
 # Many plugins use the certifi package, particularly indirectly through
 # the requests package. Certifi can be monkey-patched to not use the
@@ -52,3 +52,7 @@ def where():
 
 # and here's the monkey-patch itself.
 certifi.where = where
+
+root_logger = logging.getLogger()
+root_logger.setLevel('DEBUG')
+root_logger.addHandler(logging.StreamHandler())

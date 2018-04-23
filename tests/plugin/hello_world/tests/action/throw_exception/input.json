@@ -1,0 +1,14 @@
+{
+  "body": {
+    "meta": {},
+    "connection": {
+      "greeting": "Hello, {}!"
+    },
+    "input": {
+      "name": "World"
+    },
+    "action": "throw_exception"
+  },
+  "type": "action_start",
+  "version": "v1"
+}

@@ -1,0 +1,11 @@
+{
+    "body": {
+        "log": "I am the log\n",
+        "meta": {},
+        "output": {
+            "message": "Hello, World!"
+        }
+    },
+    "type": "trigger_event",
+    "version": "v1"
+}

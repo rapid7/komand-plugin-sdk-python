@@ -1,0 +1,18 @@
+{
+  "body": {
+    "meta": {},
+    "connection": {
+        "greeting": "Hello, {}!"
+    },
+    "input": {
+        "name": "World"
+    },
+    "trigger": "hello_trigger",
+    "dispatcher": {
+      "url": "localhost:10003",
+      "webhook_url": "localhost:10002"
+    }
+  },
+  "type": "trigger_start",
+  "version": "v1"
+}
