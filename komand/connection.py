@@ -18,7 +18,7 @@ class ConnectionCache(object):
         self.connections = {}
         self.prototype = prototype
 
-    def get(self, parameters):
+    def get(self, parameters, logger):
         conn_key = key(parameters)
 
         # we could 'lock' this data  structure
@@ -32,6 +32,7 @@ class ConnectionCache(object):
             return self.connections[conn_key]
 
         conn = copy.copy(self.prototype)
+        conn.logger = logger
         conn.set(parameters)
         # i don't know why this is needed twice..
         # i think for backwards compat reasons
@@ -51,6 +52,7 @@ class Connection(object):
         else:
             self.schema = input
         self.parameters = {}
+        self.logger = None
 
     def key(self):
         """key is a unique connection key"""

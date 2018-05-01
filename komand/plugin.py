@@ -241,7 +241,7 @@ class Plugin(object):
             raise ClientException('Unknown {} "{}"'.format(step_key, action_name))
         action = dictionary[action_name]
 
-        connection = self.connection_cache.get(message_body['connection'])
+        connection = self.connection_cache.get(message_body['connection'], logger)
 
         # Copy the action for thread safety.
         # This is necessary because the object itself contains stateful fields like connection and debug.
