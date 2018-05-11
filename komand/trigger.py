@@ -28,3 +28,6 @@ class Trigger(Step):
             'version': 'v1',
         }
         self.dispatcher.write(msg)
+
+        # Clear the log contents for the next event
+        self.log_stream.truncate(0)
