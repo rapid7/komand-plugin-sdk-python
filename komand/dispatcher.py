@@ -28,7 +28,7 @@ class Stdout(object):
         self.stream = stream or sys.stdout
 
     def write(self, msg):
-        json.dump(msg, self.stream, ce=self.custom_encoder)
+        json.dump(msg, self.stream, cls=self.custom_encoder)
         self.stream.flush()
 
 
