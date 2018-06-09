@@ -8,7 +8,7 @@ setup(name='komand',
       url='https://komand.com',
       packages=find_packages(),
       install_requires=[
-          'requests==2.9.1',
+          'requests>=2.9.1',
           'python_jsonschema_objects==0.3.2',
           'jsonschema==2.3.0',
           'certifi==2017.11.5',
