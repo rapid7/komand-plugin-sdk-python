@@ -33,17 +33,16 @@ class ConnectionCache(object):
 
         conn = copy.copy(self.prototype)
         conn.logger = logger
-        conn.set(parameters)
+        conn.set_(parameters)
         # i don't know why this is needed twice..
         # i think for backwards compat reasons
         conn.connect(parameters)
-        self.connections[conn.key()] = conn
+        self.connections[conn.key_()] = conn
         return conn
 
 
 class Connection(object):
     """Komand connection"""
-
     def __init__(self, input):
         # Maintain backwards compatibility here - if Input object passed in it will have a 'schema' property so use that
         # Otherwise, the input is a JSON schema, so just use it directly
@@ -54,11 +53,11 @@ class Connection(object):
         self.parameters = {}
         self.logger = None
 
-    def key(self):
+    def key_(self):
         """key is a unique connection key"""
         return key(self.parameters)
 
-    def set(self, parameters):
+    def set_(self, parameters):
         """ Set parameters """
         self.parameters = parameters
         self._validate()
