@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import sys
-
+import json
 import argparse
 
 from .exceptions import LoggedException
@@ -118,8 +118,11 @@ class CLI(object):
 
         raise ValueError('Invalid trigger or action name.')
 
-    def execute_step(self, is_test=False, is_debug=False):
-        msg = self.plugin.unmarshal(sys.stdin)
+    def execute_step(self, is_test=False, is_debug=False, debug_file=None):
+        if debug_file:
+            msg = debug_file
+        else:
+            msg = self.plugin.unmarshal(sys.stdin)
         exception = None
         try:
             output = self.plugin.handle_step(msg, is_test=is_test, is_debug=is_debug)
@@ -135,6 +138,12 @@ class CLI(object):
 
     def run_step(self, args):
         return self.execute_step(is_test=False, is_debug=args.debug)
+
+    def debug_step(self,args):
+        if args.file:
+            with open(args.file, 'r') as f:
+                debug_file = json.load(f)
+                return self.execute_step(is_test=False, is_debug=args.debug, debug_file=debug_file)
 
     def test_step(self, args):
         return self.execute_step(is_test=True, is_debug=args.debug)
@@ -169,6 +178,11 @@ class CLI(object):
                                             help='Run the plugin (default command).'
                                                  'You must supply the start message on stdin.')
         run_command.set_defaults(func=self.run_step)
+
+        debug_command = subparsers.add_parser('debug',
+                                              help='Runs plugin for debugging')
+        debug_command.add_argument('--file', help='Location of the test file', default=False)
+        debug_command.set_defaults(func=self.debug_step)
 
         http_command = subparsers.add_parser('http', help='Run a server. ' +
                                                           'You must supply a port, otherwise will listen on 10001.')
