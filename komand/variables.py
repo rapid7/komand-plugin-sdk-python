@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from jsonschema import validate
-
 import komand.util as util
 
 
@@ -20,6 +19,22 @@ class Input(object):
     def validate(self, parameters):
         """ Validate variables """
         validate(parameters, self.schema)
+
+    def validate_required(self, parameters):
+        required_inputs = self.schema["required"]
+
+        for key in parameters:
+            if key in required_inputs:
+                if parameters[key] is None:  # Check for null
+                    raise Exception("Step error: Plugin step contained a null value in a required input.\n"
+                                    "Please contact support for assistance.\n"
+                                    "Missing input was: %s" % key)
+                elif isinstance(parameters[key], str) and not parameters[key]:  # Check for 0-length strings
+                    raise Exception("Step error: Plugin step contained an empty string in a required input.\n"
+                                    "Please contact support for assistance.\n"
+                                    "Empty string input was: %s" % key)
+
+                # and not parameters[key]:
 
     def sample(self):
         """ Sample object """
