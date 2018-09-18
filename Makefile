@@ -40,9 +40,9 @@ test:
 
 tag: image
 	@echo version is $(VERSION)
-	docker tag komand/python-$(DOCKERFILE)-plugin komand/python-$(DOCKERFILE)-plugin:$(VERSION)
-	docker tag komand/python-$(DOCKERFILE)-plugin komand/python-$(DOCKERFILE)-plugin:$(MINOR_VERSION)
-	docker tag komand/python-$(DOCKERFILE)-plugin komand/python-$(DOCKERFILE)-plugin:$(MAJOR_VERSION)
+	docker tag komand/python-$(DOCKERFILE)-plugin komand/python-$(DOCKERFILE)-plugin-test-null:$(VERSION)
+	docker tag komand/python-$(DOCKERFILE)-plugin komand/python-$(DOCKERFILE)-plugin-test-null:$(MINOR_VERSION)
+	docker tag komand/python-$(DOCKERFILE)-plugin komand/python-$(DOCKERFILE)-plugin-test-null:$(MAJOR_VERSION)
 
 deploy: tag
 	@echo docker login -u "********" -p "********"
