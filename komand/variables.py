@@ -21,6 +21,12 @@ class Input(object):
         validate(parameters, self.schema)
 
     def validate_required(self, parameters):
+        """
+        Validates required input parameters for invalid values (null, empty string) and raises an Exception in their
+        presence.
+        :param parameters: Input parameters
+        :return: None
+        """
         required_inputs = self.schema["required"]
 
         for key in parameters:
