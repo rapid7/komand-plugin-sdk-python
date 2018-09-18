@@ -34,8 +34,6 @@ class Input(object):
                                     "Please contact support for assistance.\n"
                                     "Empty string input was: %s" % key)
 
-                # and not parameters[key]:
-
     def sample(self):
         """ Sample object """
         return util.sample(self.schema)
