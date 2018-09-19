@@ -40,14 +40,14 @@ test:
 
 tag: image
 	@echo version is $(VERSION)
-	docker tag komand/python-$(DOCKERFILE)-plugin komand/python-$(DOCKERFILE)-plugin-test-null:$(VERSION)
-	docker tag komand/python-$(DOCKERFILE)-plugin komand/python-$(DOCKERFILE)-plugin-test-null:$(MINOR_VERSION)
-	docker tag komand/python-$(DOCKERFILE)-plugin komand/python-$(DOCKERFILE)-plugin-test-null:$(MAJOR_VERSION)
+	docker tag komand/python-$(DOCKERFILE)-plugin komand/python-$(DOCKERFILE)-plugin:$(VERSION)
+	docker tag komand/python-$(DOCKERFILE)-plugin komand/python-$(DOCKERFILE)-plugin:$(MINOR_VERSION)
+	docker tag komand/python-$(DOCKERFILE)-plugin komand/python-$(DOCKERFILE)-plugin:$(MAJOR_VERSION)
 
 deploy: tag
 	@echo docker login -u "********" -p "********"
 	@docker login -u $(KOMAND_DOCKER_USERNAME) -p $(KOMAND_DOCKER_PASSWORD)
-	docker push komand/python-$(DOCKERFILE)-plugin-test-null
-	docker push komand/python-$(DOCKERFILE)-plugin-test-null:$(VERSION)
-	docker push komand/python-$(DOCKERFILE)-plugin-test-null:$(MINOR_VERSION)
-	docker push komand/python-$(DOCKERFILE)-plugin-test-null:$(MAJOR_VERSION)
+	docker push komand/python-$(DOCKERFILE)-plugin
+	docker push komand/python-$(DOCKERFILE)-plugin:$(VERSION)
+	docker push komand/python-$(DOCKERFILE)-plugin:$(MINOR_VERSION)
+	docker push komand/python-$(DOCKERFILE)-plugin:$(MAJOR_VERSION)
