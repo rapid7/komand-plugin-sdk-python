@@ -27,6 +27,7 @@ class Input(object):
         """
         Validates required input parameters for invalid values (null, empty string) and raises an Exception in their
         presence.
+        In the future, this should probably be built into an existing JSONSchema validator
         :param parameters: Input parameters
         :return: None
         """
