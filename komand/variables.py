@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from jsonschema import validate
 import komand.util as util
+import logging
 
 
 class Input(object):
@@ -27,6 +28,7 @@ class Input(object):
         :param parameters: Input parameters
         :return: None
         """
+        logging.info("VALIDATING REQUIRED FIELDS!!!")
         required_inputs = self.schema["required"]
 
         for key in parameters:
