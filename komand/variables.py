@@ -2,6 +2,8 @@
 from jsonschema import validate
 import komand.util as util
 import logging
+from komand.exceptions import ClientException
+from six import string_types  # Needed for Py2/3 string-type validation
 
 
 class Input(object):
@@ -28,19 +30,26 @@ class Input(object):
         :param parameters: Input parameters
         :return: None
         """
-        logging.info("VALIDATING REQUIRED FIELDS!!!")
-        required_inputs = self.schema["required"]
+        required = "required"
+
+        # Early return if there's nothing for this function to do
+        if required not in self.schema:
+            return
+
+        required_inputs = self.schema[required]
 
         for key in parameters:
             if key in required_inputs:
-                if parameters[key] is None:  # Check for null
-                    raise Exception("Step error: Plugin step contained a null value in a required input.\n"
-                                    "Please contact support for assistance.\n"
-                                    "Missing input was: %s" % key)
-                elif isinstance(parameters[key], str) and not parameters[key]:  # Check for 0-length strings
-                    raise Exception("Step error: Plugin step contained an empty string in a required input.\n"
-                                    "Please contact support for assistance.\n"
-                                    "Empty string input was: %s" % key)
+                value = parameters[key]
+
+                if value is None:  # Check for null
+                    raise ClientException("Step error: Plugin step contained a null value in a required input.\n"
+                                          "Please contact support for assistance.\n"
+                                          "Missing input was: %s" % key)
+                elif isinstance(value, string_types) and not len(value):  # Check for 0-length strings
+                    raise ClientException("Step error: Plugin step contained an empty string in a required input.\n"
+                                          "Please contact support for assistance.\n"
+                                          "Empty string input was: %s" % key)
 
     def sample(self):
         """ Sample object """
