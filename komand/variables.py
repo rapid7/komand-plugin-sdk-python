@@ -32,25 +32,32 @@ class Input(object):
         :return: None
         """
         required = "required"
+        message = """
+        Step error: Plugin step input contained a null value or empty string in a required input.\n
+        If the input was given a variable in the Workflow Builder, please double-check that the variable contained a 
+        value at run-time. If the input had a valid value and the issue persists, please contact support for 
+        assistance.\n
+        Invalid input was found in: {key}        
+        """
 
         # Early return if there's nothing for this function to do
         if required not in self.schema:
             return
 
-        required_inputs = self.schema[required]
+        required_inputs = self.schema[required]  # List of required inputs, pulled from the jsonschema
 
+        # Iterate over all parameters (inputs, k:v pairs) with just the key to check for presence in the list
+        # of required inputs from above. If it is, then check if the value is "valid" according to our guidelines
+        # (no null values, no empty strings). Note that the InsightConnect UI seems to mutate null values
+        # into empty strings. Retain the null check as it is possible this behavior changes in future iterations.
         for key in parameters:
             if key in required_inputs:
                 value = parameters[key]
 
-                if value is None:  # Check for null
-                    raise ClientException("Step error: Plugin step contained a null value in a required input.\n"
-                                          "Please contact support for assistance.\n"
-                                          "Missing input was: %s" % key)
-                elif isinstance(value, string_types) and not len(value):  # Check for 0-length strings
-                    raise ClientException("Step error: Plugin step contained an empty string in a required input.\n"
-                                          "Please contact support for assistance.\n"
-                                          "Empty string input was: %s" % key)
+                # Check if the value is None/null OR the value is a string and has a length of 0
+                # Logic is expanded due to the fact that we don't want to false-positive on False boolean values
+                if (value is None) or (isinstance(value, string_types) and not len(value)):
+                    raise ClientException(message.format(key=key))
 
     def sample(self):
         """ Sample object """
