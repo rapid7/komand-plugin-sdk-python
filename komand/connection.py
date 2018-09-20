@@ -10,6 +10,10 @@ from .util import sample as utilsample
 
 def key(parameters):
     """key is a unique connection key"""
+
+    if parameters is not None and 'connection_cache_key' in parameters and parameters['connection_cache_key'] != '':
+        return parameters['connections_cache_key']
+
     return hashlib.sha1(json.dumps(parameters, sort_keys=True).encode('utf-8')).hexdigest()
 
 
@@ -37,7 +41,7 @@ class ConnectionCache(object):
         # i don't know why this is needed twice..
         # i think for backwards compat reasons
         conn.connect(parameters)
-        self.connections[conn.key_()] = conn
+        self.connections[conn_key] = conn
         return conn
 
 
@@ -52,10 +56,6 @@ class Connection(object):
             self.schema = input
         self.parameters = {}
         self.logger = None
-
-    def key_(self):
-        """key is a unique connection key"""
-        return key(self.parameters)
 
     def set_(self, parameters):
         """ Set parameters """
