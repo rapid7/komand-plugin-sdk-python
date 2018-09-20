@@ -139,7 +139,7 @@ class CLI(object):
     def run_step(self, args):
         return self.execute_step(is_test=False, is_debug=args.debug)
 
-    def debug_step(self,args):
+    def debug_step(self, args):
         if args.file:
             with open(args.file, 'r') as f:
                 debug_file = json.load(f)
