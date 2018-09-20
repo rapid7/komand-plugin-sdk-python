@@ -46,15 +46,15 @@ class Input(object):
 
         required_inputs = self.schema[required]  # List of required inputs, pulled from the jsonschema
 
-        # Iterate over all parameters (inputs, k:v pairs) with just the key to check for presence in the list
-        # of required inputs from above. If it is, then check if the value is "valid" according to our guidelines
+        # Iterate over parameters (inputs, k:v pairs) with the key to check for presence in the list
+        # of required inputs from above. If present, check the value is "valid" according to our guidelines
         # (no null values, no empty strings). Note that the InsightConnect UI seems to mutate null values
         # into empty strings. Retain the null check as it is possible this behavior changes in future iterations.
         for key in parameters:
             if key in required_inputs:
                 value = parameters[key]
 
-                # Check if the value is None/null OR the value is a string and has a length of 0
+                # Check if the value is null OR the value is a string and has a length of 0
                 # Logic is expanded due to the fact that we don't want to false-positive on False boolean values
                 if (value is None) or (isinstance(value, string_types) and not len(value)):
                     raise ClientException(message.format(key=key))
