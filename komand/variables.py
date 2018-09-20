@@ -32,13 +32,10 @@ class Input(object):
         :return: None
         """
         required = "required"
-        message = """
-        Step error: Plugin step input contained a null value or empty string in a required input.\n
-        If the input was given a variable in the Workflow Builder, please double-check that the variable contained a 
-        value at run-time. If the input had a valid value and the issue persists, please contact support for 
-        assistance.\n
-        Invalid input was found in: {key}        
-        """
+        message = "Step error: Plugin step input contained a null value or empty string in a required input.\n" \
+                  "If the input was given a variable in the Workflow Builder, please double-check that the variable " \
+                  "contained a value at run-time. If the input had a valid value and the issue persists, " \
+                  "please contact support for assistance.\nInvalid input was found in: {key}"
 
         # Early return if there's nothing for this function to do
         if required not in self.schema:
