@@ -32,8 +32,8 @@ class ConnectionCache(object):
         # the later one overrides the first one.
         #
         # for real connection pooling we will need to fix this.
-        if conn_key in self.connections:
-            return self.connections[conn_key]
+        #  if conn_key in self.connections:
+            #  return self.connections[conn_key]
 
         conn = copy.copy(self.prototype)
         conn.logger = logger
@@ -41,7 +41,7 @@ class ConnectionCache(object):
         # i don't know why this is needed twice..
         # i think for backwards compat reasons
         conn.connect(parameters)
-        self.connections[conn_key] = conn
+        #  self.connections[conn_key] = conn
         return conn
 
 
