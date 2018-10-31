@@ -12,7 +12,7 @@ def key(parameters):
     """key is a unique connection key"""
 
     if parameters is not None and 'connection_cache_key' in parameters and parameters['connection_cache_key'] != '':
-        return parameters['connections_cache_key']
+        return parameters['connection_cache_key']
 
     return hashlib.sha1(json.dumps(parameters, sort_keys=True).encode('utf-8')).hexdigest()
 
