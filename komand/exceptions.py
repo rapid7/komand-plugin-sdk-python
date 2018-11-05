@@ -30,3 +30,55 @@ class LoggedException(Exception):
         super(LoggedException, self).__init__(ex)
         self.ex = ex
         self.output = output
+
+
+class ConnectionTestException(BaseException):
+    """
+    An Exception which marks an error that occurred during a connection test.
+
+    This Exception provides a method for consistent and well-handled error messaging.
+    """
+
+    class Preset(object):
+        """
+        Constants available for use as preset arguments to the initializer
+        """
+        API_KEY = "api_key"
+        UNAUTHORIZED = "unauthorized"
+        RATE_LIMIT = "rate_limit"
+        USERNAME_PASSWORD = "username_password"
+
+    # Dictionary of cause messages
+    causes = {
+        Preset.API_KEY: "Invalid API key provided.",
+        Preset.UNAUTHORIZED: "The account configured in your plugin connection is unauthorized to access this service.",
+        Preset.RATE_LIMIT: "The account configured in your plugin connection is currently rate-limited.",
+        Preset.USERNAME_PASSWORD: "Invalid username or password provided."
+    }
+
+    # Dictionary of assistance/remediation messages
+    assistances = {
+        Preset.API_KEY: "Verify your API key configured in your connection is correct.",
+        Preset.UNAUTHORIZED: "Verify the permissions for your account and try again.",
+        Preset.RATE_LIMIT: "Adjust the time between requests in the plugin action configuration if possible or "
+                           "consider adding a Sleep plugin step between attempts.",
+        Preset.USERNAME_PASSWORD: "Verify your username and password are correct."
+    }
+
+    def __init__(self, cause=None, assistance=None, preset=None):
+        """
+        Initializes a new ConnectionTestException. User must supply all punctuation/grammar.
+        :param cause: Cause of the error. Leave empty if using preset.
+        :param assistance: Possible remediation steps for the error. Leave empty if using preset.
+        :param preset: Preset error and remediation steps to use.
+        """
+
+        if preset:
+            self.cause, self.assistance = self.causes[preset], self.assistances[preset]
+        else:
+            self.cause = cause
+            self.assistance = assistance
+
+    def __str__(self):
+        return "Connection test failed! {cause} {assistance}".format(cause=self.cause,
+                                                                     assistance=self.assistance)
