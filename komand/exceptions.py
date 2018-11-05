@@ -40,18 +40,23 @@ class ConnectionTestException(BaseException):
     """
 
     class Preset(object):
+        """
+        Constants available for use as preset arguments to the initializer
+        """
         API_KEY = "api_key"
         UNAUTHORIZED = "unauthorized"
         RATE_LIMIT = "rate_limit"
         USERNAME_PASSWORD = "username_password"
 
+    # Dictionary of cause messages
     causes = {
-        Preset.API_KEY: "Invalid API key used.",
+        Preset.API_KEY: "Invalid API key provided.",
         Preset.UNAUTHORIZED: "The account configured in your plugin connection is unauthorized to access this service.",
         Preset.RATE_LIMIT: "The account configured in your plugin connection is currently rate-limited.",
         Preset.USERNAME_PASSWORD: "Invalid username or password provided."
     }
 
+    # Dictionary of assistance/remediation messages
     assistances = {
         Preset.API_KEY: "Verify your API key configured in your connection is correct.",
         Preset.UNAUTHORIZED: "Verify the permissions for your account and try again.",
