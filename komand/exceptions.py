@@ -43,11 +43,13 @@ class ConnectionTestException(BaseException):
         API_KEY = "api_key"
         UNAUTHORIZED = "unauthorized"
         RATE_LIMIT = "rate_limit"
+        USERNAME_PASSWORD = "username_password"
 
     causes = {
         Preset.API_KEY: "Invalid API key used.",
         Preset.UNAUTHORIZED: "The account configured in your plugin connection is unauthorized to access this service.",
         Preset.RATE_LIMIT: "The account configured in your plugin connection is currently rate-limited.",
+        Preset.USERNAME_PASSWORD: "Invalid username or password provided."
     }
 
     assistances = {
@@ -55,6 +57,7 @@ class ConnectionTestException(BaseException):
         Preset.UNAUTHORIZED: "Verify the permissions for your account and try again.",
         Preset.RATE_LIMIT: "Adjust the time between requests in the plugin action configuration if possible or "
                            "consider adding a Sleep plugin step between attempts.",
+        Preset.USERNAME_PASSWORD: "Verify your username and password are correct."
     }
 
     def __init__(self, cause=None, assistance=None, preset=None):
@@ -64,7 +67,7 @@ class ConnectionTestException(BaseException):
         :param assistance: Possible remediation steps for the error. Leave empty if using preset.
         :param preset: Preset error and remediation steps to use.
         """
-        
+
         if preset:
             self.cause, self.assistance = self.causes[preset], self.assistances[preset]
         else:
