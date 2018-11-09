@@ -32,7 +32,7 @@ class LoggedException(Exception):
         self.output = output
 
 
-class ConnectionTestException(BaseException):
+class ConnectionTestException(Exception):
     """
     An Exception which marks an error that occurred during a connection test.
 
