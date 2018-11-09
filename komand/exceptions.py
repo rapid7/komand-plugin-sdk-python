@@ -32,7 +32,7 @@ class LoggedException(Exception):
         self.output = output
 
 
-class ConnectionTestException(BaseException):
+class ConnectionTestException(Exception):
     """
     An Exception which marks an error that occurred during a connection test.
 
@@ -47,13 +47,19 @@ class ConnectionTestException(BaseException):
         UNAUTHORIZED = "unauthorized"
         RATE_LIMIT = "rate_limit"
         USERNAME_PASSWORD = "username_password"
+        NOT_FOUND = "not_found"
+        SERVER_ERROR = "server_error"
+        SERVICE_UNAVAILABLE = "service_unavailable"
 
     # Dictionary of cause messages
     causes = {
         Preset.API_KEY: "Invalid API key provided.",
         Preset.UNAUTHORIZED: "The account configured in your plugin connection is unauthorized to access this service.",
         Preset.RATE_LIMIT: "The account configured in your plugin connection is currently rate-limited.",
-        Preset.USERNAME_PASSWORD: "Invalid username or password provided."
+        Preset.USERNAME_PASSWORD: "Invalid username or password provided.",
+        Preset.NOT_FOUND: "Invalid or unreachable endpoint provided.",
+        Preset.SERVER_ERROR: "Server error occurred",
+        Preset.SERVICE_UNAVAILABLE: "The service this plugin is designed for is currently unavailable."
     }
 
     # Dictionary of assistance/remediation messages
@@ -62,7 +68,11 @@ class ConnectionTestException(BaseException):
         Preset.UNAUTHORIZED: "Verify the permissions for your account and try again.",
         Preset.RATE_LIMIT: "Adjust the time between requests in the plugin action configuration if possible or "
                            "consider adding a Sleep plugin step between attempts.",
-        Preset.USERNAME_PASSWORD: "Verify your username and password are correct."
+        Preset.USERNAME_PASSWORD: "Verify your username and password are correct.",
+        Preset.NOT_FOUND: "Verify the endpoint/URL/hostname configured in your plugin connection is correct.",
+        Preset.SERVER_ERROR: "Verify your plugin connection inputs are correct and not malformed and try again. "
+                             "If the issue persists, please contact support.",
+        Preset.SERVICE_UNAVAILABLE: "Try again later. If the issue persists, please contact support."
     }
 
     def __init__(self, cause=None, assistance=None, preset=None):
@@ -76,8 +86,8 @@ class ConnectionTestException(BaseException):
         if preset:
             self.cause, self.assistance = self.causes[preset], self.assistances[preset]
         else:
-            self.cause = cause
-            self.assistance = assistance
+            self.cause = cause if cause else ""
+            self.assistance = assistance if assistance else ""
 
     def __str__(self):
         return "Connection test failed! {cause} {assistance}".format(cause=self.cause,
