@@ -279,8 +279,14 @@ class Plugin(object):
         # This is needed to prevent null/empty string values from being passed as output to input of steps
         step.input.validate_required(params)
 
+        was_connection_test = False
         if is_test:
-            func = step.test
+            # Check if connection test func available. If so - use it (preferred). Else fallback to action/trigger test
+            if hasattr(step.connection, "test"):
+                was_connection_test = True
+                func = step.connection.test
+            else:
+                func = step.test
         else:
             func = step.run
 
@@ -300,6 +306,7 @@ class Plugin(object):
             else:
                 output = func()
 
-        step.output.validate(output)
+        if not was_connection_test:
+            step.output.validate(output)
 
         return output
