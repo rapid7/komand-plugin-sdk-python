@@ -23,5 +23,8 @@ class Step(object):
         raise NotImplementedError
 
     def test(self, params={}):
-        """ Test an action, return output or raise error"""
-        raise NotImplementedError
+        """
+        Test an action, return output or raise error
+        Deprecated in favor of using the test function in the plugin Connection file
+        """
+        pass
