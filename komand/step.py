@@ -25,6 +25,6 @@ class Step(object):
     def test(self, params={}):
         """
         Test an action, return output or raise error
-        Deprecated in favor of using the test function in the plugin Connection file
+        Deprecated in favor of using the test function in the plugin connection.py file
         """
         pass
