@@ -31,7 +31,7 @@ class CLI(object):
     Server mode:
      - the 'http' parameter starts the plugin in server mode
      - HTTP POST requests replace the stdin/stdout communication
-
+     - test mode is set via path component, ie. POST host:port/actions/action_name/test
     """
 
     def __init__(self, plugin, args=sys.argv[1:]):
