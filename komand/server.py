@@ -59,6 +59,10 @@ class PluginServer(gunicorn.app.base.BaseApplication):
             if input_message is None:
                 return abort(400)
 
+            # Enforce contract where path component MUST be "test"
+            if (test is not None) and (test.lower() != "test"):
+                return abort(400)
+
             # Ensure url matches action/trigger name in body
             if prefix == 'actions':
                 if input_message.get('body', {}).get('action', None) != name:
