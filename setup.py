@@ -13,7 +13,7 @@ setup(name='komand',
           'jsonschema==2.3.0',
           'certifi==2017.11.5',
           'six==1.11.0',
-          'Flask==0.12.2',
+          'Flask==0.12.3',
           'gunicorn==19.7.1'
       ],
       tests_require=[
