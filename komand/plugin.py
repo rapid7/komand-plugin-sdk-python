@@ -40,11 +40,6 @@ message_output_type = {
 }
 
 
-class Meta(object):
-
-    def __init__(self, name='', vendor='', description='', version=''):
-        self.name, self.vendor, self.description, self.version = name, vendor, description, version
-
 class Plugin(object):
     """A Komand Plugin."""
 
@@ -55,9 +50,6 @@ class Plugin(object):
         self.description = description
         self.version = version
         self.connection = connection
-
-        self.connection.meta = Meta(name=name, vendor=vendor, description=description, version=version)
-
         self.connection_cache = ConnectionCache(connection)
         self.triggers = {}
         self.actions = {}
