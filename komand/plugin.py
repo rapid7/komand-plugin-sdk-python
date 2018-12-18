@@ -41,9 +41,11 @@ message_output_type = {
 
 
 class Meta(object):
+    """ Meta properties for a plugin """
 
     def __init__(self, name='', vendor='', description='', version=''):
         self.name, self.vendor, self.description, self.version = name, vendor, description, version
+
 
 class Plugin(object):
     """A Komand Plugin."""
