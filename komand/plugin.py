@@ -46,7 +46,7 @@ class Meta(object):
     def __init__(self, name='', vendor='', description='', version=''):
         self.name, self.vendor, self.description, self.version = name, vendor, description, version
 
-
+        
 class Plugin(object):
     """A Komand Plugin."""
 
