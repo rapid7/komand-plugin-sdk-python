@@ -57,9 +57,6 @@ class Plugin(object):
         self.description = description
         self.version = version
         self.connection = connection
-
-        self.connection.meta = Meta(name=name, vendor=vendor, description=description, version=version)
-
         self.connection_cache = ConnectionCache(connection)
         self.triggers = {}
         self.actions = {}
