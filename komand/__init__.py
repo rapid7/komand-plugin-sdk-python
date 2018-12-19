@@ -8,6 +8,7 @@ import komand.trigger
 import komand.variables
 import komand.helper
 import komand.dispatcher
+import komand.exceptions
 import certifi
 import os
 import logging
