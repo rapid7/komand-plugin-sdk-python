@@ -276,18 +276,19 @@ class Plugin(object):
 
         params = message_body['input']
 
-        # Validate input message
-        try:
-            step.input.validate(params)
-        except jsonschema.exceptions.ValidationError as e:
-            raise ClientException('{} input JSON was invalid'.format(step_key), e)
-        except Exception as e:
-            raise Exception('Unable to validate {} input JSON'.format(step_key), e)
+        if not is_test:
+            # Validate input message
+            try:
+                step.input.validate(params)
 
-        # Validate required inputs
-        # Step inputs will be checked against schema for required properties existence
-        # This is needed to prevent null/empty string values from being passed as output to input of steps
-        step.input.validate_required(params)
+                # Validate required inputs
+                # Step inputs will be checked against schema for required properties existence
+                # This is needed to prevent null/empty string values from being passed as output to input of steps
+                step.input.validate_required(params)
+            except jsonschema.exceptions.ValidationError as e:
+                raise ClientException('{} input JSON was invalid'.format(step_key), e)
+            except Exception as e:
+                raise Exception('Unable to validate {} input JSON'.format(step_key), e)
 
         if is_test:
             # Check if connection test func available. If so - use it (preferred). Else fallback to action/trigger test

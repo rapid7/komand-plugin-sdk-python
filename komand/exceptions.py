@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 class ClientException(Exception):
     """
     An exception which marks an error made by the plugin invoker.
