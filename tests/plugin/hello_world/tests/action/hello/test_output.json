@@ -1,6 +1,6 @@
 {
   "body": {
-    "log": "rapid7/Hello_world:1.0.0. Step name: hello\nThis is a test\n",
+    "log": "[secure]/Hello_world:1.0.0. Step name: hello\nThis is a test\n",
     "meta": {},
     "output": {
         "message": "Test greeting"
