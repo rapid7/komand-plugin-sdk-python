@@ -290,12 +290,12 @@ class Plugin(object):
             except Exception as e:
                 raise Exception('Unable to validate {} input JSON'.format(step_key), e)
 
-        # # Log step information for improved debugging with users
-        # step.logger.info("{vendor}/{plugin_name}:{plugin_version}. Step name: {step_name}".
-        #                  format(vendor=step.connection.meta.vendor,
-        #                         plugin_name=step.connection.meta.name,
-        #                         plugin_version=step.connection.meta.version,
-        #                         step_name=step.name))
+        # Log step information for improved debugging with users
+        step.logger.info("{vendor}/{plugin_name}:{plugin_version}. Step name: {step_name}".
+                         format(vendor=step.connection.meta.vendor,
+                                plugin_name=step.connection.meta.name,
+                                plugin_version=step.connection.meta.version,
+                                step_name=step.name))
 
         if is_test:
             # Check if connection test func available. If so - use it (preferred). Else fallback to action/trigger test
