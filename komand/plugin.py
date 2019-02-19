@@ -66,6 +66,7 @@ class Plugin(object):
         self.debug = False
         self.custom_decoder = custom_decoder
         self.custom_encoder = custom_encoder
+        self.ouput = None
 
     def add_trigger(self, trigger):
         """ add a new trigger """
@@ -195,7 +196,7 @@ class Plugin(object):
 
         success = True
         ex = None
-        output = None
+        # output = None
         out_type = None
 
         try:
@@ -210,10 +211,10 @@ class Plugin(object):
 
             if message_type == 'action_start':
                 out_type = 'action_event'
-                output = self.start_step(input_message['body'], 'action', logger, log_stream, is_test, is_debug)
+                self.output = self.start_step(input_message['body'], 'action', logger, log_stream, is_test, is_debug)
             elif message_type == 'trigger_start':
                 out_type = 'trigger_event'
-                output = self.start_step(input_message['body'], 'trigger', logger, log_stream, is_test, is_debug)
+                self.output = self.start_step(input_message['body'], 'trigger', logger, log_stream, is_test, is_debug)
         except ClientException as e:
             success = False
             ex = e
@@ -227,11 +228,11 @@ class Plugin(object):
             ex = e
             logger.exception(e)
         finally:
-            output = Plugin.envelope(out_type, input_message, log_stream.getvalue(), success, output,
+            self.output = Plugin.envelope(out_type, input_message, log_stream.getvalue(), success, self.output,
                                      str(ex))
             if not success:
-                raise LoggedException(ex, output)
-            return output
+                raise LoggedException(ex, self.output)
+            return self.output
 
     def start_step(self, message_body, step_key, logger, log_stream, is_test=False, is_debug=False):
         """
