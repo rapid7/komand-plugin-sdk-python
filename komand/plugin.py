@@ -98,10 +98,6 @@ class Meta(object):
         else:
             self.workflow = Workflow.from_insight_connect(input_message)
 
-
-
-
-
         
 class Plugin(object):
     """A Komand Plugin."""
@@ -122,7 +118,6 @@ class Plugin(object):
         self.debug = False
         self.custom_decoder = custom_decoder
         self.custom_encoder = custom_encoder
-
 
     def add_trigger(self, trigger):
         """ add a new trigger """
@@ -256,7 +251,6 @@ class Plugin(object):
         out_type = None
 
         try:
-
             # Attempt to grab message type first
             message_type = input_message.get('type')
             out_type = message_output_type.get(message_type)
