@@ -39,12 +39,68 @@ message_output_type = {
     'trigger_start': 'trigger_event',
 }
 
+class Workflow(object):
+
+    def __init__(self, shortOrgId=None ,orgProductToken=None, uiHostUrl=None, jobId=None, stepId=None,versionId=None, nextStepId=None, nextEdgeId=None, triggerId=None, jobExecutionContextId=None, time=None, connectionTestId=None, connectionTestTimeout=None, workflowUID=None, stepUID=None, input_message=None):
+        self.shortOrgId = shortOrgId
+        self.orgProductToken = orgProductToken
+        self.uiHostUrl = uiHostUrl
+        self.jobId = jobId
+        self.stepId = stepId
+        self.versionId = versionId
+        self.nextStepId = nextStepId
+        self.nextEdgeId = nextEdgeId
+        self.triggerId = triggerId
+        self.jobExecutionContextId = jobExecutionContextId
+        self.time = time
+        self.connectionTestId = connectionTestId
+        self.connectionTestTimeout = connectionTestTimeout
+        self.workflowUID = workflowUID
+        self.stepUID = stepUID
+        self.input_message = input_message
+
+    @classmethod
+    def from_komand(cls, input_message):
+        return cls(workflowUID=input_message.get("workflow_uid", None),
+                   stepUID=input_message.get("step_uid", None),
+                   versionId=input_message.get("workflow_version_uid", None)
+                   )
+
+    @classmethod
+    def from_insight_connect(cls, input_message):
+        return cls(shortOrgId=input_message.get("shortOrgId", None),
+                   orgProductToken=input_message.get("orgProductToken", None),
+                   uiHostUrl=input_message.get("uiHostUrl", None),
+                   jobId=input_message.get("jobId", None),
+                   stepId=input_message.get("stepId", None),
+                   versionId=input_message.get("versionId", None),
+                   nextStepId=input_message.get("nextStepId", None),
+                   nextEdgeId=input_message.get("nextEdgeId", None),
+                   triggerId=input_message.get("triggerId", None),
+                   jobExecutionContextId=input_message.get("jobExecutionContextId", None),
+                   time=input_message.get("time", None),
+                   connectionTestId=input_message.get("connectionTestId", None),
+                   connectionTestTimeout=input_message.get("connectionTestTimeout", None),
+                   input_message=input_message
+                   )
+
 
 class Meta(object):
     """ Meta properties for a plugin """
 
-    def __init__(self, name='', vendor='', description='', version=''):
-        self.name, self.vendor, self.description, self.version = name, vendor, description, version
+    def __init__(self, name='', vendor='', description='', version='', workflow: Workflow=None):
+        self.name, self.vendor, self.description, self.version, self.workflow = name, vendor, description, version, workflow
+
+    def set_workflow(self, input_message):
+        # if connect or komand call from
+        if input_message.get("workflow_uid"):
+            self.workflow = Workflow.from_komand(input_message)
+        else:
+            self.workflow = Workflow.from_insight_connect(input_message)
+
+
+
+
 
         
 class Plugin(object):
@@ -66,7 +122,7 @@ class Plugin(object):
         self.debug = False
         self.custom_decoder = custom_decoder
         self.custom_encoder = custom_encoder
-        self.ouput = None
+
 
     def add_trigger(self, trigger):
         """ add a new trigger """
@@ -186,7 +242,7 @@ class Plugin(object):
         :param is_debug:
         :return:
         """
-
+        self.connection.meta.set_workflow(input_message)
         request_id = uuid.uuid4()
         log_stream = stream_class()
         stream_handler = logging.StreamHandler(log_stream)
@@ -196,7 +252,7 @@ class Plugin(object):
 
         success = True
         ex = None
-        # output = None
+        output = None
         out_type = None
 
         try:
@@ -211,10 +267,10 @@ class Plugin(object):
 
             if message_type == 'action_start':
                 out_type = 'action_event'
-                self.output = self.start_step(input_message['body'], 'action', logger, log_stream, is_test, is_debug)
+                output = self.start_step(input_message['body'], 'action', logger, log_stream, is_test, is_debug)
             elif message_type == 'trigger_start':
                 out_type = 'trigger_event'
-                self.output = self.start_step(input_message['body'], 'trigger', logger, log_stream, is_test, is_debug)
+                output = self.start_step(input_message['body'], 'trigger', logger, log_stream, is_test, is_debug)
         except ClientException as e:
             success = False
             ex = e
@@ -228,11 +284,11 @@ class Plugin(object):
             ex = e
             logger.exception(e)
         finally:
-            self.output = Plugin.envelope(out_type, input_message, log_stream.getvalue(), success, self.output,
+            output = Plugin.envelope(out_type, input_message, log_stream.getvalue(), success, output,
                                      str(ex))
             if not success:
-                raise LoggedException(ex, self.output)
-            return self.output
+                raise LoggedException(ex, output)
+            return output
 
     def start_step(self, message_body, step_key, logger, log_stream, is_test=False, is_debug=False):
         """
