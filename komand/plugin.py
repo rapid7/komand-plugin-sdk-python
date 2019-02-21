@@ -97,7 +97,7 @@ class Workflow(object):
                    jobExecutionContextId=input_message.get("jobExecutionContextId", None),
                    time=input_message.get("time", None),
                    connectionTestId=input_message.get("connectionTestId", None),
-                   connectionTestTimeout=input_message.get("connectionTestTimeout", None),
+                   connectionTestTimeout=input_message.get("connectionTestTimeout", None)
                    )
 
 
