@@ -43,7 +43,7 @@ class Workflow(object):
 
     def __init__(self, shortOrgId=None, orgProductToken=None, uiHostUrl=None, jobId=None, stepId=None, versionId=None, nextStepId=None, nextEdgeId=None, triggerId=None, jobExecutionContextId=None, time=None, connectionTestId=None, connectionTestTimeout=None, workflowId=None):
         """
-
+        Worflow object for the Meta Class
         :param shortOrgId: Short version of the Organization ID
         :param orgProductToken: Organization Product Token
         :param uiHostUrl: Job URL for triggers
@@ -76,6 +76,7 @@ class Workflow(object):
 
     @classmethod
     def from_komand(cls, input_message):
+        """Creates a Workflow object from Komand"""
         return cls(workflowId=input_message.get("workflow_uid", None),
                    stepId=input_message.get("step_uid", None),
                    versionId=input_message.get("workflow_version_uid", None)
@@ -83,6 +84,7 @@ class Workflow(object):
 
     @classmethod
     def from_insight_connect(cls, input_message):
+        """Creates a Workflow object from Insight Connect"""
         return cls(shortOrgId=input_message.get("shortOrgId", None),
                    orgProductToken=input_message.get("orgProductToken", None),
                    uiHostUrl=input_message.get("uiHostUrl", None),
@@ -106,6 +108,11 @@ class Meta(object):
         self.name, self.vendor, self.description, self.version, self.workflow = name, vendor, description, version, workflow
 
     def set_workflow(self, input_message):
+        """
+        Sets the workflow attribute within the Meta class
+        :param input_message:
+        :return:
+        """
         if input_message.get("workflow_uid"):
             self.workflow = Workflow.from_komand(input_message)
         else:
