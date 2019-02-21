@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(name='komand',
-      version='1.0.2',
+      version='1.0.1',
       description='Komand Plugin SDK',
       author='Komand',
       author_email='support@komand.com',
