@@ -41,7 +41,24 @@ message_output_type = {
 
 class Workflow(object):
 
-    def __init__(self, shortOrgId=None ,orgProductToken=None, uiHostUrl=None, jobId=None, stepId=None,versionId=None, nextStepId=None, nextEdgeId=None, triggerId=None, jobExecutionContextId=None, time=None, connectionTestId=None, connectionTestTimeout=None, workflowUID=None, stepUID=None, input_message=None):
+    def __init__(self, shortOrgId=None, orgProductToken=None, uiHostUrl=None, jobId=None, stepId=None, versionId=None, nextStepId=None, nextEdgeId=None, triggerId=None, jobExecutionContextId=None, time=None, connectionTestId=None, connectionTestTimeout=None, workflowId=None):
+        """
+
+        :param shortOrgId: Short version of the Organization ID
+        :param orgProductToken: Organization Product Token
+        :param uiHostUrl: Job URL for triggers
+        :param jobId: Job UUID
+        :param stepId: Step UUID
+        :param versionId:  Workflow Version UUID
+        :param nextStepId: Next Step UUID
+        :param nextEdgeId: Next Edge UUID
+        :param triggerId: Trigger UUID
+        :param jobExecutionContextId: Job Execution Context UUID
+        :param time: Time the action or trigger was executed
+        :param connectionTestId: Connection Test ID
+        :param connectionTestTimeout: Connection Test Timeout
+        :param workflowId: Workflow ID
+        """
         self.shortOrgId = shortOrgId
         self.orgProductToken = orgProductToken
         self.uiHostUrl = uiHostUrl
@@ -55,14 +72,12 @@ class Workflow(object):
         self.time = time
         self.connectionTestId = connectionTestId
         self.connectionTestTimeout = connectionTestTimeout
-        self.workflowUID = workflowUID
-        self.stepUID = stepUID
-        self.input_message = input_message
+        self.workflowId = workflowId
 
     @classmethod
     def from_komand(cls, input_message):
-        return cls(workflowUID=input_message.get("workflow_uid", None),
-                   stepUID=input_message.get("step_uid", None),
+        return cls(workflowId=input_message.get("workflow_uid", None),
+                   stepId=input_message.get("step_uid", None),
                    versionId=input_message.get("workflow_version_uid", None)
                    )
 
@@ -81,7 +96,6 @@ class Workflow(object):
                    time=input_message.get("time", None),
                    connectionTestId=input_message.get("connectionTestId", None),
                    connectionTestTimeout=input_message.get("connectionTestTimeout", None),
-                   input_message=input_message
                    )
 
 
@@ -92,7 +106,6 @@ class Meta(object):
         self.name, self.vendor, self.description, self.version, self.workflow = name, vendor, description, version, workflow
 
     def set_workflow(self, input_message):
-        # if connect or komand call from
         if input_message.get("workflow_uid"):
             self.workflow = Workflow.from_komand(input_message)
         else:
@@ -237,7 +250,7 @@ class Plugin(object):
         :param is_debug:
         :return:
         """
-        self.connection.meta.set_workflow(input_message)
+        self.connection.meta.set_workflow(input_message['body'].get('meta', None))
         request_id = uuid.uuid4()
         log_stream = stream_class()
         stream_handler = logging.StreamHandler(log_stream)
