@@ -104,7 +104,7 @@ class Workflow(object):
 class Meta(object):
     """ Meta properties for a plugin """
 
-    def __init__(self, name='', vendor='', description='', version='', workflow: Workflow=None):
+    def __init__(self, name='', vendor='', description='', version='', workflow=None):
         self.name, self.vendor, self.description, self.version, self.workflow = name, vendor, description, version, workflow
 
     def set_workflow(self, input_message):
