@@ -86,10 +86,11 @@ def sample(source):
         schema['required'].append(key)
 
 
-    # Get ObjectBuilder logger instance before it runs and suppress it.
+    # Get logger instances before sampling runs and suppress them.
     # This will allow us to generate samples WITHOUT having to grep through the debug messages
-    logger = logging.getLogger("objectbuilder")
-    logger.disabled = True
+    loggers = [logging.getLogger(name) for name in logging.root.manager.loggerDict]
+    for logger in loggers:
+        logger.disabled = True
 
     builder = pjs.ObjectBuilder(schema)
     ns = builder.build_classes(strict=True)
@@ -97,7 +98,8 @@ def sample(source):
     o = clazz(**defaults)
 
     # Re-enable logging after we're done
-    logger.disabled = False
+    for logger in loggers:
+        logger.disabled = False
 
     return o.as_dict()
 
