@@ -85,7 +85,6 @@ def sample(source):
         schema['properties'][key] = prop
         schema['required'].append(key)
 
-
     # Get logger instances before sampling runs and suppress them.
     # This will allow us to generate samples WITHOUT having to grep through the debug messages
     loggers = [logging.getLogger(name) for name in logging.root.manager.loggerDict]
