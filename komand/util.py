@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import copy
 import sys
+import logging
 
 import python_jsonschema_objects as pjs
 
@@ -84,10 +85,20 @@ def sample(source):
         schema['properties'][key] = prop
         schema['required'].append(key)
 
+
+    # Get ObjectBuilder logger instance before it runs and suppress it.
+    # This will allow us to generate samples WITHOUT having to grep through the debug messages
+    logger = logging.getLogger("objectbuilder")
+    logger.disabled = True
+
     builder = pjs.ObjectBuilder(schema)
     ns = builder.build_classes(strict=True)
     clazz = ns.Example
     o = clazz(**defaults)
+
+    # Re-enable logging after we're done
+    logger.disabled = False
+
     return o.as_dict()
 
 
