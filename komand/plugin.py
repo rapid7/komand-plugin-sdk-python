@@ -43,7 +43,11 @@ message_output_type = {
 
 class Workflow(object):
 
-    def __init__(self, shortOrgId=None, orgProductToken=None, uiHostUrl=None, jobId=None, stepId=None, versionId=None, nextStepId=None, nextEdgeId=None, triggerId=None, jobExecutionContextId=None, time=None, connectionTestId=None, connectionTestTimeout=None, workflowId=None):
+    def __init__(self, shortOrgId=None, orgProductToken=None, uiHostUrl=None,
+                 jobId=None, stepId=None, versionId=None, nextStepId=None,
+                 nextEdgeId=None, triggerId=None, jobExecutionContextId=None,
+                 time=None, connectionTestId=None, connectionTestTimeout=None,
+                 workflowId=None):
         """
         Worflow object for the Meta Class
         :param shortOrgId: Short version of the Organization ID
@@ -109,7 +113,7 @@ class Meta(object):
     def __init__(self, name='', vendor='', description='', version='',
                  workflow=None):
         self.name, self.vendor, self.description, self.version, \
-        self.workflow = name, vendor, description, version, workflow
+            self.workflow = name, vendor, description, version, workflow
 
     def set_workflow(self, input_message):
         """
