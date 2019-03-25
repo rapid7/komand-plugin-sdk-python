@@ -13,6 +13,7 @@ from .connection import ConnectionCache
 from .dispatcher import Stdout, Http
 from .exceptions import ClientException, ServerException, LoggedException
 from six import string_types
+from sys import version_info
 
 
 class Python2StringIO(io.StringIO):
@@ -113,10 +114,25 @@ class Meta(object):
         :param input_message:
         :return:
         """
-        if input_message.get("workflow_uid"):
-            self.workflow = Workflow.from_komand(input_message)
+        # Check for unicode values and convert to string
+        # Python 2
+        if version_info[0] == 2:
+            new_input_message = {}
+            for k,v in input_message.items():
+                if isinstance(v, six.text_type):
+                    new_input_message[k] = str(v)
+                else:
+                    new_input_message[k] = v
+            if new_input_message.get("workflow_uid"):
+                self.workflow = Workflow.from_komand(new_input_message)
+            else:
+                self.workflow = Workflow.from_insight_connect(new_input_message)
+        # Python 3
         else:
-            self.workflow = Workflow.from_insight_connect(input_message)
+            if input_message.get("workflow_uid"):
+                self.workflow = Workflow.from_komand(input_message)
+            else:
+                self.workflow = Workflow.from_insight_connect(input_message)
 
         
 class Plugin(object):
