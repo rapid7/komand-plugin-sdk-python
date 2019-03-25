@@ -40,6 +40,7 @@ message_output_type = {
     'trigger_start': 'trigger_event',
 }
 
+
 class Workflow(object):
 
     def __init__(self, shortOrgId=None, orgProductToken=None, uiHostUrl=None, jobId=None, stepId=None, versionId=None, nextStepId=None, nextEdgeId=None, triggerId=None, jobExecutionContextId=None, time=None, connectionTestId=None, connectionTestTimeout=None, workflowId=None):
@@ -105,8 +106,10 @@ class Workflow(object):
 class Meta(object):
     """ Meta properties for a plugin """
 
-    def __init__(self, name='', vendor='', description='', version='', workflow=None):
-        self.name, self.vendor, self.description, self.version, self.workflow = name, vendor, description, version, workflow
+    def __init__(self, name='', vendor='', description='', version='',
+                 workflow=None):
+        self.name, self.vendor, self.description, self.version, \
+        self.workflow = name, vendor, description, version, workflow
 
     def set_workflow(self, input_message):
         """
