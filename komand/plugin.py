@@ -118,7 +118,7 @@ class Meta(object):
         # Python 2
         if version_info[0] == 2:
             new_input_message = {}
-            for k,v in input_message.items():
+            for k, v in input_message.items():
                 if isinstance(v, six.text_type):
                     new_input_message[k] = str(v)
                 else:
