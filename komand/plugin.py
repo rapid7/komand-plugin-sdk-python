@@ -280,7 +280,7 @@ class Plugin(object):
         :param is_debug:
         :return:
         """
-        input_message_meta = input_message["body"].get("meta", None)
+        input_message_meta = input_message["body"].get("meta", {})
 
         if input_message_meta == None:
             input_message_meta = {}
