@@ -280,7 +280,7 @@ class Plugin(object):
         :param is_debug:
         :return:
         """
-        self.connection.meta.set_workflow(input_message['body'].get('meta', None))
+        self.connection.meta.set_workflow(input_message['body'].get('meta', {}))
         request_id = uuid.uuid4()
         log_stream = stream_class()
         stream_handler = logging.StreamHandler(log_stream)
