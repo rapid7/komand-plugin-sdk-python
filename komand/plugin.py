@@ -13,6 +13,7 @@ from .connection import ConnectionCache
 from .dispatcher import Stdout, Http
 from .exceptions import ClientException, ServerException, LoggedException
 from six import string_types
+from sys import version_info
 
 
 class Python2StringIO(io.StringIO):
@@ -40,11 +41,105 @@ message_output_type = {
 }
 
 
+class Workflow(object):
+
+    def __init__(self, shortOrgId=None, orgProductToken=None, uiHostUrl=None,
+                 jobId=None, stepId=None, versionId=None, nextStepId=None,
+                 nextEdgeId=None, triggerId=None, jobExecutionContextId=None,
+                 time=None, connectionTestId=None, connectionTestTimeout=None,
+                 workflowId=None):
+        """
+        Worflow object for the Meta Class
+        :param shortOrgId: Short version of the Organization ID
+        :param orgProductToken: Organization Product Token
+        :param uiHostUrl: Job URL for triggers
+        :param jobId: Job UUID
+        :param stepId: Step UUID
+        :param versionId:  Workflow Version UUID
+        :param nextStepId: Next Step UUID
+        :param nextEdgeId: Next Edge UUID
+        :param triggerId: Trigger UUID
+        :param jobExecutionContextId: Job Execution Context UUID
+        :param time: Time the action or trigger was executed
+        :param connectionTestId: Connection Test ID
+        :param connectionTestTimeout: Connection Test Timeout
+        :param workflowId: Workflow ID
+        """
+        self.shortOrgId = shortOrgId
+        self.orgProductToken = orgProductToken
+        self.uiHostUrl = uiHostUrl
+        self.jobId = jobId
+        self.stepId = stepId
+        self.versionId = versionId
+        self.nextStepId = nextStepId
+        self.nextEdgeId = nextEdgeId
+        self.triggerId = triggerId
+        self.jobExecutionContextId = jobExecutionContextId
+        self.time = time
+        self.connectionTestId = connectionTestId
+        self.connectionTestTimeout = connectionTestTimeout
+        self.workflowId = workflowId
+
+    @classmethod
+    def from_komand(cls, input_message):
+        """Creates a Workflow object from Komand"""
+        return cls(workflowId=input_message.get("workflow_uid", None),
+                   stepId=input_message.get("step_uid", None),
+                   versionId=input_message.get("workflow_version_uid", None)
+                   )
+
+    @classmethod
+    def from_insight_connect(cls, input_message):
+        """Creates a Workflow object from Insight Connect"""
+        return cls(shortOrgId=input_message.get("shortOrgId", None),
+                   orgProductToken=input_message.get("orgProductToken", None),
+                   uiHostUrl=input_message.get("uiHostUrl", None),
+                   jobId=input_message.get("jobId", None),
+                   stepId=input_message.get("stepId", None),
+                   versionId=input_message.get("versionId", None),
+                   nextStepId=input_message.get("nextStepId", None),
+                   nextEdgeId=input_message.get("nextEdgeId", None),
+                   triggerId=input_message.get("triggerId", None),
+                   jobExecutionContextId=input_message.get("jobExecutionContextId", None),
+                   time=input_message.get("time", None),
+                   connectionTestId=input_message.get("connectionTestId", None),
+                   connectionTestTimeout=input_message.get("connectionTestTimeout", None)
+                   )
+
+
 class Meta(object):
     """ Meta properties for a plugin """
 
-    def __init__(self, name='', vendor='', description='', version=''):
-        self.name, self.vendor, self.description, self.version = name, vendor, description, version
+    def __init__(self, name='', vendor='', description='', version='',
+                 workflow=None):
+        self.name, self.vendor, self.description, self.version, \
+            self.workflow = name, vendor, description, version, workflow
+
+    def set_workflow(self, input_message):
+        """
+        Sets the workflow attribute within the Meta class
+        :param input_message:
+        :return:
+        """
+        # Check for unicode values and convert to string
+        # Python 2
+        if version_info[0] == 2:
+            new_input_message = {}
+            for k, v in input_message.items():
+                if isinstance(v, six.text_type):
+                    new_input_message[k] = str(v)
+                else:
+                    new_input_message[k] = v
+            if new_input_message.get("workflow_uid"):
+                self.workflow = Workflow.from_komand(new_input_message)
+            else:
+                self.workflow = Workflow.from_insight_connect(new_input_message)
+        # Python 3
+        else:
+            if input_message.get("workflow_uid"):
+                self.workflow = Workflow.from_komand(input_message)
+            else:
+                self.workflow = Workflow.from_insight_connect(input_message)
 
         
 class Plugin(object):
@@ -185,7 +280,7 @@ class Plugin(object):
         :param is_debug:
         :return:
         """
-
+        self.connection.meta.set_workflow(input_message['body'].get('meta', None))
         request_id = uuid.uuid4()
         log_stream = stream_class()
         stream_handler = logging.StreamHandler(log_stream)
@@ -199,7 +294,6 @@ class Plugin(object):
         out_type = None
 
         try:
-
             # Attempt to grab message type first
             message_type = input_message.get('type')
             out_type = message_output_type.get(message_type)

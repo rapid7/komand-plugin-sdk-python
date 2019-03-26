@@ -118,8 +118,9 @@ class CLI(object):
 
         raise ValueError('Invalid trigger or action name.')
 
-    def execute_step(self, is_test=False, is_debug=False):
-        msg = self.plugin.unmarshal(sys.stdin)
+    def execute_step(self, is_test=False, is_debug=False, msg=None):
+        if not msg:
+            msg = self.plugin.unmarshal(sys.stdin)
         exception = None
         try:
             output = self.plugin.handle_step(msg, is_test=is_test, is_debug=is_debug)
