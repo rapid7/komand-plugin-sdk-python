@@ -282,7 +282,7 @@ class Plugin(object):
         """
         input_message_meta = input_message["body"].get("meta", {})
 
-        if input_message_meta == None:
+        if input_message_meta is None:
             input_message_meta = {}
         self.connection.meta.set_workflow(input_message_meta)
         request_id = uuid.uuid4()
