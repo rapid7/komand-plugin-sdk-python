@@ -1,12 +1,12 @@
 FROM python:2.7.16-alpine3.9
 
-LABEL organization=komand
-LABEL sdk=python
-LABEL type=plugin
+LABEL organization=komand \
+			sdk=python \
+			type=plugin
 
-ENV SSL_CERT_FILE /etc/ssl/certs/ca-certificates.crt
-ENV SSL_CERT_DIR /etc/ssl/certs
-ENV REQUESTS_CA_BUNDLE  /etc/ssl/certs/ca-certificates.crt
+ENV SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt \
+		SSL_CERT_DIR=/etc/ssl/certs \
+		REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
 
 ADD ./ /usr/src/komand
 WORKDIR /usr/src/komand
