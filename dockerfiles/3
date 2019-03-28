@@ -1,4 +1,4 @@
-FROM python:3.7-stretch
+FROM python:3.7.2-slim-stretch
 
 LABEL organization=komand
 LABEL sdk=python
@@ -11,4 +11,4 @@ ENV REQUESTS_CA_BUNDLE  /etc/ssl/certs/ca-certificates.crt
 ADD ./ /usr/src/komand
 WORKDIR /usr/src/komand
 
-RUN make install
+RUN python setup.py install
