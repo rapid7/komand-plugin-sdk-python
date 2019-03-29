@@ -1,3 +1,5 @@
+SHELL := /bin/bash
+
 .PHONY: test install build all image
 
 VERSION=$(shell git describe --abbrev=0 --tags)
@@ -17,7 +19,7 @@ MAKE_VERBOSE=0
 
 image:
 	# Build all 2/3-slim Docker images
-	pushd dockerfiles
+	pushd dockerfiles/
 	for dockerfile in $(find ${DOCKERFILE}*)
 	do
 		docker build -t komand/python-${dockerfile}-plugin -f dockerfiles/${dockerfile} .
@@ -48,7 +50,7 @@ tag: image
 	@echo version is $(VERSION)
 
 	# Tag all 2/3-slim Docker images
-	pushd dockerfiles
+	pushd dockerfiles/
 	for dockerfile in $(find ${DOCKERFILE}*)
 	do
 		docker tag komand/python-${dockerfile}-plugin komand/python-${dockerfile}-plugin:$(VERSION)
@@ -62,7 +64,7 @@ deploy: tag
 	@docker login -u $(KOMAND_DOCKER_USERNAME) -p $(KOMAND_DOCKER_PASSWORD)
 
 	# Deploy all 2/3-slim Docker images
-	pushd dockerfiles
+	pushd dockerfiles/
 	for dockerfile in $(find ${DOCKERFILE}*)
 	do
 		docker push komand/python-$(DOCKERFILE)-plugin
