@@ -12,7 +12,6 @@ TRAVIS_PYTHON_VERSION=$(shell echo $(PYTHON_MAJOR_VERSION))
 endif
 
 DOCKERFILE=$(shell echo $(TRAVIS_PYTHON_VERSION) | cut -d"." -f1)
-DOCKERFILE_DEBUG=debug-slim
 
 MAKE_VERBOSE=0
 
@@ -23,7 +22,6 @@ image:
 	do
 		docker build -t komand/python-${dockerfile}-plugin -f dockerfiles/${dockerfile} .
 	done
-	docker build -t komand/python-${DOCKERFILE_DEBUG}-plugin -f dockerfiles/${DOCKERFILE_DEBUG} .
 	popd
 
 python-2-image:
@@ -71,4 +69,3 @@ deploy: tag
 		docker push komand/python-$(DOCKERFILE)-plugin:$(MINOR_VERSION)
 		docker push komand/python-$(DOCKERFILE)-plugin:$(MAJOR_VERSION)
 	popd
-	docker push komand/python-${DOCKERFILE_DEBUG}-plugin
