@@ -17,12 +17,12 @@ MAKE_VERBOSE=0
 
 image:
 	# Build all 2/3-slim Docker images
-	pushd dockerfiles
+	cd dockerfiles
 	for dockerfile in $(find ${DOCKERFILE}*)
 	do
 		docker build -t komand/python-${dockerfile}-plugin -f dockerfiles/${dockerfile} .
 	done
-	popd
+	cd ..
 
 python-2-image:
 	docker build -t komand/python-2-plugin:test -f dockerfiles/2 .
@@ -48,25 +48,25 @@ tag: image
 	@echo version is $(VERSION)
 
 	# Tag all 2/3-slim Docker images
-	pushd dockerfiles
+	cd dockerfiles
 	for dockerfile in $(find ${DOCKERFILE}*)
 	do
 		docker tag komand/python-${dockerfile}-plugin komand/python-${dockerfile}-plugin:$(VERSION)
 		docker tag komand/python-${dockerfile}-plugin komand/python-${dockerfile}-plugin:$(MINOR_VERSION)
 		docker tag komand/python-${dockerfile}-plugin komand/python-${dockerfile}-plugin:$(MAJOR_VERSION)
 	done
-	popd
+	cd ..
 
 deploy: tag
 	@echo docker login -u "********" -p "********"
 	@docker login -u $(KOMAND_DOCKER_USERNAME) -p $(KOMAND_DOCKER_PASSWORD)
 
 	# Deploy all 2/3-slim Docker images
-	pushd dockerfiles
+	cd dockerfiles
 	for dockerfile in $(find ${DOCKERFILE}*)
 	do
 		docker push komand/python-$(DOCKERFILE)-plugin
 		docker push komand/python-$(DOCKERFILE)-plugin:$(VERSION)
 		docker push komand/python-$(DOCKERFILE)-plugin:$(MINOR_VERSION)
 		docker push komand/python-$(DOCKERFILE)-plugin:$(MAJOR_VERSION)
-	popd
+	cd ..
