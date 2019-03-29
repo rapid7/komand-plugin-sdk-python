@@ -1,0 +1,15 @@
+FROM python:3.7.2-alpine3.9
+
+LABEL organization=komand \
+			sdk=python \
+			type=plugin
+
+ENV SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt \
+		SSL_CERT_DIR=/etc/ssl/certs \
+		REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
+ENV PKGS bash make nano strace nmap htop tcpdump openssl
+
+ADD ./ /usr/src/komand
+WORKDIR /usr/src/komand
+
+RUN apk add --no-cache $PKGS
