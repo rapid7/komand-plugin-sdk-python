@@ -19,21 +19,20 @@ MAKE_VERBOSE=0
 
 image:
 	# Build all 2/3-slim Docker images
-	pushd dockerfiles/
-	for dockerfile in $(find ${DOCKERFILE}*)
-	do
-		docker build -t komand/python-${dockerfile}-plugin -f dockerfiles/${dockerfile} .
+	@for dockerfile in $(wildcard dockerfiles/${DOCKERFILE}*); do \
+		F=$${dockerfile//dockerfiles\/}; \
+		docker build -t komand/python-$${F}-plugin -f dockerfiles/$${F} .; \
 	done
 	popd
 
-python-2-image:
-	docker build -t komand/python-2-plugin:test -f dockerfiles/2 .
-
-python-3-image:
-	docker build -t komand/python-3-plugin:test -f dockerfiles/3 .
-
-pypy-3-image:
-	docker build -t komand/python-pypy3-plugin:test -f dockerfiles/pypy3 .
+#python-2-image:
+#	docker build -t komand/python-2-plugin:test -f dockerfiles/2 .
+#
+#python-3-image:
+#	docker build -t komand/python-3-plugin:test -f dockerfiles/3 .
+#
+#pypy-3-image:
+#	docker build -t komand/python-pypy3-plugin:test -f dockerfiles/pypy3 .
 
 all: test tag
 
@@ -50,25 +49,22 @@ tag: image
 	@echo version is $(VERSION)
 
 	# Tag all 2/3-slim Docker images
-	pushd dockerfiles/
-	for dockerfile in $(find ${DOCKERFILE}*)
-	do
-		docker tag komand/python-${dockerfile}-plugin komand/python-${dockerfile}-plugin:$(VERSION)
-		docker tag komand/python-${dockerfile}-plugin komand/python-${dockerfile}-plugin:$(MINOR_VERSION)
-		docker tag komand/python-${dockerfile}-plugin komand/python-${dockerfile}-plugin:$(MAJOR_VERSION)
+	@for dockerfile in $(wildcard dockerfiles/${DOCKERFILE}*); do \
+		F=$${dockerfile//dockerfiles\/}; \
+		docker tag komand/python-$${F}-plugin komand/python-$${F}-plugin:$(VERSION); \
+		docker tag komand/python-$${F}-plugin komand/python-$${F}-plugin:$(MINOR_VERSION); \
+		docker tag komand/python-$${F}-plugin komand/python-$${F}-plugin:$(MAJOR_VERSION); \
 	done
-	popd
 
 deploy: tag
 	@echo docker login -u "********" -p "********"
 	@docker login -u $(KOMAND_DOCKER_USERNAME) -p $(KOMAND_DOCKER_PASSWORD)
 
 	# Deploy all 2/3-slim Docker images
-	pushd dockerfiles/
-	for dockerfile in $(find ${DOCKERFILE}*)
-	do
-		docker push komand/python-$(DOCKERFILE)-plugin
-		docker push komand/python-$(DOCKERFILE)-plugin:$(VERSION)
-		docker push komand/python-$(DOCKERFILE)-plugin:$(MINOR_VERSION)
-		docker push komand/python-$(DOCKERFILE)-plugin:$(MAJOR_VERSION)
-	popd
+	@for dockerfile in $(wildcard dockerfiles/${DOCKERFILE}*); do \
+		F=$${dockerfile//dockerfiles\/}; \
+		docker push komand/python-$${F}-plugin; \
+		docker push komand/python-$${F}-plugin:$(VERSION); \
+		docker push komand/python-$${F}-plugin:$(MINOR_VERSION); \
+		docker push komand/python-$${F}-plugin:$(MAJOR_VERSION); \
+	done
