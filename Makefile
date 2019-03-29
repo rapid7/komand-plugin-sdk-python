@@ -23,7 +23,6 @@ image:
 		F=$${dockerfile//dockerfiles\/}; \
 		docker build -t komand/python-$${F}-plugin -f dockerfiles/$${F} .; \
 	done
-	popd
 
 #python-2-image:
 #	docker build -t komand/python-2-plugin:test -f dockerfiles/2 .
