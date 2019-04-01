@@ -15,7 +15,7 @@ env:
 install:
   - pip install tox-travis
 script:
-  - bash -c "make test"
+  - bash -c "make test" # Call with bash to force Travis to use bash vs sh
   - bash -c "make tag"
 deploy:
   provider: script

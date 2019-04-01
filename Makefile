@@ -24,15 +24,6 @@ image:
 		docker build -t komand/python-$${F}-plugin -f dockerfiles/$${F} .; \
 	done
 
-#python-2-image:
-#	docker build -t komand/python-2-plugin:test -f dockerfiles/2 .
-#
-#python-3-image:
-#	docker build -t komand/python-3-plugin:test -f dockerfiles/3 .
-#
-#pypy-3-image:
-#	docker build -t komand/python-pypy3-plugin:test -f dockerfiles/pypy3 .
-
 all: test tag
 
 build:
