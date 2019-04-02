@@ -1,3 +1,5 @@
+SHELL := /bin/bash
+
 .PHONY: test install build all image
 
 VERSION=$(shell git describe --abbrev=0 --tags)
@@ -16,16 +18,11 @@ DOCKERFILE=$(shell echo $(TRAVIS_PYTHON_VERSION) | cut -d"." -f1)
 MAKE_VERBOSE=0
 
 image:
-	docker build -t komand/python-$(DOCKERFILE)-plugin -f dockerfiles/$(DOCKERFILE) .
-
-python-2-image:
-	docker build -t komand/python-2-plugin:test -f dockerfiles/2 .
-
-python-3-image:
-	docker build -t komand/python-3-plugin:test -f dockerfiles/3 .
-
-pypy-3-image:
-	docker build -t komand/python-pypy3-plugin:test -f dockerfiles/pypy3 .
+	# Build all 2/3-slim Docker images
+	@for dockerfile in $(wildcard dockerfiles/${DOCKERFILE}*); do \
+		F=$${dockerfile//dockerfiles\/}; \
+		docker build -t komand/python-$${F}-plugin -f dockerfiles/$${F} .; \
+	done
 
 all: test tag
 
@@ -40,14 +37,24 @@ test:
 
 tag: image
 	@echo version is $(VERSION)
-	docker tag komand/python-$(DOCKERFILE)-plugin komand/python-$(DOCKERFILE)-plugin:$(VERSION)
-	docker tag komand/python-$(DOCKERFILE)-plugin komand/python-$(DOCKERFILE)-plugin:$(MINOR_VERSION)
-	docker tag komand/python-$(DOCKERFILE)-plugin komand/python-$(DOCKERFILE)-plugin:$(MAJOR_VERSION)
+
+	# Tag all 2/3-slim Docker images
+	@for dockerfile in $(wildcard dockerfiles/${DOCKERFILE}*); do \
+		F=$${dockerfile//dockerfiles\/}; \
+		docker tag komand/python-$${F}-plugin komand/python-$${F}-plugin:$(VERSION); \
+		docker tag komand/python-$${F}-plugin komand/python-$${F}-plugin:$(MINOR_VERSION); \
+		docker tag komand/python-$${F}-plugin komand/python-$${F}-plugin:$(MAJOR_VERSION); \
+	done
 
 deploy: tag
 	@echo docker login -u "********" -p "********"
 	@docker login -u $(KOMAND_DOCKER_USERNAME) -p $(KOMAND_DOCKER_PASSWORD)
-	docker push komand/python-$(DOCKERFILE)-plugin
-	docker push komand/python-$(DOCKERFILE)-plugin:$(VERSION)
-	docker push komand/python-$(DOCKERFILE)-plugin:$(MINOR_VERSION)
-	docker push komand/python-$(DOCKERFILE)-plugin:$(MAJOR_VERSION)
+
+	# Deploy all 2/3-slim Docker images
+	@for dockerfile in $(wildcard dockerfiles/${DOCKERFILE}*); do \
+		F=$${dockerfile//dockerfiles\/}; \
+		docker push komand/python-$${F}-plugin; \
+		docker push komand/python-$${F}-plugin:$(VERSION); \
+		docker push komand/python-$${F}-plugin:$(MINOR_VERSION); \
+		docker push komand/python-$${F}-plugin:$(MAJOR_VERSION); \
+	done
