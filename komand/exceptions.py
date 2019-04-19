@@ -93,3 +93,7 @@ class ConnectionTestException(Exception):
     def __str__(self):
         return "Connection test failed! {cause} {assistance}".format(cause=self.cause,
                                                                      assistance=self.assistance)
+
+
+class PluginException(ConnectionTestException):
+    pass
