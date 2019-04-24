@@ -96,4 +96,7 @@ class ConnectionTestException(Exception):
 
 
 class PluginException(ConnectionTestException):
-    pass
+
+    def __str__(self):
+        return "An error occurred during plugin execution! {cause} {assistance}".format(cause=self.cause,
+                                                                                        assistance=self.assistance)
