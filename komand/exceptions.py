@@ -113,8 +113,10 @@ class ConnectionTestException(Exception):
                 data=self.data
             )
         else:
-            return "Connection test failed!\n\n{cause} {assistance}".format(cause=self.cause,
-                                                                         assistance=self.assistance)
+            return "Connection test failed!\n\n{cause} {assistance}".format(
+                cause=self.cause,
+                assistance=self.assistance
+            )
 
 
 class PluginException(ConnectionTestException):
