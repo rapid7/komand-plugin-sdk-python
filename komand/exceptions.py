@@ -51,6 +51,10 @@ class ConnectionTestException(Exception):
         NOT_FOUND = "not_found"
         SERVER_ERROR = "server_error"
         SERVICE_UNAVAILABLE = "service_unavailable"
+        INVALID_JSON = "invalid_json"
+        UNKNOWN = "unknown"
+        BASE64_ENCODE = "base64_encode"
+        BASE64_DECODE = "base64_decode"
 
     # Dictionary of cause messages
     causes = {
@@ -60,7 +64,11 @@ class ConnectionTestException(Exception):
         Preset.USERNAME_PASSWORD: "Invalid username or password provided.",
         Preset.NOT_FOUND: "Invalid or unreachable endpoint provided.",
         Preset.SERVER_ERROR: "Server error occurred",
-        Preset.SERVICE_UNAVAILABLE: "The service this plugin is designed for is currently unavailable."
+        Preset.SERVICE_UNAVAILABLE: "The service this plugin is designed for is currently unavailable.",
+        Preset.INVALID_JSON: "Received an unexpected response from the server.",
+        Preset.UNKNOWN: "Something unexpected occurred.",
+        Preset.BASE64_ENCODE: "Unable to base64 encode content due to incorrect padding length.",
+        Preset.BASE64_DECODE: "Unable to base64 decode content due to incorrect padding length."
     }
 
     # Dictionary of assistance/remediation messages
@@ -73,14 +81,19 @@ class ConnectionTestException(Exception):
         Preset.NOT_FOUND: "Verify the endpoint/URL/hostname configured in your plugin connection is correct.",
         Preset.SERVER_ERROR: "Verify your plugin connection inputs are correct and not malformed and try again. "
                              "If the issue persists, please contact support.",
-        Preset.SERVICE_UNAVAILABLE: "Try again later. If the issue persists, please contact support."
+        Preset.SERVICE_UNAVAILABLE: "Try again later. If the issue persists, please contact support.",
+        Preset.INVALID_JSON: "(non-JSON or no response was received).",
+        Preset.UNKNOWN: "Check the logs and if the issue persists please contact support.",
+        Preset.BASE64_ENCODE: "This is likely a programming error, if the issue persists please contact support.",
+        Preset.BASE64_DECODE: "This is likely a programming error, if the issue persists please contact support.",
     }
 
-    def __init__(self, cause=None, assistance=None, preset=None):
+    def __init__(self, cause=None, assistance=None, data=None, preset=None):
         """
         Initializes a new ConnectionTestException. User must supply all punctuation/grammar.
         :param cause: Cause of the error. Leave empty if using preset.
         :param assistance: Possible remediation steps for the error. Leave empty if using preset.
+        :param data: Possible response data related to the error.
         :param preset: Preset error and remediation steps to use.
         """
 
@@ -90,13 +103,33 @@ class ConnectionTestException(Exception):
             self.cause = cause if cause else ""
             self.assistance = assistance if assistance else ""
 
+        self.data = data if data else ""
+
     def __str__(self):
-        return "Connection test failed! {cause} {assistance}".format(cause=self.cause,
-                                                                     assistance=self.assistance)
+        if self.data:
+            return "Connection test failed!\n\n{cause} {assistance} Response was: {data}".format(
+                cause=self.cause,
+                assistance=self.assistance,
+                data=self.data
+            )
+        else:
+            return "Connection test failed!\n\n{cause} {assistance}".format(
+                cause=self.cause,
+                assistance=self.assistance
+            )
 
 
 class PluginException(ConnectionTestException):
 
     def __str__(self):
-        return "An error occurred during plugin execution! {cause} {assistance}".format(cause=self.cause,
-                                                                                        assistance=self.assistance)
+        if self.data:
+            return "An error occurred during plugin execution!\n\n{cause} {assistance} Response was: {data}".format(
+                cause=self.cause,
+                assistance=self.assistance,
+                data=self.data
+            )
+        else:
+            return "An error occurred during plugin execution!\n\n{cause} {assistance}".format(
+                cause=self.cause,
+                assistance=self.assistance
+            )
