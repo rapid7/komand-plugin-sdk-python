@@ -61,14 +61,14 @@ deploy: tag
 
 # Release targets for PyPi
 packagedeps:
-    python3 -m pip install --user --upgrade setuptools wheel twine
+	python3 -m pip install --user --upgrade setuptools wheel twine
 
 package:
-    rm -rf dist/
-    python3 setup.py sdist bdist_wheel
+	rm -rf dist/
+	python3 setup.py sdist bdist_wheel
 
 disttest: package
-    python3 -m twine upload --repository-url https://test.pypi.org/legacy/ dist/*
+	python3 -m twine upload --repository-url https://test.pypi.org/legacy/ dist/*
 
 distprod: package
-    python3 -m twine upload dist/*
+	python3 -m twine upload dist/*
