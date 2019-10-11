@@ -32,12 +32,12 @@ setup(name='komand',
       test_suite="tests",
       include_package_data=True,
       classifiers=[
-        "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 2",
-        "Operating System :: OS Independent",
-        "Intended Audience :: Developers",
-        "License :: OSI Approved :: MIT License",
-        "Natural Language :: English",
-        "Topic :: Software Development :: Build Tools"
+          "Programming Language :: Python :: 3",
+          "Programming Language :: Python :: 2",
+          "Operating System :: OS Independent",
+          "Intended Audience :: Developers",
+          "License :: OSI Approved :: MIT License",
+          "Natural Language :: English",
+          "Topic :: Software Development :: Build Tools"
       ]
       )
