@@ -98,6 +98,28 @@ class PluginServer(gunicorn.app.base.BaseApplication):
                 r.status_code = status_code
                 return r
 
+        @app.route("/_threads", methods=["POST"])
+        def update_threads():
+            """
+            Updates the number of threads ran by the webserver
+            :return:
+            """
+
+            # First get the number of threads POSTed to the route. Catch an instance of a missing number of threads
+            try:
+                num_threads = request.form["num_threads"]
+            except KeyError:
+                self.logger.error("Received POST with invalid/missing input. Expected 'num_threads', "
+                                  "got {form_keys}".format(form_keys=request.form.keys()))
+                return abort(404)
+
+            # Update the gunicorn configuration
+            self.gunicorn_config["threads"] = num_threads
+
+            # Now that it's updated, call reload which calls load_default_config and finally calls our
+            # implementation of load_config
+            self.reload()
+
         return app
 
     def start(self):
