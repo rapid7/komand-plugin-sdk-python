@@ -99,10 +99,10 @@ class PluginServer(gunicorn.app.base.BaseApplication):
                 return r
 
         @app.route("/_threads", methods=["POST"])
-        def update_threads():
+        def update_threads() -> None:
             """
             Updates the number of threads ran by the webserver
-            :return:
+            :return: None
             """
 
             # First get the number of threads POSTed to the route. Catch an instance of a missing number of threads
