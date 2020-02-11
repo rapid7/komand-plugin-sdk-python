@@ -19,7 +19,10 @@ setup(name='komand',
           'certifi==2017.11.5',
           'six==1.11.0',
           'Flask==0.12.3',
-          'gunicorn==19.7.1'
+          'gunicorn==19.7.1',
+          'marshmallow==3.4.0',
+          'apispec==3.2.0',
+          'apispec-webframeworks==0.5.2'
       ],
       tests_require=[
           'pytest',
