@@ -2,6 +2,3 @@ requests==2.20.0
 python_jsonschema_objects==0.3.2
 jsonschema==2.3.0
 six==1.11.0
-marshmallow==3.4.0
-apispec==3.2.0
-apispec-webframeworks==0.5.2

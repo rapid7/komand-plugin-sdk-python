@@ -4,8 +4,26 @@ import gunicorn.app.base
 from flask import Flask, jsonify, request, abort
 from gunicorn.arbiter import Arbiter
 from gunicorn.six import iteritems
+from apispec import APISpec
+from apispec.ext.marshmallow import MarshmallowPlugin
+from apispec_webframeworks.flask import FlaskPlugin
+from marshmallow import Schema, fields
+
 
 from .exceptions import ClientException, ServerException, LoggedException
+
+# Optional marshmallow support
+class PluginSchema(Schema):
+    plugin_spec_version = fields.Str()
+    name = fields.Str()
+    title = fields.Str()
+    description = fields.Str()
+    version = fields.Str()
+    vendor = fields.Str()
+    support = fields.Str()
+    tags = fields.List(fields.Str())
+    enable_cache = fields.Str()
+    number_of_workers = fields.Int()
 
 
 class PluginServer(gunicorn.app.base.BaseApplication):
@@ -33,6 +51,15 @@ class PluginServer(gunicorn.app.base.BaseApplication):
         self.plugin = plugin
         self.debug = debug
         self.app = self.create_flask_app()
+
+        # Create an APISpec
+        self.spec = APISpec(
+            title="Runtime API",
+            version="1.0.0",
+            openapi_version="3.0.2",
+            plugins=[FlaskPlugin(), MarshmallowPlugin()],
+        )
+        print(type(plugin))
 
     def init(self, parser, opts, args):
         pass
@@ -98,6 +125,43 @@ class PluginServer(gunicorn.app.base.BaseApplication):
                 r.status_code = status_code
                 return r
 
+        @app.route("/api_spec")
+        def api_spec():
+            """API spec endpoint.
+            ---
+            get:
+              description: Get API spec details
+              responses:
+                200:
+                  content:
+                    application/json:
+                      type: object
+            """
+
+            return self.spec.to_yaml()
+
+        @app.route("/info")
+        def plugin_spec():
+            """Plugin spec endpoint.
+            ---
+            get:
+              description: Get plugin spec details
+              responses:
+                200:
+                  content:
+                    application/json:
+                      schema: PluginSchema
+            """
+            # code to get PluginSchema details from running container
+
+            # Something is wrong here to display content of self.plugin
+            return {
+               #"name": self.plugin['name']
+                #"description": self.plugin.description,
+                #"version": self.plugin.version,
+                #"vendor": self.plugin.vendor
+            }
+
         return app
 
     def start(self):
@@ -105,6 +169,8 @@ class PluginServer(gunicorn.app.base.BaseApplication):
         with self.app.app_context():
             try:
                 arbiter = Arbiter(self)
+                self.spec.path(view=self.app.view_functions['api_spec'])
+                self.spec.path(view=self.app.view_functions['plugin_spec'])
                 self.logger = arbiter.log
                 arbiter.run()
 
