@@ -1,4 +1,7 @@
 import sys
+import os
+import subprocess
+import signal
 
 import gunicorn.app.base
 from flask import Flask, jsonify, request, abort
@@ -33,6 +36,7 @@ class PluginServer(gunicorn.app.base.BaseApplication):
         self.plugin = plugin
         self.debug = debug
         self.app = self.create_flask_app()
+        self.master_pid = os.getpid()
 
     def init(self, parser, opts, args):
         pass
@@ -98,29 +102,65 @@ class PluginServer(gunicorn.app.base.BaseApplication):
                 r.status_code = status_code
                 return r
 
-        @app.route("/_threads", methods=["POST"])
-        def update_threads() -> None:
+        @app.route("/add_worker", methods=["POST"])
+        def add_worker():
             """
-            Updates the number of threads ran by the webserver
-            :return: None
+            Adds a worker (another process)
+            :return: Json Response
             """
+            r = {}
 
-            # First get the number of threads POSTed to the route. Catch an instance of a missing number of threads
+            # https://docs.gunicorn.org/en/stable/signals.html#master-process
             try:
-                num_threads = request.form["num_threads"]
-            except KeyError:
-                self.logger.error("Received POST with invalid/missing input. Expected 'num_threads', "
-                                  "got {form_keys}".format(form_keys=request.form.keys()))
-                return abort(404)
+                self.logger.info("Adding a worker")
+                self.logger.info(f"Current process is: {self.master_pid}")
+                os.kill(self.master_pid, signal.SIGTTIN)                
+            except Exception as e:
+                r.status_code = 500
+                r.error = e
+                return jsonify(r)
 
-            # Update the gunicorn configuration
-            self.gunicorn_config["threads"] = num_threads
+            r["num_workers"] = self.number_of_workers()
+            return jsonify(r)
 
-            # Now that it's updated, call reload which calls load_default_config and finally calls our
-            # implementation of load_config
-            self.reload()
+        @app.route("/remove_worker", methods=["POST"])
+        def remove_worker():
+            """
+            Shuts down a worker (another process)
+            If there is only 1 worker left, nothing happens
 
+            :return: Json Response
+            """
+
+            r = {}
+
+            # https://docs.gunicorn.org/en/stable/signals.html#master-process
+            try:
+                self.logger.info("Removing a worker")
+                self.logger.info(f"Current process is: {self.master_pid}")
+                os.kill(self.master_pid, signal.SIGTTOU)                
+            except Exception as e:
+                r = {}
+                r.status_code = 500
+                r.error = e
+                return jsonify(r)
+
+            return jsonify(r)  # Flask or Gunicorn expect a return
+
+        @app.route("/number_of_workers", methods=["POST"])
+        def num_workers():
+            r = {'num_workers': self.number_of_workers()}
+            return jsonify(r)
+
+        # Return flask app
         return app
+
+    def number_of_workers(self):  
+        output = subprocess.check_output('ps | grep "icon\\|komand" | grep -v "grep" | wc -l', shell=True)
+        num_workers = int(output.decode())
+
+        # num_workers - 1 due to a master process being run as well
+        return num_workers - 1
 
     def start(self):
         """ start server """
