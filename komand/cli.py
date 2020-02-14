@@ -65,7 +65,7 @@ class CLI(object):
             for name, item in self.plugin.actions.items():
                 result += '└── %s%s%s (%s%s)\n' % (GREEN, name, RESET, item.description, RESET)
 
-            print(result)
+        print(result)
 
     def sample(self, args):
         name = args.name
