@@ -9,21 +9,16 @@ from apispec.ext.marshmallow import MarshmallowPlugin
 from apispec_webframeworks.flask import FlaskPlugin
 from marshmallow import Schema, fields
 
-
 from .exceptions import ClientException, ServerException, LoggedException
 
-# Optional marshmallow support
+
 class PluginSchema(Schema):
-    plugin_spec_version = fields.Str()
     name = fields.Str()
-    title = fields.Str()
-    description = fields.Str()
-    version = fields.Str()
     vendor = fields.Str()
-    support = fields.Str()
-    tags = fields.List(fields.Str())
-    enable_cache = fields.Str()
+    version = fields.Str()
+    description = fields.Str()
     number_of_workers = fields.Int()
+    threads = fields.Int()
 
 
 class PluginServer(gunicorn.app.base.BaseApplication):
@@ -51,6 +46,8 @@ class PluginServer(gunicorn.app.base.BaseApplication):
         self.plugin = plugin
         self.debug = debug
         self.app = self.create_flask_app()
+        self.workers = workers
+        self.threads = threads
 
         # Create an APISpec
         self.spec = APISpec(
@@ -59,7 +56,6 @@ class PluginServer(gunicorn.app.base.BaseApplication):
             openapi_version="3.0.2",
             plugins=[FlaskPlugin(), MarshmallowPlugin()],
         )
-        print(type(plugin))
 
     def init(self, parser, opts, args):
         pass
@@ -79,7 +75,6 @@ class PluginServer(gunicorn.app.base.BaseApplication):
         @app.route('/<string:prefix>/<string:name>', defaults={'test': None}, methods=['POST'])
         @app.route('/<string:prefix>/<string:name>/<string:test>', methods=['POST'])
         def handler(prefix, name, test):
-
             input_message = request.get_json(force=True)
             self.logger.debug('Request input: %s', input_message)
 
@@ -127,7 +122,7 @@ class PluginServer(gunicorn.app.base.BaseApplication):
 
         @app.route("/api_spec")
         def api_spec():
-            """API spec endpoint.
+            """API spec details endpoint.
             ---
             get:
               description: Get API spec details
@@ -142,25 +137,26 @@ class PluginServer(gunicorn.app.base.BaseApplication):
 
         @app.route("/info")
         def plugin_spec():
-            """Plugin spec endpoint.
+            """Plugin spec details endpoint.
             ---
             get:
-              description: Get plugin spec details
+              description: Get plugin details
               responses:
                 200:
                   content:
                     application/json:
                       schema: PluginSchema
             """
-            # code to get PluginSchema details from running container
 
-            # Something is wrong here to display content of self.plugin
-            return {
-               #"name": self.plugin['name']
-                #"description": self.plugin.description,
-                #"version": self.plugin.version,
-                #"vendor": self.plugin.vendor
+            response = {
+                "name": self.plugin.name,
+                "description": self.plugin.description,
+                "version": self.plugin.version,
+                "vendor": self.plugin.vendor,
+                "number_of_workers": self.workers,
+                "threads": self.threads
             }
+            return jsonify(PluginSchema().dump(response))
 
         return app
 
