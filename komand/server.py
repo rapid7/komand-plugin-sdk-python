@@ -155,7 +155,7 @@ class PluginServer(gunicorn.app.base.BaseApplication):
         # Return flask app
         return app
 
-    def number_of_workers(self):  
+    def number_of_workers(self):
         output = subprocess.check_output('ps | grep "icon\\|komand" | grep -v "grep" | wc -l', shell=True)
         num_workers = int(output.decode())
 
