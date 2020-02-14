@@ -5,12 +5,14 @@ The Komand Python SDK is used for building plugins in Python for Rapid7 InsightC
 is currently built by [Travis CI](https://travis-ci.org/rapid7/komand-plugin-sdk-python) and results in base Docker 
 images used as the runtimes for InsightConnect plugins.
 
-Docker images created during the build and deployment of the Python SDK are uploaded to the [Komand repositories on 
-Dockerhub](https://hub.docker.com/u/komand/).
+Docker images created during the build and deployment of the Python SDK are uploaded to the [Komand Docker Repositories](https://hub.docker.com/u/komand/).
 
 Further [documentation](https://komand.github.io/python/start.html) for building an InsightConnect plugin is available to get started.
 
 ## Development of the Python SDK
+
+The Python SDK codebase is built to support Python2, Python3, and PyPy3. All code that is contributed must support all 
+three Python flavors.
 
 You will need to have some or all of the following dependencies installed, depending on what you're doing while building 
 or testing the Python SDK:
@@ -70,6 +72,18 @@ TODO: This needs updates to makefile to build single docker image
 > icon-plugin build image --no-pull
 > docker run -it -p 10001:10001 rapid7/example:latest http
 ```
+
+## Release
+
+To release a new version of the Python SDK, the below steps must be followed:
+
+1. Create a Pull Request with your changes to be merged into master
+2. Merge changes after receiving at least one approval
+3. Create a versioned tag off of release; version must follow SemVer
+4. [Travis CI](https://travis-ci.org/rapid7/komand-plugin-sdk-python) will perform a matrix build and release based on the recently created tag
+
+Travis utilizes a build matrix located in the [.travis.yml](.travis.yml) file located within the SDK to build with the 
+desired Python versions and then push them to their respective repositories.
 
 ## Changelog
 
