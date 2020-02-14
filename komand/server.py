@@ -113,7 +113,7 @@ class PluginServer(gunicorn.app.base.BaseApplication):
             # https://docs.gunicorn.org/en/stable/signals.html#master-process
             try:
                 self.logger.info("Adding a worker")
-                self.logger.info(f"Current process is: {self.master_pid}")
+                self.logger.info("Current process is: %s" % self.master_pid)
                 os.kill(self.master_pid, signal.SIGTTIN)                
             except Exception as e:
                 r.status_code = 500
@@ -137,7 +137,7 @@ class PluginServer(gunicorn.app.base.BaseApplication):
             # https://docs.gunicorn.org/en/stable/signals.html#master-process
             try:
                 self.logger.info("Removing a worker")
-                self.logger.info(f"Current process is: {self.master_pid}")
+                self.logger.info("Current process is: %s" % self.master_pid)
                 os.kill(self.master_pid, signal.SIGTTOU)                
             except Exception as e:
                 r = {}
