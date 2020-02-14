@@ -120,14 +120,14 @@ class PluginServer(gunicorn.app.base.BaseApplication):
                 r.error = e
                 return jsonify(r)
 
-            r["num_workers"] = self.number_of_workers()
+            r["num_workers"] = self._number_of_workers()
             return jsonify(r)
 
         @app.route("/remove_worker", methods=["POST"])
         def remove_worker():
             """
             Shuts down a worker (another process)
-            If there is only 1 worker left, nothing happens
+            If there is only 1 worker, nothing happens
 
             :return: Json Response
             """
@@ -149,13 +149,23 @@ class PluginServer(gunicorn.app.base.BaseApplication):
 
         @app.route("/number_of_workers", methods=["POST"])
         def num_workers():
-            r = {'num_workers': self.number_of_workers()}
+            r = {'num_workers': self._number_of_workers()}
             return jsonify(r)
 
         # Return flask app
         return app
 
-    def number_of_workers(self):
+    def _number_of_workers(self):
+        """
+        Number of workers tries to return the number of workers in use for gunicorn
+        It finds all processes named komand or icon and returns the number it finds minus 1.
+
+        The minus 1 is due to gunicorn always having a master process and at least 1 worker.
+
+        This function will likely produce unreliable results if used outside of a docker container
+
+        :return: integer
+        """
         output = subprocess.check_output('ps | grep "icon\\|komand" | grep -v "grep" | wc -l', shell=True)
         num_workers = int(output.decode())
 
