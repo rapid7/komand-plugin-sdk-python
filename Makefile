@@ -72,3 +72,15 @@ disttest: package
 
 distprod: package
 	python3 -m twine upload dist/*
+
+run-sample:
+    # Exit early if sample doesn't exist
+	if [ ! -d "samples/$(sample)" ]; then \
+		echo "ERROR: $(sample) sample plugin doesn't exist; confirm spelling or existence and try again" && exit 1; \
+	fi
+	# Build and install plugin sdk library
+	python setup.py build && python setup.py install
+	# Build and install plugin
+	cd samples/$(sample) ; python setup.py build && python setup.py install
+	# Run plugin in http mode
+	cd samples/$(sample) ; ./bin/icon_$(sample) http
