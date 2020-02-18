@@ -137,7 +137,9 @@ class PluginServer(gunicorn.app.base.BaseApplication):
                     application/json:
                       type: object
             """
-
+            format_ = request.args.get('format')
+            if format_ == "yaml":
+                return self.spec.to_yaml()
             return json.dumps(self.spec.to_dict(), indent=2)
 
         @app.route("/info")
