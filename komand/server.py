@@ -9,12 +9,11 @@ from apispec import APISpec
 from apispec.ext.marshmallow import MarshmallowPlugin
 from apispec_webframeworks.flask import FlaskPlugin
 from marshmallow import Schema, fields
-
 from .exceptions import ClientException, ServerException, LoggedException
 
 
-API_SPEC_TITLE = "Runtime API"
-API_SPEC_VERSION = "1.0"
+API_TITLE = "Runtime API"
+API_VERSION = "1.0"
 OPEN_API_VERSION = "3.2.0"
 
 
@@ -57,8 +56,8 @@ class PluginServer(gunicorn.app.base.BaseApplication):
 
         # Create an APISpec
         self.spec = APISpec(
-            title=API_SPEC_TITLE,
-            version=API_SPEC_VERSION,
+            title=API_TITLE,
+            version=API_VERSION,
             openapi_version=OPEN_API_VERSION,
             plugins=[FlaskPlugin(), MarshmallowPlugin()],
         )
