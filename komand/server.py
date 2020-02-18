@@ -1,3 +1,4 @@
+import json
 import sys
 
 import gunicorn.app.base
@@ -12,7 +13,12 @@ from marshmallow import Schema, fields
 from .exceptions import ClientException, ServerException, LoggedException
 
 
-class PluginSchema(Schema):
+API_SPEC_TITLE = "Runtime API"
+API_SPEC_VERSION = "1.0"
+OPEN_API_VERSION = "3.2.0"
+
+
+class PluginInfoSchema(Schema):
     name = fields.Str()
     vendor = fields.Str()
     version = fields.Str()
@@ -51,9 +57,9 @@ class PluginServer(gunicorn.app.base.BaseApplication):
 
         # Create an APISpec
         self.spec = APISpec(
-            title="Runtime API",
-            version="1.0.0",
-            openapi_version="3.0.2",
+            title=API_SPEC_TITLE,
+            version=API_SPEC_VERSION,
+            openapi_version=OPEN_API_VERSION,
             plugins=[FlaskPlugin(), MarshmallowPlugin()],
         )
 
@@ -120,7 +126,7 @@ class PluginServer(gunicorn.app.base.BaseApplication):
                 r.status_code = status_code
                 return r
 
-        @app.route("/api_spec")
+        @app.route("/api")
         def api_spec():
             """API spec details endpoint.
             ---
@@ -133,10 +139,10 @@ class PluginServer(gunicorn.app.base.BaseApplication):
                       type: object
             """
 
-            return self.spec.to_yaml()
+            return json.dumps(self.spec.to_dict(), indent=2)
 
         @app.route("/info")
-        def plugin_spec():
+        def plugin_info():
             """Plugin spec details endpoint.
             ---
             get:
@@ -145,7 +151,7 @@ class PluginServer(gunicorn.app.base.BaseApplication):
                 200:
                   content:
                     application/json:
-                      schema: PluginSchema
+                      schema: PluginInfoSchema
             """
 
             response = {
@@ -156,7 +162,7 @@ class PluginServer(gunicorn.app.base.BaseApplication):
                 "number_of_workers": self.workers,
                 "threads": self.threads
             }
-            return jsonify(PluginSchema().dump(response))
+            return jsonify(PluginInfoSchema().dump(response))
 
         return app
 
@@ -166,7 +172,7 @@ class PluginServer(gunicorn.app.base.BaseApplication):
             try:
                 arbiter = Arbiter(self)
                 self.spec.path(view=self.app.view_functions['api_spec'])
-                self.spec.path(view=self.app.view_functions['plugin_spec'])
+                self.spec.path(view=self.app.view_functions['plugin_info'])
                 self.logger = arbiter.log
                 arbiter.run()
 
