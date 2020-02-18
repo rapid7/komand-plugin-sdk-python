@@ -102,7 +102,7 @@ class PluginServer(gunicorn.app.base.BaseApplication):
                 r.status_code = status_code
                 return r
 
-        @app.route("/add_worker", methods=["POST"])
+        @app.route("/workers/add", methods=["POST"])
         def add_worker():
             """
             Adds a worker (another process)
@@ -110,6 +110,7 @@ class PluginServer(gunicorn.app.base.BaseApplication):
             """
             r = {}
 
+            # Linux signal examples here:
             # https://docs.gunicorn.org/en/stable/signals.html#master-process
             try:
                 self.logger.info("Adding a worker")
@@ -123,7 +124,7 @@ class PluginServer(gunicorn.app.base.BaseApplication):
             r["num_workers"] = self._number_of_workers()
             return jsonify(r)
 
-        @app.route("/remove_worker", methods=["POST"])
+        @app.route("/workers/remove", methods=["POST"])
         def remove_worker():
             """
             Shuts down a worker (another process)
@@ -134,6 +135,7 @@ class PluginServer(gunicorn.app.base.BaseApplication):
 
             r = {}
 
+            # Linux signal examples here:
             # https://docs.gunicorn.org/en/stable/signals.html#master-process
             try:
                 self.logger.info("Removing a worker")
@@ -147,7 +149,7 @@ class PluginServer(gunicorn.app.base.BaseApplication):
 
             return jsonify(r)  # Flask or Gunicorn expect a return
 
-        @app.route("/number_of_workers", methods=["POST"])
+        @app.route("/workers", methods=["GET"])
         def num_workers():
             r = {'num_workers': self._number_of_workers()}
             return jsonify(r)
