@@ -1,4 +1,7 @@
 import sys
+import os
+import subprocess
+import signal
 
 import gunicorn.app.base
 from flask import Flask, jsonify, request, abort
@@ -33,6 +36,7 @@ class PluginServer(gunicorn.app.base.BaseApplication):
         self.plugin = plugin
         self.debug = debug
         self.app = self.create_flask_app()
+        self.master_pid = os.getpid()
 
     def init(self, parser, opts, args):
         pass
@@ -98,7 +102,77 @@ class PluginServer(gunicorn.app.base.BaseApplication):
                 r.status_code = status_code
                 return r
 
+        @app.route("/workers/add", methods=["POST"])
+        def add_worker():
+            """
+            Adds a worker (another process)
+            :return: Json Response
+            """
+            r = {}
+
+            # Linux signal examples here:
+            # https://docs.gunicorn.org/en/stable/signals.html#master-process
+            try:
+                self.logger.info("Adding a worker")
+                self.logger.info("Current process is: %s" % self.master_pid)
+                os.kill(self.master_pid, signal.SIGTTIN)
+            except Exception as e:
+                r.status_code = 500
+                r.error = e
+                return jsonify(r)
+
+            r["num_workers"] = self._number_of_workers()
+            return jsonify(r)
+
+        @app.route("/workers/remove", methods=["POST"])
+        def remove_worker():
+            """
+            Shuts down a worker (another process)
+            If there is only 1 worker, nothing happens
+
+            :return: Json Response
+            """
+
+            r = {}
+
+            # Linux signal examples here:
+            # https://docs.gunicorn.org/en/stable/signals.html#master-process
+            try:
+                self.logger.info("Removing a worker")
+                self.logger.info("Current process is: %s" % self.master_pid)
+                os.kill(self.master_pid, signal.SIGTTOU)
+            except Exception as e:
+                r = {}
+                r.status_code = 500
+                r.error = e
+                return jsonify(r)
+
+            return jsonify(r)  # Flask or Gunicorn expect a return
+
+        @app.route("/workers", methods=["GET"])
+        def num_workers():
+            r = {'num_workers': self._number_of_workers()}
+            return jsonify(r)
+
+        # Return flask app
         return app
+
+    def _number_of_workers(self):
+        """
+        Number of workers tries to return the number of workers in use for gunicorn
+        It finds all processes named komand or icon and returns the number it finds minus 1.
+
+        The minus 1 is due to gunicorn always having a master process and at least 1 worker.
+
+        This function will likely produce unreliable results if used outside of a docker container
+
+        :return: integer
+        """
+        output = subprocess.check_output('ps | grep "icon\\|komand" | grep -v "grep" | wc -l', shell=True)
+        num_workers = int(output.decode())
+
+        # num_workers - 1 due to a master process being run as well
+        return num_workers - 1
 
     def start(self):
         """ start server """
