@@ -4,7 +4,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setup(name='komand',
-      version='3.4.0',
+      version='4.0.0',
       description='Komand Plugin SDK',
       long_description=long_description,
       long_description_content_type="text/markdown",
