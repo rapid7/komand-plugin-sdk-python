@@ -2,7 +2,7 @@ import json
 import sys
 
 import gunicorn.app.base
-from flask import Flask, jsonify, request, abort
+from flask import Flask, jsonify, request, abort, make_response
 from gunicorn.arbiter import Arbiter
 from gunicorn.six import iteritems
 from apispec import APISpec
@@ -14,7 +14,7 @@ from .exceptions import ClientException, ServerException, LoggedException
 
 API_TITLE = "Runtime API"
 API_VERSION = "1.0"
-OPEN_API_VERSION = "3.2.0"
+OPEN_API_VERSION = "2.0"
 
 
 class PluginInfoSchema(Schema):
@@ -130,29 +130,41 @@ class PluginServer(gunicorn.app.base.BaseApplication):
             """API spec details endpoint.
             ---
             get:
-              description: Get API spec details
+              summary: Get API spec details
+              description: Get Swagger v2.0 API Specification
+              parameters:
+                - in: query
+                  name: format
+                  type: string
+                  description: Format to return swagger spec; defaults to JSON
+                  enum: [json, yaml]
               responses:
                 200:
-                  content:
-                    application/json:
-                      type: object
+                  description: Swagger Specification to be returned
+                  schema:
+                    type: object
+                404:
+                  description: The specified format is not supported
             """
-            format_ = request.args.get('format')
-            if format_ == "yaml":
+            format_ = request.args.get('format', 'json')
+            if format_ == "json":
+                return json.dumps(self.spec.to_dict(), indent=2)
+            elif format_ == "yaml":
                 return self.spec.to_yaml()
-            return json.dumps(self.spec.to_dict(), indent=2)
+            else:
+                return make_response(jsonify({'error': 'The specified format is not supported'}), 404)
 
         @app.route("/info")
         def plugin_info():
             """Plugin spec details endpoint.
             ---
             get:
-              description: Get plugin details
+              summary: Get plugin details
+              description: Get InsightConnect plugin details
               responses:
                 200:
-                  content:
-                    application/json:
-                      schema: PluginInfoSchema
+                  description: InsightConnect Plugin Information to be returned
+                  schema: PluginInfoSchema
             """
 
             response = {
@@ -172,6 +184,7 @@ class PluginServer(gunicorn.app.base.BaseApplication):
         with self.app.app_context():
             try:
                 arbiter = Arbiter(self)
+                self.spec.components.schema('PluginInfo', schema=PluginInfoSchema)
                 self.spec.path(view=self.app.view_functions['api_spec'])
                 self.spec.path(view=self.app.view_functions['plugin_info'])
                 self.logger = arbiter.log
