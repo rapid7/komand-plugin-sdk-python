@@ -4,7 +4,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setup(name='komand',
-      version='3.2.0',
+      version='4.0.0',
       description='Komand Plugin SDK',
       long_description=long_description,
       long_description_content_type="text/markdown",
@@ -19,7 +19,10 @@ setup(name='komand',
           'certifi==2017.11.5',
           'six==1.11.0',
           'Flask==0.12.3',
-          'gunicorn==19.7.1'
+          'gunicorn==19.7.1',
+          'marshmallow==3.4.0',
+          'apispec==3.2.0',
+          'apispec-webframeworks==0.5.2'
       ],
       tests_require=[
           'pytest',

@@ -1,11 +1,29 @@
+import json
 import sys
 
 import gunicorn.app.base
-from flask import Flask, jsonify, request, abort
+from flask import Flask, jsonify, request, abort, make_response
 from gunicorn.arbiter import Arbiter
 from gunicorn.six import iteritems
-
+from apispec import APISpec
+from apispec.ext.marshmallow import MarshmallowPlugin
+from apispec_webframeworks.flask import FlaskPlugin
+from marshmallow import Schema, fields
 from .exceptions import ClientException, ServerException, LoggedException
+
+
+API_TITLE = "Runtime API"
+API_VERSION = "1.0"
+OPEN_API_VERSION = "2.0"
+
+
+class PluginInfoSchema(Schema):
+    name = fields.Str()
+    vendor = fields.Str()
+    version = fields.Str()
+    description = fields.Str()
+    number_of_workers = fields.Int()
+    threads = fields.Int()
 
 
 class PluginServer(gunicorn.app.base.BaseApplication):
@@ -33,6 +51,16 @@ class PluginServer(gunicorn.app.base.BaseApplication):
         self.plugin = plugin
         self.debug = debug
         self.app = self.create_flask_app()
+        self.workers = workers
+        self.threads = threads
+
+        # Create an APISpec
+        self.spec = APISpec(
+            title=API_TITLE,
+            version=API_VERSION,
+            openapi_version=OPEN_API_VERSION,
+            plugins=[FlaskPlugin(), MarshmallowPlugin()],
+        )
 
     def init(self, parser, opts, args):
         pass
@@ -52,7 +80,6 @@ class PluginServer(gunicorn.app.base.BaseApplication):
         @app.route('/<string:prefix>/<string:name>', defaults={'test': None}, methods=['POST'])
         @app.route('/<string:prefix>/<string:name>/<string:test>', methods=['POST'])
         def handler(prefix, name, test):
-
             input_message = request.get_json(force=True)
             self.logger.debug('Request input: %s', input_message)
 
@@ -98,6 +125,58 @@ class PluginServer(gunicorn.app.base.BaseApplication):
                 r.status_code = status_code
                 return r
 
+        @app.route("/api")
+        def api_spec():
+            """API spec details endpoint.
+            ---
+            get:
+              summary: Get API spec details
+              description: Get Swagger v2.0 API Specification
+              parameters:
+                - in: query
+                  name: format
+                  type: string
+                  description: Format to return swagger spec; defaults to JSON
+                  enum: [json, yaml]
+              responses:
+                200:
+                  description: Swagger Specification to be returned
+                  schema:
+                    type: object
+                404:
+                  description: The specified format is not supported
+            """
+            format_ = request.args.get('format', 'json')
+            if format_ == "json":
+                return json.dumps(self.spec.to_dict(), indent=2)
+            elif format_ == "yaml":
+                return self.spec.to_yaml()
+            else:
+                return make_response(jsonify({'error': 'The specified format is not supported'}), 404)
+
+        @app.route("/info")
+        def plugin_info():
+            """Plugin spec details endpoint.
+            ---
+            get:
+              summary: Get plugin details
+              description: Get InsightConnect plugin details
+              responses:
+                200:
+                  description: InsightConnect Plugin Information to be returned
+                  schema: PluginInfoSchema
+            """
+
+            response = {
+                "name": self.plugin.name,
+                "description": self.plugin.description,
+                "version": self.plugin.version,
+                "vendor": self.plugin.vendor,
+                "number_of_workers": self.workers,
+                "threads": self.threads
+            }
+            return jsonify(PluginInfoSchema().dump(response))
+
         return app
 
     def start(self):
@@ -105,6 +184,9 @@ class PluginServer(gunicorn.app.base.BaseApplication):
         with self.app.app_context():
             try:
                 arbiter = Arbiter(self)
+                self.spec.components.schema('PluginInfo', schema=PluginInfoSchema)
+                self.spec.path(view=self.app.view_functions['api_spec'])
+                self.spec.path(view=self.app.view_functions['plugin_info'])
                 self.logger = arbiter.log
                 arbiter.run()
 
