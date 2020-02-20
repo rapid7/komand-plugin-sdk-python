@@ -73,6 +73,24 @@ TODO: This needs updates to makefile to build single docker image
 > docker run -it -p 10001:10001 rapid7/example:latest http
 ```
 
+## Running Tests
+
+In order to run tests for the Python SDK, first ensure `tox` has been installed. Tox makes it easy for testing this 
+project in isolated virtual environments and for specific Python versions. To install tox:
+```
+> pip install tox
+```
+
+Running all tests:
+```
+> tox
+```
+
+Running a specific test file:
+```
+> tox -e py38 -- tests/plugin/hello_world/tests/test_cli.py
+```
+
 ## Release
 
 To release a new version of the Python SDK, the below steps must be followed:

@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 from jsonschema import validate
 import komand.util as util
-import logging
 from komand.exceptions import ClientException
-from six import string_types  # Needed for Py2/3 string-type validation
 
 
 class Input(object):
@@ -53,7 +51,7 @@ class Input(object):
 
                 # Check if the value is null OR the value is a string and has a length of 0
                 # Logic is expanded due to the fact that we don't want to false-positive on False boolean values
-                if (value is None) or (isinstance(value, string_types) and not len(value)):
+                if (value is None) or (isinstance(value, str) and not len(value)):
                     raise ClientException(message.format(key=key))
 
     def sample(self):

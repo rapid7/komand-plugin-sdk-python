@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
 import sys
-import json
-import six
 from tests.plugin.hello_world import KomandHelloWorld
 from komand.cli import CLI
-from komand.plugin import stream_class
+import io
 
 cli = CLI(KomandHelloWorld())
 
 
 def capture_stdout(raises_exception=False):
     old = sys.stdout
-    sys.stdout = stream_class()
+    sys.stdout = io.StringIO()
 
     try:
         cli.run()
@@ -26,11 +24,6 @@ def capture_stdout(raises_exception=False):
 
 
 def test_cli_info():
-
-    # Disabling test for python 2 because dicts are not ordered
-    if six.PY2:
-        return
-
     cli.args = ['info']
     actual_value = capture_stdout()
     expected_value = u"""Name:        [92mHello_world[0m

@@ -8,11 +8,9 @@ import ssl
 import subprocess
 import time
 from io import IOBase
+from urllib import request
 
 import requests
-import six
-from six.moves.urllib import request
-from six.moves.urllib.error import HTTPError, URLError
 
 
 def extract_value(begin, key, end, s):
@@ -148,7 +146,7 @@ def open_file(file_path):
     if os.path.isdir(dirname):
         if os.path.isfile(file_path):
             f = open(file_path, 'rb')
-            if isinstance(f, IOBase) or isinstance(f, file):  # IOBase for Py3 compatibility
+            if isinstance(f, IOBase):
                 return f
             return None
         else:
@@ -252,11 +250,11 @@ def open_url(url, timeout=None, verify=True, **kwargs):
             ctx.verify_mode = ssl.CERT_NONE
             urlobj = request.urlopen(req, timeout=timeout, context=ctx)
         return urlobj
-    except HTTPError as e:
+    except request.HTTPError as e:
         logging.error('HTTPError: %s for %s', str(e.code), url)
         if e.code == 304:
             return None
-    except URLError as e:
+    except request.URLError as e:
         logging.error('URLError: %s for %s', str(e.reason), url)
     raise Exception('GetURL Failed')
 
@@ -311,8 +309,7 @@ def exec_command(command):
 def encode_string(s):
     """Returns a base64 encoded string given a string."""
     if type(s) is str:
-        to_encode = s if six.PY2 else s.encode('utf-8')
-        _bytes = base64.b64encode(to_encode)
+        _bytes = base64.b64encode(s.encode('utf-8'))
         return _bytes
     return None
 
@@ -322,7 +319,7 @@ def encode_file(file_path):
     f = None
     try:
         f = open_file(file_path)
-        if isinstance(f, IOBase) or isinstance(f, file):  # IOBase for Py3 compatibility
+        if isinstance(f, IOBase):
             efile = base64.b64encode(f.read())
             return efile
         return None
@@ -330,7 +327,7 @@ def encode_file(file_path):
         logging.error('EncodeFile: Failed to open file: %s', e.strerror)
         raise Exception('EncodeFile')
     finally:
-        if isinstance(f, IOBase) or isinstance(f, file):  # IOBase for Py3 compatibility
+        if isinstance(f, IOBase):
             f.close()
 
 

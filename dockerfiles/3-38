@@ -1,4 +1,4 @@
-FROM python:3.7.2-alpine3.9
+FROM python:3.8.1-slim-buster
 
 LABEL organization=komand \
 			sdk=python \
@@ -11,6 +11,4 @@ ENV SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt \
 ADD ./ /usr/src/komand
 WORKDIR /usr/src/komand
 
-# No `make` being included, so run the python command
-RUN apk add --no-cache openssl==1.1.1b-r1 && \
-	python setup.py install
+RUN python setup.py install
