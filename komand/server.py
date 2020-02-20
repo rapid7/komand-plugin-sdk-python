@@ -143,7 +143,7 @@ class PluginServer(gunicorn.app.base.BaseApplication):
                   description: Swagger Specification to be returned
                   schema:
                     type: object
-                400:
+                422:
                   description: The specified format is not supported
             """
             format_ = request.args.get("format", "json")
@@ -152,7 +152,7 @@ class PluginServer(gunicorn.app.base.BaseApplication):
             elif format_ == "yaml":
                 return self.spec.to_yaml()
             else:
-                return make_response(jsonify({"error": "The specified format is not supported"}), 400)
+                return make_response(jsonify({"error": "The specified format is not supported"}), 422)
 
         @app.route("/info")
         def plugin_info():
@@ -247,7 +247,7 @@ class PluginServer(gunicorn.app.base.BaseApplication):
                   description: Plugin specification to be returned
                   schema:
                     type: object
-                400:
+                422:
                   description: The specified format is not supported
             """
             with open("/python/src/plugin.spec.yaml", "r") as p_spec:
@@ -260,7 +260,7 @@ class PluginServer(gunicorn.app.base.BaseApplication):
             elif format_ == "yaml":
                 return plugin_spec
             else:
-                return make_response(jsonify({"error": "The specified format is not supported"}), 400)
+                return make_response(jsonify({"error": "The specified format is not supported"}), 422)
 
         return app
 
