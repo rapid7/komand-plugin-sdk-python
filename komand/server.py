@@ -1,6 +1,6 @@
 import json
 import sys
-
+import yaml
 import gunicorn.app.base
 from flask import Flask, jsonify, request, abort, make_response
 from gunicorn.arbiter import Arbiter
@@ -143,16 +143,16 @@ class PluginServer(gunicorn.app.base.BaseApplication):
                   description: Swagger Specification to be returned
                   schema:
                     type: object
-                404:
+                400:
                   description: The specified format is not supported
             """
-            format_ = request.args.get('format', 'json')
+            format_ = request.args.get("format", "json")
             if format_ == "json":
-                return json.dumps(self.spec.to_dict(), indent=2)
+                return json.dumps(self.spec.to_dict())
             elif format_ == "yaml":
                 return self.spec.to_yaml()
             else:
-                return make_response(jsonify({'error': 'The specified format is not supported'}), 404)
+                return make_response(jsonify({"error": "The specified format is not supported"}), 400)
 
         @app.route("/info")
         def plugin_info():
@@ -177,6 +177,91 @@ class PluginServer(gunicorn.app.base.BaseApplication):
             }
             return jsonify(PluginInfoSchema().dump(response))
 
+        @app.route("/actions")
+        def actions():
+            """Plugin actions list endpoint.
+            ---
+            get:
+              summary: Get list of plugin actions
+              description: Get InsightConnect plugin all actions
+              responses:
+                200:
+                  description: InsightConnect Plugin actions list to be returned
+                  schema:
+                    type: array
+            """
+            action_list = []
+            for action in self.plugin.actions.keys():
+                action_list.append(action)
+            return json.dumps(action_list)
+
+        @app.route("/triggers")
+        def triggers():
+            """Plugin triggers list endpoint.
+            ---
+            get:
+              summary: Get list of plugin triggers
+              description: Get InsightConnect plugin all triggers
+              responses:
+                200:
+                  description: InsightConnect Plugin triggers list to be returned
+                  schema:
+                    type: array
+            """
+            trigger_list = []
+            for action in self.plugin.triggers.keys():
+                trigger_list.append(action)
+            return json.dumps(trigger_list)
+
+        @app.route("/status")
+        def status():
+            """Web service status endpoint
+            ---
+            get:
+              summary: Get web service status
+              description: Get web service status
+              responses:
+                200:
+                  description: Status to be returned
+                  schema:
+                    type: object
+            """
+            # TODO: Add logic to figure out status (Ready, Running, Down) of web service.
+            return jsonify({"status": "Ready"})
+
+        @app.route("/spec")
+        def plugin_spec():
+            """Plugin spec details endpoint.
+            ---
+            get:
+              summary: Get plugin spec details
+              description: Get plugin specification
+              parameters:
+                - in: query
+                  name: format
+                  type: string
+                  description: Format to return plugin spec; defaults to JSON
+                  enum: [json, yaml]
+              responses:
+                200:
+                  description: Plugin specification to be returned
+                  schema:
+                    type: object
+                400:
+                  description: The specified format is not supported
+            """
+            with open("/python/src/plugin.spec.yaml", "r") as p_spec:
+                plugin_spec = p_spec.read()
+
+            format_ = request.args.get("format", "json")
+
+            if format_ == "json":
+                return jsonify(yaml.safe_load(plugin_spec))
+            elif format_ == "yaml":
+                return plugin_spec
+            else:
+                return make_response(jsonify({"error": "The specified format is not supported"}), 400)
+
         return app
 
     def start(self):
@@ -185,8 +270,13 @@ class PluginServer(gunicorn.app.base.BaseApplication):
             try:
                 arbiter = Arbiter(self)
                 self.spec.components.schema('PluginInfo', schema=PluginInfoSchema)
-                self.spec.path(view=self.app.view_functions['api_spec'])
-                self.spec.path(view=self.app.view_functions['plugin_info'])
+                self.spec.path(view=self.app.view_functions["api_spec"])
+                self.spec.path(view=self.app.view_functions["plugin_info"])
+                self.spec.path(view=self.app.view_functions["plugin_spec"])
+                self.spec.path(view=self.app.view_functions["actions"])
+                self.spec.path(view=self.app.view_functions["triggers"])
+                self.spec.path(view=self.app.view_functions["status"])
+
                 self.logger = arbiter.log
                 arbiter.run()
 
