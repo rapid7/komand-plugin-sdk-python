@@ -188,7 +188,7 @@ class PluginServer(gunicorn.app.base.BaseApplication):
                 200:
                   description: InsightConnect Plugin actions list to be returned
                   schema:
-                    type: list
+                    type: array
             """
             action_list = []
             for action in self.plugin.actions.keys():
@@ -206,7 +206,7 @@ class PluginServer(gunicorn.app.base.BaseApplication):
                 200:
                   description: InsightConnect Plugin triggers list to be returned
                   schema:
-                    type: list
+                    type: array
             """
             trigger_list = []
             for action in self.plugin.triggers.keys():
