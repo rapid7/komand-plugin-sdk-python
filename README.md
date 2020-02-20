@@ -87,7 +87,7 @@ desired Python versions and then push them to their respective repositories.
 
 ## Changelog
 
-* 4.0.0 - Add API, plugin spec, plugin info, list actions/triggers and status routes | End support for Python2 and PyPy |Add development details to README |
+* 4.0.0 - Add API, plugin spec, plugin info, list actions/triggers and status routes | End support for Python2 and PyPy | Add development details to README |
  Add run-local makefile rule for ease of development
 * 3.2.0 - Add new ConnectionTestException/PluginException presets:
  UNKNOWN, BASE64_ENCODE, BASE64_DECODE, INVALID_JSON |

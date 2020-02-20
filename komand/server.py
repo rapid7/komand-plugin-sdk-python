@@ -143,7 +143,7 @@ class PluginServer(gunicorn.app.base.BaseApplication):
                   description: Swagger Specification to be returned
                   schema:
                     type: object
-                404:
+                400:
                   description: The specified format is not supported
             """
             format_ = request.args.get("format", "json")
@@ -247,7 +247,7 @@ class PluginServer(gunicorn.app.base.BaseApplication):
                   description: Plugin specification to be returned
                   schema:
                     type: object
-                404:
+                400:
                   description: The specified format is not supported
             """
             with open("/python/src/plugin.spec.yaml", "r") as p_spec:
