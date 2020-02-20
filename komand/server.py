@@ -193,7 +193,7 @@ class PluginServer(gunicorn.app.base.BaseApplication):
             action_list = []
             for action in self.plugin.actions.keys():
                 action_list.append(action)
-            return json.dumps(action_list)
+            return json.dumps(action_list, indent=2)
 
         @app.route("/triggers")
         def triggers():
@@ -211,7 +211,7 @@ class PluginServer(gunicorn.app.base.BaseApplication):
             trigger_list = []
             for action in self.plugin.triggers.keys():
                 trigger_list.append(action)
-            return json.dumps(trigger_list)
+            return json.dumps(trigger_list, indent=2)
 
         @app.route("/status")
         def status():
