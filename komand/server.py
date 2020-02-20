@@ -146,13 +146,13 @@ class PluginServer(gunicorn.app.base.BaseApplication):
                 404:
                   description: The specified format is not supported
             """
-            format_ = request.args.get('format', 'json')
+            format_ = request.args.get("format", "json")
             if format_ == "json":
-                return json.dumps(self.spec.to_dict(), indent=2)
+                return json.dumps(self.spec.to_dict())
             elif format_ == "yaml":
                 return self.spec.to_yaml()
             else:
-                return make_response(jsonify({'error': 'The specified format is not supported'}), 404)
+                return make_response(jsonify({"error": "The specified format is not supported"}), 400)
 
         @app.route("/info")
         def plugin_info():
@@ -193,7 +193,7 @@ class PluginServer(gunicorn.app.base.BaseApplication):
             action_list = []
             for action in self.plugin.actions.keys():
                 action_list.append(action)
-            return json.dumps(action_list, indent=2)
+            return json.dumps(action_list)
 
         @app.route("/triggers")
         def triggers():
@@ -211,7 +211,7 @@ class PluginServer(gunicorn.app.base.BaseApplication):
             trigger_list = []
             for action in self.plugin.triggers.keys():
                 trigger_list.append(action)
-            return json.dumps(trigger_list, indent=2)
+            return json.dumps(trigger_list)
 
         @app.route("/status")
         def status():
@@ -250,17 +250,17 @@ class PluginServer(gunicorn.app.base.BaseApplication):
                 404:
                   description: The specified format is not supported
             """
-            with open("/python/src/plugin.spec.yaml", 'r') as p_spec:
+            with open("/python/src/plugin.spec.yaml", "r") as p_spec:
                 plugin_spec = p_spec.read()
 
-            format_ = request.args.get('format', 'json')
+            format_ = request.args.get("format", "json")
 
             if format_ == "json":
                 return jsonify(yaml.safe_load(plugin_spec))
             elif format_ == "yaml":
                 return plugin_spec
             else:
-                return make_response(jsonify({'error': 'The specified format is not supported'}), 404)
+                return make_response(jsonify({"error": "The specified format is not supported"}), 400)
 
         return app
 
@@ -270,12 +270,12 @@ class PluginServer(gunicorn.app.base.BaseApplication):
             try:
                 arbiter = Arbiter(self)
                 self.spec.components.schema('PluginInfo', schema=PluginInfoSchema)
-                self.spec.path(view=self.app.view_functions['api_spec'])
-                self.spec.path(view=self.app.view_functions['plugin_info'])
-                self.spec.path(view=self.app.view_functions['plugin_spec'])
-                self.spec.path(view=self.app.view_functions['actions'])
-                self.spec.path(view=self.app.view_functions['triggers'])
-                self.spec.path(view=self.app.view_functions['status'])
+                self.spec.path(view=self.app.view_functions["api_spec"])
+                self.spec.path(view=self.app.view_functions["plugin_info"])
+                self.spec.path(view=self.app.view_functions["plugin_spec"])
+                self.spec.path(view=self.app.view_functions["actions"])
+                self.spec.path(view=self.app.view_functions["triggers"])
+                self.spec.path(view=self.app.view_functions["status"])
 
                 self.logger = arbiter.log
                 arbiter.run()
