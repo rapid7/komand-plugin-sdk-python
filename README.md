@@ -11,14 +11,12 @@ Further [documentation](https://komand.github.io/python/start.html) for building
 
 ## Development of the Python SDK
 
-The Python SDK codebase is built to support Python2, Python3, and PyPy3. All code that is contributed must support all 
-three Python flavors.
+The Python SDK codebase is built to support Python 3.8+ as of version 4.0.0. Prior [SDK releases](https://github.com/rapid7/komand-plugin-sdk-python/releases) 
+will need to be referenced for any Python 2.7 or 3.7 needs. 
 
-You will need to have some or all of the following dependencies installed, depending on what you're doing while building 
-or testing the Python SDK:
+You will need to have the following dependencies installed when developing or testing the Python SDK:
 
-- Python 3
-- Python 2
+- Python 3.8
 - Docker
 - make
 - tox
