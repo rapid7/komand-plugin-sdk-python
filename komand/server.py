@@ -74,56 +74,122 @@ class PluginServer(gunicorn.app.base.BaseApplication):
         for key, value in iteritems(config):
             self.cfg.set(key.lower(), value)
 
+    def run_action_trigger(self, input_message, test=False):
+        status_code = 200
+        output = None
+        try:
+            output = self.plugin.handle_step(input_message, is_debug=self.debug, is_test=test)
+        except LoggedException as e:
+            wrapped_exception = e.ex
+            self.logger.exception(wrapped_exception)
+            output = e.output
+
+            if isinstance(wrapped_exception, ClientException):
+                status_code = 400
+            elif isinstance(wrapped_exception, ServerException):
+                # I'm unsure about this
+                status_code = 500
+            else:
+                status_code = 500
+        finally:
+            self.logger.debug('Request output: %s', output)
+            r = jsonify(output)
+            r.status_code = status_code
+            return r
+
+    @staticmethod
+    def validate_action_trigger(input_message, name, p_type):
+        if input_message is None:
+            return abort(400)
+        if input_message.get('body', {}).get(p_type, None) != name:
+            return abort(400)
+
     def create_flask_app(self):
         app = Flask(__name__)
 
-        @app.route('/<string:prefix>/<string:name>', defaults={'test': None}, methods=['POST'])
-        @app.route('/<string:prefix>/<string:name>/<string:test>', methods=['POST'])
-        def handler(prefix, name, test):
+        @app.route('/actions/<string:name>', methods=['POST'])
+        def action_run(name):
+            """Run action endpoint.
+            ---
+            post:
+              summary: Run an action
+              description: Run an action
+              parameters:
+                - in: path
+                  name: name
+                  description: Name of the action
+                  type: string
+              responses:
+                200:
+                  description: Action output to be returned
+                  schema:
+                    type: object
+                400:
+                  description: Bad request
+                500:
+                  description: Unexpected error
+            """
             input_message = request.get_json(force=True)
             self.logger.debug('Request input: %s', input_message)
+            PluginServer.validate_action_trigger(input_message, name, 'action')
+            output = self.run_action_trigger(input_message)
+            return output
 
-            if input_message is None:
-                return abort(400)
+        @app.route('/actions/<string:name>/test', methods=['POST'])
+        def action_test(name):
+            """Run action test endpoint.
+            ---
+            post:
+              summary: Run action test
+              description: Run action test
+              parameters:
+                - in: path
+                  name: name
+                  description: Name of the action
+                  type: string
+              responses:
+                200:
+                  description: Action test output to be returned
+                  schema:
+                    type: object
+                400:
+                  description: Bad request
+                500:
+                  description: Unexpected error
+            """
+            input_message = request.get_json(force=True)
+            self.logger.debug('Request input: %s', input_message)
+            PluginServer.validate_action_trigger(input_message, name, 'action')
+            output = self.run_action_trigger(input_message, True)
+            return output
 
-            # Enforce contract where path component MUST be "test"
-            if (test is not None) and (test.lower() != "test"):
-                return abort(400)
-
-            # Ensure url matches action/trigger name in body
-            if prefix == 'actions':
-                if input_message.get('body', {}).get('action', None) != name:
-                    return abort(400)
-            elif prefix == 'triggers':
-                if test is None:
-                    # Guard against starting triggers
-                    return abort(404)
-                if input_message.get('body', {}).get('trigger', None) != name:
-                    return abort(400)
-            else:
-                return abort(404)
-
-            status_code = 200
-            output = None
-            try:
-                output = self.plugin.handle_step(input_message, is_debug=self.debug, is_test=test is not None)
-            except LoggedException as e:
-                wrapped_exception = e.ex
-                self.logger.exception(wrapped_exception)
-                output = e.output
-
-                if isinstance(wrapped_exception, ClientException):
-                    status_code = 400
-                elif isinstance(wrapped_exception, ServerException):
-                    # I'm unsure about this
-                    status_code = 500
-                else:
-                    status_code = 500
-            finally:
-                self.logger.debug('Request output: %s', output)
-                r = jsonify(output)
-                r.status_code = status_code
-                return r
+        @app.route('/triggers/<string:name>/test', methods=['POST'])
+        def trigger_test(name):
+            """Run trigger test endpoint.
+            ---
+            post:
+              summary: Run trigger test
+              description: Run trigger test
+              parameters:
+                - in: path
+                  name: name
+                  description: Name of the trigger
+                  type: string
+              responses:
+                200:
+                  description: Trigger test output to be returned
+                  schema:
+                    type: object
+                400:
+                  description: Bad request
+                500:
+                  description: Unexpected error
+            """
+            input_message = request.get_json(force=True)
+            self.logger.debug('Request input: %s', input_message)
+            PluginServer.validate_action_trigger(input_message, name, 'trigger')
+            output = self.run_action_trigger(input_message, True)
+            return output
 
         @app.route("/api")
         def api_spec():
@@ -276,6 +342,9 @@ class PluginServer(gunicorn.app.base.BaseApplication):
                 self.spec.path(view=self.app.view_functions["actions"])
                 self.spec.path(view=self.app.view_functions["triggers"])
                 self.spec.path(view=self.app.view_functions["status"])
+                self.spec.path(view=self.app.view_functions["action_run"])
+                self.spec.path(view=self.app.view_functions["action_test"])
+                self.spec.path(view=self.app.view_functions["trigger_test"])
 
                 self.logger = arbiter.log
                 arbiter.run()
