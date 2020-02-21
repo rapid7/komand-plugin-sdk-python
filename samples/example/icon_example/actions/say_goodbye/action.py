@@ -13,5 +13,4 @@ class SayGoodbye(komand.Action):
                 output=SayGoodbyeOutput())
 
     def run(self, params={}):
-        # TODO: Implement run function
-        return {}
+        return {Output.MESSAGE: f"Goodbye, {params.get(Input.NAME)}"}

@@ -13,5 +13,4 @@ class SayHello(komand.Action):
                 output=SayHelloOutput())
 
     def run(self, params={}):
-        # TODO: Implement run function
-        return {}
+        return {Output.MESSAGE: f"Hello, {params.get(Input.NAME)}"}

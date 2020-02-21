@@ -6,34 +6,12 @@ import json
 import logging
 
 import jsonschema
-import six
 import uuid
 
 from .connection import ConnectionCache
 from .dispatcher import Stdout, Http
 from .exceptions import ClientException, ServerException, LoggedException
-from six import string_types
-from sys import version_info
 
-
-class Python2StringIO(io.StringIO):
-    """
-    Python2 compatible StringIO class.
-
-    This was a hack to get log saving to work.
-    There's definitely a better solution.
-    """
-
-    def write(self, s):
-        if isinstance(s, str):
-            s = s.decode('utf-8')
-        super(Python2StringIO, self).write(s)
-
-
-if six.PY2:
-    stream_class = Python2StringIO
-else:
-    stream_class = io.StringIO
 
 message_output_type = {
     'action_start': 'action_event',
@@ -121,25 +99,10 @@ class Meta(object):
         :param input_message:
         :return:
         """
-        # Check for unicode values and convert to string
-        # Python 2
-        if version_info[0] == 2:
-            new_input_message = {}
-            for k, v in input_message.items():
-                if isinstance(v, six.text_type):
-                    new_input_message[k] = str(v)
-                else:
-                    new_input_message[k] = v
-            if new_input_message.get("workflow_uid"):
-                self.workflow = Workflow.from_komand(new_input_message)
-            else:
-                self.workflow = Workflow.from_insight_connect(new_input_message)
-        # Python 3
+        if input_message.get("workflow_uid"):
+            self.workflow = Workflow.from_komand(input_message)
         else:
-            if input_message.get("workflow_uid"):
-                self.workflow = Workflow.from_komand(input_message)
-            else:
-                self.workflow = Workflow.from_insight_connect(input_message)
+            self.workflow = Workflow.from_insight_connect(input_message)
 
         
 class Plugin(object):
@@ -240,20 +203,20 @@ class Plugin(object):
             raise ClientException('"body" missing from input message')
 
         version = input_message['version']
-        type = input_message['type']
+        type_ = input_message['type']
         body = input_message['body']
 
         if version != 'v1':
             raise ClientException('Unsupported version %s. Only v1 is supported'.format(version))
-        if type == 'action_start':
+        if type_ == 'action_start':
             if 'action' not in body:
                 raise ClientException('Message is action_start but field "action" is missing from body')
-            if not isinstance(body['action'], string_types):
+            if not isinstance(body['action'], str):
                 raise ClientException('Action field must be a string')
-        elif type == 'trigger_start':
+        elif type_ == 'trigger_start':
             if 'trigger' not in body:
                 raise ClientException('Message is trigger_start but field "trigger" is missing from body')
-            if not isinstance(body['trigger'], string_types):
+            if not isinstance(body['trigger'], str):
                 raise ClientException('Trigger field must be a string')
         else:
             raise ClientException('Unsupported message type %s. Must be action_start or trigger_start')
@@ -286,7 +249,7 @@ class Plugin(object):
             input_message_meta = {}
         self.connection.meta.set_workflow(input_message_meta)
         request_id = uuid.uuid4()
-        log_stream = stream_class()
+        log_stream = io.StringIO()
         stream_handler = logging.StreamHandler(log_stream)
         logger = logging.getLogger('step_handler_{}'.format(request_id))
         logger.setLevel('DEBUG' if is_debug else 'INFO')
@@ -407,18 +370,11 @@ class Plugin(object):
         # Backward compatibility with steps with missing argument params
         # The SDK has always defined the signature of the run/test methods to include the params dictionary.
         # However, the code generation generates the test method without the params argument.
-        if six.PY2:
-            argspec = inspect.getargspec(func)
-            if len(argspec.args) > 1:
-                output = func(params)
-            else:
-                output = func()
+        parameters = inspect.signature(func)
+        if len(parameters.parameters) > 0:
+            output = func(params)
         else:
-            parameters = inspect.signature(func)
-            if len(parameters.parameters) > 0:
-                output = func(params)
-            else:
-                output = func()
+            output = func()
 
         # Don't validate output for any test functions - action/trigger tests shouldn't be validated due to them
         # not providing value and a connection test shouldn't be validated due to it being generic/universal

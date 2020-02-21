@@ -4,7 +4,6 @@ import yaml
 import gunicorn.app.base
 from flask import Flask, jsonify, request, abort, make_response
 from gunicorn.arbiter import Arbiter
-from gunicorn.six import iteritems
 from apispec import APISpec
 from apispec.ext.marshmallow import MarshmallowPlugin
 from apispec_webframeworks.flask import FlaskPlugin
@@ -69,9 +68,9 @@ class PluginServer(gunicorn.app.base.BaseApplication):
         return self.app
 
     def load_config(self):
-        config = dict([(key, value) for key, value in iteritems(self.gunicorn_config)
+        config = dict([(key, value) for key, value in self.gunicorn_config.items()
                        if key in self.cfg.settings and value is not None])
-        for key, value in iteritems(config):
+        for key, value in config.items():
             self.cfg.set(key.lower(), value)
 
     def run_action_trigger(self, input_message, test=False):
