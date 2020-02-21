@@ -74,11 +74,11 @@ class PluginServer(gunicorn.app.base.BaseApplication):
         for key, value in iteritems(config):
             self.cfg.set(key.lower(), value)
 
-    def run_action_trigger(self, input_message, test=None):
+    def run_action_trigger(self, input_message, test=False):
         status_code = 200
         output = None
         try:
-            output = self.plugin.handle_step(input_message, is_debug=self.debug, is_test=test is not None)
+            output = self.plugin.handle_step(input_message, is_debug=self.debug, is_test=test)
         except LoggedException as e:
             wrapped_exception = e.ex
             self.logger.exception(wrapped_exception)
