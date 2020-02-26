@@ -26,7 +26,8 @@ setup(name='komand',
       tests_require=[
           'pytest',
           'docker',
-          'dockerpty'
+          'dockerpty',
+          'swagger-spec-validator'
       ],
       extras_require={
           ':python_version == "2.7"': ['futures']

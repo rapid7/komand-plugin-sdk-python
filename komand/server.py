@@ -404,21 +404,25 @@ class PluginServer(gunicorn.app.base.BaseApplication):
         # num_workers - 1 due to a master process being run as well
         return num_workers - 1
 
+    def register_api_spec(self):
+        """ Register all swagger schema definitions and path objects """
+        self.spec.components.schema('PluginInfo', schema=PluginInfoSchema)
+        self.spec.path(view=self.app.view_functions["api_spec"])
+        self.spec.path(view=self.app.view_functions["plugin_info"])
+        self.spec.path(view=self.app.view_functions["plugin_spec"])
+        self.spec.path(view=self.app.view_functions["actions"])
+        self.spec.path(view=self.app.view_functions["triggers"])
+        self.spec.path(view=self.app.view_functions["status"])
+        self.spec.path(view=self.app.view_functions["action_run"])
+        self.spec.path(view=self.app.view_functions["action_test"])
+        self.spec.path(view=self.app.view_functions["trigger_test"])
+
     def start(self):
         """ start server """
         with self.app.app_context():
             try:
                 arbiter = Arbiter(self)
-                self.spec.components.schema('PluginInfo', schema=PluginInfoSchema)
-                self.spec.path(view=self.app.view_functions["api_spec"])
-                self.spec.path(view=self.app.view_functions["plugin_info"])
-                self.spec.path(view=self.app.view_functions["plugin_spec"])
-                self.spec.path(view=self.app.view_functions["actions"])
-                self.spec.path(view=self.app.view_functions["triggers"])
-                self.spec.path(view=self.app.view_functions["status"])
-                self.spec.path(view=self.app.view_functions["action_run"])
-                self.spec.path(view=self.app.view_functions["action_test"])
-                self.spec.path(view=self.app.view_functions["trigger_test"])
+                self.register_api_spec()
 
                 self.logger = arbiter.log
                 arbiter.run()
