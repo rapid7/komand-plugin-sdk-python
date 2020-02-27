@@ -13,6 +13,7 @@ from apispec.ext.marshmallow import MarshmallowPlugin
 from apispec_webframeworks.flask import FlaskPlugin
 from marshmallow import Schema, fields
 from .exceptions import ClientException, ServerException, LoggedException
+from marshmallow.validate import OneOf
 
 
 API_TITLE = "Runtime API"
@@ -27,6 +28,31 @@ class PluginInfoSchema(Schema):
     description = fields.Str()
     number_of_workers = fields.Int()
     threads = fields.Int()
+
+
+class ActionTriggerOutputBodySchema(Schema):
+    log = fields.Str(required=True)
+    meta = fields.Dict(required=True)
+    output = fields.Dict(required=True)
+    status = fields.Str(required=True)
+
+
+class ActionTriggerOutputSchema(Schema):
+    body = fields.Nested(ActionTriggerOutputBodySchema, required=True)
+    type = fields.Str(required=True, validate=OneOf(['action_event', 'trigger_event']))
+    version = fields.Str(required=True)
+
+
+class ActionTriggerInputBodySchema(Schema):
+    action = fields.Str(required=True)
+    connection = fields.Dict(required=True)
+    input = fields.Dict(required=True)
+
+
+class ActionTriggerInputSchema(Schema):
+    body = fields.Nested(ActionTriggerInputBodySchema, required=True)
+    type = fields.Str(required=True, validate=OneOf(['action_event', 'trigger_event']))
+    version = fields.Str(required=True)
 
 
 class PluginServer(gunicorn.app.base.BaseApplication):
@@ -123,11 +149,15 @@ class PluginServer(gunicorn.app.base.BaseApplication):
                   name: name
                   description: Name of the action
                   type: string
+                - in: body
+                  name: Action Input
+                  description: Input to run an action
+                  required: true
+                  schema: ActionTriggerInputSchema
               responses:
                 200:
                   description: Action output to be returned
-                  schema:
-                    type: object
+                  schema: ActionTriggerOutputSchema
                 400:
                   description: Bad request
                 500:
@@ -151,11 +181,15 @@ class PluginServer(gunicorn.app.base.BaseApplication):
                   name: name
                   description: Name of the action
                   type: string
+                - in: body
+                  name: Action Input
+                  description: Input to run an action
+                  required: true
+                  schema: ActionTriggerInputSchema
               responses:
                 200:
                   description: Action test output to be returned
-                  schema:
-                    type: object
+                  schema: ActionTriggerOutputSchema
                 400:
                   description: Bad request
                 500:
@@ -179,11 +213,15 @@ class PluginServer(gunicorn.app.base.BaseApplication):
                   name: name
                   description: Name of the trigger
                   type: string
+                - in: body
+                  name: Trigger Input
+                  description: Input to run a trigger
+                  required: true
+                  schema: ActionTriggerInputSchema
               responses:
                 200:
                   description: Trigger test output to be returned
-                  schema:
-                    type: object
+                  schema: ActionTriggerOutputSchema
                 400:
                   description: Bad request
                 500:
@@ -259,6 +297,8 @@ class PluginServer(gunicorn.app.base.BaseApplication):
                   description: InsightConnect Plugin actions list to be returned
                   schema:
                     type: array
+                    items:
+                      type: string
             """
             action_list = []
             for action in self.plugin.actions.keys():
@@ -277,6 +317,8 @@ class PluginServer(gunicorn.app.base.BaseApplication):
                   description: InsightConnect Plugin triggers list to be returned
                   schema:
                     type: array
+                    items:
+                      type: string
             """
             trigger_list = []
             for action in self.plugin.triggers.keys():
@@ -407,6 +449,10 @@ class PluginServer(gunicorn.app.base.BaseApplication):
     def register_api_spec(self):
         """ Register all swagger schema definitions and path objects """
         self.spec.components.schema('PluginInfo', schema=PluginInfoSchema)
+        self.spec.components.schema('ActionTriggerOutputBody', schema=ActionTriggerOutputBodySchema)
+        self.spec.components.schema('ActionTriggerOutput', schema=ActionTriggerOutputSchema)
+        self.spec.components.schema('ActionTriggerInputBody', schema=ActionTriggerInputBodySchema)
+        self.spec.components.schema('ActionTriggerInput', schema=ActionTriggerInputSchema)
         self.spec.path(view=self.app.view_functions["api_spec"])
         self.spec.path(view=self.app.view_functions["plugin_info"])
         self.spec.path(view=self.app.view_functions["plugin_spec"])
@@ -423,7 +469,6 @@ class PluginServer(gunicorn.app.base.BaseApplication):
             try:
                 arbiter = Arbiter(self)
                 self.register_api_spec()
-
                 self.logger = arbiter.log
                 arbiter.run()
 
