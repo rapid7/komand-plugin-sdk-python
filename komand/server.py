@@ -6,7 +6,7 @@ import subprocess
 import signal
 
 import gunicorn.app.base
-from flask import Flask, jsonify, request, abort, make_response
+from flask import Flask, jsonify, request, abort, make_response, Blueprint
 from gunicorn.arbiter import Arbiter
 from apispec import APISpec
 from apispec.ext.marshmallow import MarshmallowPlugin
@@ -79,10 +79,9 @@ class PluginServer(gunicorn.app.base.BaseApplication):
         super(PluginServer, self).__init__()
         self.plugin = plugin
         self.debug = debug
-        self.app = self.create_flask_app()
+        self.app, self.legacy, self.v1 = self.create_flask_app()
         self.workers = workers
         self.threads = threads
-
         # Create an APISpec
         self.spec = APISpec(
             title=API_TITLE,
@@ -136,8 +135,11 @@ class PluginServer(gunicorn.app.base.BaseApplication):
 
     def create_flask_app(self):
         app = Flask(__name__)
+        legacy = Blueprint("legacy", __name__)
+        v1 = Blueprint("v1", __name__)
 
-        @app.route('/actions/<string:name>', methods=['POST'])
+        @legacy.route('/actions/<string:name>', methods=['POST'])
+        @v1.route('/actions/<string:name>', methods=['POST'])
         def action_run(name):
             """Run action endpoint.
             ---
@@ -169,7 +171,8 @@ class PluginServer(gunicorn.app.base.BaseApplication):
             output = self.run_action_trigger(input_message)
             return output
 
-        @app.route('/actions/<string:name>/test', methods=['POST'])
+        @legacy.route('/actions/<string:name>/test', methods=['POST'])
+        @v1.route('/actions/<string:name>/test', methods=['POST'])
         def action_test(name):
             """Run action test endpoint.
             ---
@@ -201,7 +204,8 @@ class PluginServer(gunicorn.app.base.BaseApplication):
             output = self.run_action_trigger(input_message, True)
             return output
 
-        @app.route('/triggers/<string:name>/test', methods=['POST'])
+        @legacy.route('/triggers/<string:name>/test', methods=['POST'])
+        @v1.route('/triggers/<string:name>/test', methods=['POST'])
         def trigger_test(name):
             """Run trigger test endpoint.
             ---
@@ -233,7 +237,7 @@ class PluginServer(gunicorn.app.base.BaseApplication):
             output = self.run_action_trigger(input_message, True)
             return output
 
-        @app.route("/api")
+        @v1.route("/api")
         def api_spec():
             """API spec details endpoint.
             ---
@@ -262,7 +266,7 @@ class PluginServer(gunicorn.app.base.BaseApplication):
             else:
                 return make_response(jsonify({"error": "The specified format is not supported"}), 422)
 
-        @app.route("/info")
+        @v1.route("/info")
         def plugin_info():
             """Plugin spec details endpoint.
             ---
@@ -285,7 +289,7 @@ class PluginServer(gunicorn.app.base.BaseApplication):
             }
             return jsonify(PluginInfoSchema().dump(response))
 
-        @app.route("/actions")
+        @v1.route("/actions")
         def actions():
             """Plugin actions list endpoint.
             ---
@@ -305,7 +309,7 @@ class PluginServer(gunicorn.app.base.BaseApplication):
                 action_list.append(action)
             return json.dumps(action_list)
 
-        @app.route("/triggers")
+        @v1.route("/triggers")
         def triggers():
             """Plugin triggers list endpoint.
             ---
@@ -325,7 +329,7 @@ class PluginServer(gunicorn.app.base.BaseApplication):
                 trigger_list.append(action)
             return json.dumps(trigger_list)
 
-        @app.route("/status")
+        @v1.route("/status")
         def status():
             """Web service status endpoint
             ---
@@ -341,7 +345,7 @@ class PluginServer(gunicorn.app.base.BaseApplication):
             # TODO: Add logic to figure out status (Ready, Running, Down) of web service.
             return jsonify({"status": "Ready"})
 
-        @app.route("/spec")
+        @v1.route("/spec")
         def plugin_spec():
             """Plugin spec details endpoint.
             ---
@@ -374,7 +378,7 @@ class PluginServer(gunicorn.app.base.BaseApplication):
             else:
                 return make_response(jsonify({"error": "The specified format is not supported"}), 422)
 
-        @app.route("/workers/add", methods=["POST"])
+        @v1.route("/workers/add", methods=["POST"])
         def add_worker():
             """
             Adds a worker (another process)
@@ -396,7 +400,7 @@ class PluginServer(gunicorn.app.base.BaseApplication):
             r["num_workers"] = self._number_of_workers()
             return jsonify(r)
 
-        @app.route("/workers/remove", methods=["POST"])
+        @v1.route("/workers/remove", methods=["POST"])
         def remove_worker():
             """
             Shuts down a worker (another process)
@@ -421,13 +425,13 @@ class PluginServer(gunicorn.app.base.BaseApplication):
 
             return jsonify(r)  # Flask or Gunicorn expect a return
 
-        @app.route("/workers", methods=["GET"])
+        @v1.route("/workers", methods=["GET"])
         def num_workers():
             r = {'num_workers': self._number_of_workers()}
             return jsonify(r)
 
-        # Return flask app
-        return app
+        # Return flask app and blueprint objects
+        return app, legacy, v1
 
     def _number_of_workers(self):
         """
@@ -453,20 +457,28 @@ class PluginServer(gunicorn.app.base.BaseApplication):
         self.spec.components.schema('ActionTriggerOutput', schema=ActionTriggerOutputSchema)
         self.spec.components.schema('ActionTriggerInputBody', schema=ActionTriggerInputBodySchema)
         self.spec.components.schema('ActionTriggerInput', schema=ActionTriggerInputSchema)
-        self.spec.path(view=self.app.view_functions["api_spec"])
-        self.spec.path(view=self.app.view_functions["plugin_info"])
-        self.spec.path(view=self.app.view_functions["plugin_spec"])
-        self.spec.path(view=self.app.view_functions["actions"])
-        self.spec.path(view=self.app.view_functions["triggers"])
-        self.spec.path(view=self.app.view_functions["status"])
-        self.spec.path(view=self.app.view_functions["action_run"])
-        self.spec.path(view=self.app.view_functions["action_test"])
-        self.spec.path(view=self.app.view_functions["trigger_test"])
+        self.spec.path(view=self.app.view_functions["v1.api_spec"])
+        self.spec.path(view=self.app.view_functions["v1.plugin_info"])
+        self.spec.path(view=self.app.view_functions["v1.plugin_spec"])
+        self.spec.path(view=self.app.view_functions["v1.actions"])
+        self.spec.path(view=self.app.view_functions["v1.triggers"])
+        self.spec.path(view=self.app.view_functions["v1.status"])
+        self.spec.path(view=self.app.view_functions["v1.action_run"])
+        self.spec.path(view=self.app.view_functions["v1.action_test"])
+        self.spec.path(view=self.app.view_functions["v1.trigger_test"])
+
+    def register_blueprint(self):
+        # Root of legacy endpoints that are not prefixed with api version; will be removed in future releases once
+        # orchestrator has been updated
+        self.app.register_blueprint(self.legacy, url_prefix="/")
+        # Versioned for all future endpoints
+        self.app.register_blueprint(self.v1, url_prefix="/api/v1")
 
     def start(self):
         """ start server """
         with self.app.app_context():
             try:
+                self.register_blueprint()
                 arbiter = Arbiter(self)
                 self.register_api_spec()
                 self.logger = arbiter.log
