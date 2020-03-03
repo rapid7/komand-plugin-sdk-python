@@ -5,7 +5,7 @@ import os
 import signal
 from flask import jsonify, request, abort, make_response, Blueprint
 from komand.exceptions import ClientException, ServerException, LoggedException
-from komand.api.schemas import PluginInfoSchema
+from komand.api.schemas import PluginInfoSchema, ActionTriggerDetailsSchema
 
 
 class Endpoints:
@@ -193,6 +193,52 @@ class Endpoints:
                 action_list.append(action)
             return jsonify(action_list)
 
+        @v1.route('/actions/<string:name>')
+        def action_details(name):
+            """Get action details endpoint.
+             ---
+             get:
+               summary: Retrieve action details
+               description: Retrieve action details
+               parameters:
+                 - in: path
+                   name: name
+                   description: Name of the action
+                   type: string
+               responses:
+                 200:
+                   description: Action details to be returned
+                   schema: ActionTriggerDetailsSchema
+                 400:
+                   description: Bad request
+             """
+            plugin_spec_json = Endpoints.load_file_json_format("/python/src/plugin.spec.yaml")
+            Endpoints.action_trigger_exists(plugin_spec_json, 'actions', name)
+            return jsonify(ActionTriggerDetailsSchema().dump(plugin_spec_json.get('actions').get(name)))
+
+        @v1.route('/triggers/<string:name>')
+        def trigger_details(name):
+            """Get trigger details endpoint.
+             ---
+             get:
+               summary: Retrieve trigger details
+               description: Retrieve trigger details
+               parameters:
+                 - in: path
+                   name: name
+                   description: Name of the trigger
+                   type: string
+               responses:
+                 200:
+                   description: Trigger details to be returned
+                   schema: ActionTriggerDetailsSchema
+                 400:
+                   description: Bad request
+             """
+            plugin_spec_json = Endpoints.load_file_json_format("/python/src/plugin.spec.yaml")
+            Endpoints.action_trigger_exists(plugin_spec_json, 'triggers', name)
+            return jsonify(ActionTriggerDetailsSchema().dump(plugin_spec_json.get('triggers').get(name)))
+
         @v1.route("/triggers")
         def triggers():
             """Plugin triggers list endpoint.
@@ -332,6 +378,18 @@ class Endpoints:
 
         # num_workers - 1 due to a master process being run as well
         return num_workers - 1
+
+    @staticmethod
+    def action_trigger_exists(plugin_spec_json, p_type, p_name):
+        actions_triggers = plugin_spec_json.get(p_type)
+        if actions_triggers is None or actions_triggers.get(p_name) is None:
+            return abort(400)
+        return actions_triggers.get(p_name)
+
+    @staticmethod
+    def load_file_json_format(filename):
+        with open(filename, "r") as p_spec:
+            return yaml.safe_load(p_spec.read())
 
     @staticmethod
     def validate_action_trigger(input_message, name, p_type):

@@ -34,3 +34,10 @@ class ActionTriggerInputSchema(Schema):
     body = fields.Nested(ActionTriggerInputBodySchema, required=True)
     type = fields.Str(required=True, validate=OneOf(['action_event', 'trigger_event']))
     version = fields.Str(required=True)
+
+
+class ActionTriggerDetailsSchema(Schema):
+    description = fields.Str()
+    title = fields.Str()
+    input = fields.Dict()
+    output = fields.Dict()
