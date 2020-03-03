@@ -23,7 +23,9 @@ You will need to have the following dependencies installed when developing or te
 
 ### Building and Installing the SDK
 
-To build and install the SDK locally, first created a Python virtual environment for the particular Python version and
+#### Building Python Library
+
+To build and install the SDK locally, first create a Python virtual environment for the particular Python version and
 activate it. Then build, install, and confirm the package has been installed.
 ```
 > python3 -m venv venv
@@ -33,6 +35,17 @@ activate it. Then build, install, and confirm the package has been installed.
 > pip list | grep komand
 komand                    3.2.0
 ```
+
+#### Building the InsightConnect SDK Docker Image
+
+Currently the `3-38` dockerfile is used by default when building the docker image. If you want to specify another 
+dockerfile for testing purposes, such as `3-38-slim`, you can pass it as an argument.
+
+```
+make build-image DOCKERFILE=3-38-slim
+```
+
+This will overwrite the default `3-38`, provided that it exists in the `dockerfiles` directory.
 
 ### Testing Sample Plugin
 The easiest way to test changes to the SDK is by running it locally against one of the [sample plugins](./samples) 

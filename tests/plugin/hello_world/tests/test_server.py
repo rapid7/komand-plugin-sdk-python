@@ -6,7 +6,6 @@ import os
 import requests
 import time
 import json
-import six
 
 cli_pid = None
 
@@ -32,7 +31,8 @@ def plugin_pid():
                     break
                 except Exception as e:
                     pass
-                time.sleep(i / 1000)
+    # Give the service time to start for testing purposes
+    time.sleep(5)
 
 
 def test_404(plugin_pid):
@@ -77,9 +77,6 @@ def test_server_bad_action():
 
 
 def test_server_bad_json_action():
-    if six.PY2:
-        return
-
     run_action('./tests/plugin/hello_world/tests/action/return_bad_json/input.json',
                './tests/plugin/hello_world/tests/action/return_bad_json/output.json', expect_code=500)
 
@@ -90,9 +87,5 @@ def test_server_test_simple_action():
 
 
 def test_server_test_throw_exeception_action():
-
-    if six.PY2:
-        return
-
     run_action('./tests/plugin/hello_world/tests/action/throw_exception/input.json',
                './tests/plugin/hello_world/tests/action/throw_exception/test_output.json', expect_code=500, is_test=True)

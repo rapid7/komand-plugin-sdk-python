@@ -1,0 +1,28 @@
+name: Continuous Integration
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.8]
+        dockerfile: [3-38, 3-38-slim]
+    steps:
+      - uses: actions/checkout@v1
+      - name: Setup Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v1
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip coverage
+      - name: Install Tox
+        run: pip install tox tox-gh-actions
+      - name: Run Tox
+        run: tox
+      - name: Build Image
+        run: |
+          make build-image DOCKERFILE=${{ matrix.dockerfile }}

@@ -12,5 +12,4 @@ ADD ./ /usr/src/komand
 WORKDIR /usr/src/komand
 
 # No `make` being included, so run the python command
-RUN apk add --no-cache openssl==1.1.1b-r1 && \
-	python setup.py install
+RUN python setup.py install

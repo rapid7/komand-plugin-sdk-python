@@ -13,51 +13,34 @@ ifndef TRAVIS_PYTHON_VERSION
 TRAVIS_PYTHON_VERSION=$(shell echo $(PYTHON_MAJOR_VERSION))
 endif
 
-DOCKERFILE=$(shell echo $(TRAVIS_PYTHON_VERSION) | cut -d"." -f1)
+# Default to Python 3
+DOCKERFILE=3-38
 
 MAKE_VERBOSE=0
 
-image:
-	# Build all 2/3-slim Docker images
-	@for dockerfile in $(wildcard dockerfiles/${DOCKERFILE}*); do \
-		F=$${dockerfile//dockerfiles\/}; \
-		docker build -t komand/python-$${F}-plugin -f dockerfiles/$${F} .; \
-	done
+build-image:
+	docker build -t komand/python-$(DOCKERFILE)-plugin -f dockerfiles/$(DOCKERFILE) .
+	docker tag komand/python-${DOCKERFILE}-plugin komand/python-${DOCKERFILE}-plugin:$(VERSION)
+	docker tag komand/python-${DOCKERFILE}-plugin komand/python-${DOCKERFILE}-plugin:$(MINOR_VERSION)
+	docker tag komand/python-${DOCKERFILE}-plugin komand/python-${DOCKERFILE}-plugin:$(MAJOR_VERSION)
 
 all: test tag
 
-build:
+install:
 	python setup.py build
 
-install:
-	python setup.py install
-
 test:
+	pip install tox
 	tox
 
-tag: image
-	@echo version is $(VERSION)
-
-	# Tag all 2/3-slim Docker images
-	@for dockerfile in $(wildcard dockerfiles/${DOCKERFILE}*); do \
-		F=$${dockerfile//dockerfiles\/}; \
-		docker tag komand/python-$${F}-plugin komand/python-$${F}-plugin:$(VERSION); \
-		docker tag komand/python-$${F}-plugin komand/python-$${F}-plugin:$(MINOR_VERSION); \
-		docker tag komand/python-$${F}-plugin komand/python-$${F}-plugin:$(MAJOR_VERSION); \
-	done
-
-deploy: tag
+deploy-image: build-image
 	@echo docker login -u "********" -p "********"
 	@docker login -u $(KOMAND_DOCKER_USERNAME) -p $(KOMAND_DOCKER_PASSWORD)
 
-	# Deploy all 2/3-slim Docker images
-	@for dockerfile in $(wildcard dockerfiles/${DOCKERFILE}*); do \
-		F=$${dockerfile//dockerfiles\/}; \
-		docker push komand/python-$${F}-plugin; \
-		docker push komand/python-$${F}-plugin:$(VERSION); \
-		docker push komand/python-$${F}-plugin:$(MINOR_VERSION); \
-		docker push komand/python-$${F}-plugin:$(MAJOR_VERSION); \
-	done
+	docker push komand/python-${DOCKERFILE}-plugin
+	docker push komand/python-${DOCKERFILE}-plugin:$(VERSION)
+	docker push komand/python-${DOCKERFILE}-plugin:$(MINOR_VERSION)
+	docker push komand/python-${DOCKERFILE}-plugin:$(MAJOR_VERSION)
 
 # Release targets for PyPi
 packagedeps:
@@ -74,7 +57,7 @@ distprod: package
 	python3 -m twine upload dist/*
 
 run-sample:
-    # Exit early if sample doesn't exist
+	# Exit early if sample doesn't exist
 	if [ ! -d "samples/$(sample)" ]; then \
 		echo "ERROR: $(sample) sample plugin doesn't exist; confirm spelling or existence and try again" && exit 1; \
 	fi
