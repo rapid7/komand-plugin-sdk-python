@@ -163,11 +163,17 @@ class Endpoints:
                   description: InsightConnect Plugin Information to be returned
                   schema: PluginInfoSchema
             """
+            plugin_spec = Endpoints.load_file_json_format("/python/src/plugin.spec.yaml")
             response = {
-                "name": self.plugin.name,
-                "description": self.plugin.description,
-                "version": self.plugin.version,
-                "vendor": self.plugin.vendor,
+                "name": plugin_spec.get('name'),
+                "description":  plugin_spec.get('description'),
+                "version": plugin_spec.get('version'),
+                "vendor": plugin_spec.get('vendor'),
+                "plugin_spec_version": plugin_spec.get('plugin_spec_version'),
+                "title": plugin_spec.get('title'),
+                "support": plugin_spec.get('support'),
+                "tags": plugin_spec.get('tags'),
+                "enable_cache": plugin_spec.get('enable_cache'),
                 "number_of_workers": self.workers,
                 "threads": self.threads
             }
@@ -358,6 +364,7 @@ class Endpoints:
         def num_workers():
             r = {'num_workers': Endpoints._number_of_workers()}
             return jsonify(r)
+
         blueprints = [legacy, v1]
         return blueprints
 
@@ -383,7 +390,9 @@ class Endpoints:
     def action_trigger_exists(plugin_spec_json, p_type, p_name):
         actions_triggers = plugin_spec_json.get(p_type)
         if actions_triggers is None or actions_triggers.get(p_name) is None:
-            return abort(400)
+            msg = f"{p_type[:-1].capitalize()} {p_name} does not exists"
+            resp = make_response(jsonify({"error": msg}), 400)
+            abort(resp)
         return actions_triggers.get(p_name)
 
     @staticmethod
@@ -393,10 +402,15 @@ class Endpoints:
 
     @staticmethod
     def validate_action_trigger(input_message, name, p_type):
-        if input_message is None:
-            return abort(400)
-        if input_message.get('body', {}).get(p_type, None) != name:
-            return abort(400)
+        if not input_message:
+            resp = make_response(jsonify({"error": "Empty input provided"}), 400)
+            abort(resp)
+
+        name_in_input_msg = input_message.get('body', {}).get(p_type, None)
+        if name_in_input_msg != name:
+            msg = f"Action name ({name_in_input_msg}) in input body is not matching with name ({name}) in route"
+            resp = make_response(jsonify({"error": msg}), 400)
+            abort(resp)
 
     def run_action_trigger(self, input_message, test=False):
         status_code = 200
