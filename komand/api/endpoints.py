@@ -166,7 +166,7 @@ class Endpoints:
             plugin_spec = Endpoints.load_file_json_format("/python/src/plugin.spec.yaml")
             response = {
                 "name": plugin_spec.get('name'),
-                "description":  plugin_spec.get('description'),
+                "description": plugin_spec.get('description'),
                 "version": plugin_spec.get('version'),
                 "vendor": plugin_spec.get('vendor'),
                 "plugin_spec_version": plugin_spec.get('plugin_spec_version'),
