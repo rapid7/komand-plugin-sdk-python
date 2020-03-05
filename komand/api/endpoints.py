@@ -22,6 +22,7 @@ class Endpoints:
     def create_endpoints(self):
         legacy = Blueprint("legacy", __name__)
         v1 = Blueprint("v1", __name__)
+        plugin_spec = Endpoints.load_file("/python/src/plugin.spec.yaml")
 
         @v1.route('/actions/<string:name>', methods=['POST'])
         @legacy.route('/actions/<string:name>', methods=['POST'])
@@ -163,20 +164,12 @@ class Endpoints:
                   description: InsightConnect Plugin Information to be returned
                   schema: PluginInfoSchema
             """
-            plugin_spec = Endpoints.load_file_json_format("/python/src/plugin.spec.yaml")
-            response = {
-                "name": plugin_spec.get('name'),
-                "description": plugin_spec.get('description'),
-                "version": plugin_spec.get('version'),
-                "vendor": plugin_spec.get('vendor'),
-                "plugin_spec_version": plugin_spec.get('plugin_spec_version'),
-                "title": plugin_spec.get('title'),
-                "support": plugin_spec.get('support'),
-                "tags": plugin_spec.get('tags'),
-                "enable_cache": plugin_spec.get('enable_cache'),
-                "number_of_workers": self.workers,
-                "threads": self.threads
-            }
+            plugin_spec_json = yaml.safe_load(plugin_spec)
+            plugin_info_fields = ["name", "description", "version", "vendor", "plugin_spec_version", "title",
+                                  "support", "tags", "enable_cache"]
+            response = Endpoints.get_plugin_info(plugin_spec_json, plugin_info_fields)
+            # Add workers and threads
+            response.update({"number_of_workers": self.workers, "threads": self.threads})
             return jsonify(PluginInfoSchema().dump(response))
 
         @v1.route("/actions")
@@ -218,7 +211,7 @@ class Endpoints:
                  400:
                    description: Bad request
              """
-            plugin_spec_json = Endpoints.load_file_json_format("/python/src/plugin.spec.yaml")
+            plugin_spec_json = yaml.safe_load(plugin_spec)
             Endpoints.action_trigger_exists(plugin_spec_json, 'actions', name)
             return jsonify(ActionTriggerDetailsSchema().dump(plugin_spec_json.get('actions').get(name)))
 
@@ -241,7 +234,7 @@ class Endpoints:
                  400:
                    description: Bad request
              """
-            plugin_spec_json = Endpoints.load_file_json_format("/python/src/plugin.spec.yaml")
+            plugin_spec_json = yaml.safe_load(plugin_spec)
             Endpoints.action_trigger_exists(plugin_spec_json, 'triggers', name)
             return jsonify(ActionTriggerDetailsSchema().dump(plugin_spec_json.get('triggers').get(name)))
 
@@ -305,9 +298,6 @@ class Endpoints:
             format_ = request.args.get("format", "json")
             if format_ not in ["json", "yaml"]:
                 return make_response(jsonify({"error": "The specified format is not supported"}), 422)
-
-            with open("/python/src/plugin.spec.yaml", "r") as p_spec:
-                plugin_spec = p_spec.read()
 
             if format_ == "yaml":
                 return plugin_spec
@@ -396,9 +386,16 @@ class Endpoints:
         return actions_triggers.get(p_name)
 
     @staticmethod
-    def load_file_json_format(filename):
+    def load_file(filename):
         with open(filename, "r") as p_spec:
-            return yaml.safe_load(p_spec.read())
+            return p_spec.read()
+
+    @staticmethod
+    def get_plugin_info(plugin_spec_json, fields):
+        plugin_info = {}
+        for field in fields:
+            plugin_info.update({field: plugin_spec_json.get(field)})
+        return plugin_info
 
     @staticmethod
     def validate_action_trigger(input_message, name, p_type):
