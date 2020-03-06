@@ -9,10 +9,6 @@ MINOR_VERSION=$(shell echo $(VERSION) | cut -d"." -f1-2)
 PYTHON_VERSION=$(shell python --version 2>&1 | cut -d ' ' -f 2)
 PYTHON_MAJOR_VERSION=$(shell echo $(PYTHON_VERSION) | cut -d"." -f1)
 
-ifndef TRAVIS_PYTHON_VERSION
-TRAVIS_PYTHON_VERSION=$(shell echo $(PYTHON_MAJOR_VERSION))
-endif
-
 # Default to Python 3
 DOCKERFILE=3-38
 
