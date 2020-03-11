@@ -41,3 +41,10 @@ class ActionTriggerDetailsSchema(Schema):
     title = fields.Str()
     input = fields.Dict()
     output = fields.Dict()
+
+
+class ConnectionDetailsSchema(Schema):
+    properties = fields.Dict()
+    required = fields.List(fields.Str())
+    title = fields.Str()
+    type = fields.Str()

@@ -5,7 +5,7 @@ import os
 import signal
 from flask import jsonify, request, abort, make_response, Blueprint
 from komand.exceptions import ClientException, ServerException, LoggedException
-from komand.api.schemas import PluginInfoSchema, ActionTriggerDetailsSchema
+from komand.api.schemas import PluginInfoSchema, ActionTriggerDetailsSchema, ConnectionDetailsSchema
 
 
 class Endpoints:
@@ -358,6 +358,23 @@ class Endpoints:
         def num_workers():
             r = {'num_workers': Endpoints._number_of_workers()}
             return jsonify(r)
+
+        @v1.route("/connection", methods=["GET"])
+        def connection():
+            """Plugin connection details endpoint
+            ---
+            get:
+              summary: Get plugin connection details
+              description: Get InsightConnect plugin connection details
+              responses:
+                200:
+                  description: InsightConnect plugin connection details to be returned
+                  schema: ConnectionDetailsSchema
+            """
+            conn = self.plugin.connection
+            schema = conn.schema
+            return jsonify(ConnectionDetailsSchema().dump(schema))
+
         blueprints = [legacy, v1]
         return blueprints
 
