@@ -5,7 +5,12 @@ from marshmallow import Schema, fields
 class PluginInfoSchema(Schema):
     name = fields.Str()
     vendor = fields.Str()
+    plugin_spec_version = fields.Str()
+    tags = fields.List(fields.Str())
     version = fields.Str()
+    title = fields.Str()
+    support = fields.Str()
+    enable_cache = fields.Bool()
     description = fields.Str()
     number_of_workers = fields.Int()
     threads = fields.Int()

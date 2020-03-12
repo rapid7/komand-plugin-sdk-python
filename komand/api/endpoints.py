@@ -52,7 +52,8 @@ class Endpoints:
             """
             input_message = request.get_json(force=True)
             self.logger.debug('Request input: %s', input_message)
-            self.validate_action_trigger(input_message, name, 'action')
+            Endpoints.validate_action_trigger_empty_input(input_message)
+            Endpoints.validate_action_trigger_name(input_message, name, 'action')
             output = self.run_action_trigger(input_message)
             return output
 
@@ -85,7 +86,8 @@ class Endpoints:
             """
             input_message = request.get_json(force=True)
             self.logger.debug('Request input: %s', input_message)
-            self.validate_action_trigger(input_message, name, 'trigger')
+            Endpoints.validate_action_trigger_empty_input(input_message)
+            Endpoints.validate_action_trigger_name(input_message, name, 'trigger')
             output = self.run_action_trigger(input_message, True)
             return output
 
@@ -118,7 +120,8 @@ class Endpoints:
             """
             input_message = request.get_json(force=True)
             self.logger.debug('Request input: %s', input_message)
-            self.validate_action_trigger(input_message, name, 'action')
+            Endpoints.validate_action_trigger_empty_input(input_message)
+            Endpoints.validate_action_trigger_name(input_message, name, 'action')
             output = self.run_action_trigger(input_message, True)
             return output
 
@@ -163,14 +166,12 @@ class Endpoints:
                   description: InsightConnect Plugin Information to be returned
                   schema: PluginInfoSchema
             """
-            response = {
-                "name": self.plugin.name,
-                "description": self.plugin.description,
-                "version": self.plugin.version,
-                "vendor": self.plugin.vendor,
-                "number_of_workers": self.workers,
-                "threads": self.threads
-            }
+            plugin_spec_json = Endpoints.load_file_json_format("/python/src/plugin.spec.yaml")
+            plugin_info_fields = ["name", "description", "version", "vendor", "plugin_spec_version", "title",
+                                  "support", "tags", "enable_cache"]
+            response = Endpoints.get_plugin_info(plugin_spec_json, plugin_info_fields)
+            # Add workers and threads
+            response.update({"number_of_workers": self.workers, "threads": self.threads})
             return jsonify(PluginInfoSchema().dump(response))
 
         @v1.route("/actions")
@@ -400,7 +401,9 @@ class Endpoints:
     def action_trigger_exists(plugin_spec_json, p_type, p_name):
         actions_triggers = plugin_spec_json.get(p_type)
         if actions_triggers is None or actions_triggers.get(p_name) is None:
-            return abort(400)
+            msg = f"{p_type[:-1].capitalize()} {p_name} does not exists"
+            resp = make_response(jsonify({"error": msg}), 400)
+            abort(resp)
         return actions_triggers.get(p_name)
 
     @staticmethod
@@ -409,11 +412,25 @@ class Endpoints:
             return yaml.safe_load(p_spec.read())
 
     @staticmethod
-    def validate_action_trigger(input_message, name, p_type):
-        if input_message is None:
-            return abort(400)
-        if input_message.get('body', {}).get(p_type, None) != name:
-            return abort(400)
+    def validate_action_trigger_empty_input(input_message):
+        if not input_message:
+            resp = make_response(jsonify({"error": "Empty input provided"}), 400)
+            abort(resp)
+
+    @staticmethod
+    def validate_action_trigger_name(input_message, name, p_type):
+        name_in_input_msg = input_message.get('body', {}).get(p_type, None)
+        if name_in_input_msg != name:
+            msg = f"Action name ({name_in_input_msg}) in input body is not matching with name ({name}) in route"
+            resp = make_response(jsonify({"error": msg}), 400)
+            abort(resp)
+
+    @staticmethod
+    def get_plugin_info(plugin_spec_json, fields):
+        plugin_info = {}
+        for field in fields:
+            plugin_info.update({field: plugin_spec_json.get(field)})
+        return plugin_info
 
     def run_action_trigger(self, input_message, test=False):
         status_code = 200
