@@ -1,6 +1,6 @@
 FROM python:3.8.1-slim-buster
 
-LABEL organization=komand \
+LABEL organization=rapid7 \
 			sdk=python \
 			type=plugin
 

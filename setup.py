@@ -3,9 +3,9 @@ from setuptools import setup, find_packages
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
-setup(name='komand',
+setup(name='insightconnect-plugin-runtime',
       version='4.0.0',
-      description='Komand Plugin SDK',
+      description='InsightConnect Plugin Runtime',
       long_description=long_description,
       long_description_content_type="text/markdown",
       author='Rapid7 Integrations Alliance',
@@ -29,14 +29,10 @@ setup(name='komand',
           'dockerpty',
           'swagger-spec-validator'
       ],
-      extras_require={
-          ':python_version == "2.7"': ['futures']
-      },
       test_suite="tests",
       include_package_data=True,
       classifiers=[
           "Programming Language :: Python :: 3",
-          "Programming Language :: Python :: 2",
           "Operating System :: OS Independent",
           "Intended Audience :: Developers",
           "License :: OSI Approved :: MIT License",

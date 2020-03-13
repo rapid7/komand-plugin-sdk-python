@@ -15,10 +15,10 @@ DOCKERFILE=3-38
 MAKE_VERBOSE=0
 
 build-image:
-	docker build -t komand/python-$(DOCKERFILE)-plugin -f dockerfiles/$(DOCKERFILE) .
-	docker tag komand/python-${DOCKERFILE}-plugin komand/python-${DOCKERFILE}-plugin:$(VERSION)
-	docker tag komand/python-${DOCKERFILE}-plugin komand/python-${DOCKERFILE}-plugin:$(MINOR_VERSION)
-	docker tag komand/python-${DOCKERFILE}-plugin komand/python-${DOCKERFILE}-plugin:$(MAJOR_VERSION)
+	docker build -t rapid7/insightconnect-python-$(DOCKERFILE)-plugin -f dockerfiles/$(DOCKERFILE) .
+	docker tag rapid7/insightconnect-python-${DOCKERFILE}-plugin rapid7/insightconnect-python-${DOCKERFILE}-plugin:$(VERSION)
+	docker tag rapid7/insightconnect-python-${DOCKERFILE}-plugin rapid7/insightconnect-python-${DOCKERFILE}-plugin:$(MINOR_VERSION)
+	docker tag rapid7/insightconnect-python-${DOCKERFILE}-plugin rapid7/insightconnect-python-${DOCKERFILE}-plugin:$(MAJOR_VERSION)
 
 all: test tag
 
@@ -33,10 +33,10 @@ deploy-image: build-image
 	@echo docker login -u "********" -p "********"
 	@docker login -u $(KOMAND_DOCKER_USERNAME) -p $(KOMAND_DOCKER_PASSWORD)
 
-	docker push komand/python-${DOCKERFILE}-plugin
-	docker push komand/python-${DOCKERFILE}-plugin:$(VERSION)
-	docker push komand/python-${DOCKERFILE}-plugin:$(MINOR_VERSION)
-	docker push komand/python-${DOCKERFILE}-plugin:$(MAJOR_VERSION)
+	docker push rapid7/insightconnect-python-${DOCKERFILE}-plugin
+	docker push rapid7/insightconnect-python-${DOCKERFILE}-plugin:$(VERSION)
+	docker push rapid7/insightconnect-python-${DOCKERFILE}-plugin:$(MINOR_VERSION)
+	docker push rapid7/insightconnect-python-${DOCKERFILE}-plugin:$(MAJOR_VERSION)
 
 # Release targets for PyPi
 packagedeps:
