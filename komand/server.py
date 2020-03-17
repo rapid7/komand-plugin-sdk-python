@@ -7,7 +7,8 @@ from apispec import APISpec
 from apispec.ext.marshmallow import MarshmallowPlugin
 from apispec_webframeworks.flask import FlaskPlugin
 from komand.api.schemas import PluginInfoSchema, ActionTriggerOutputBodySchema, ActionTriggerOutputSchema, \
-    ActionTriggerInputBodySchema, ActionTriggerInputSchema, ActionTriggerDetailsSchema, ConnectionDetailsSchema
+    ActionTriggerInputBodySchema, ActionTriggerInputSchema, ActionTriggerDetailsSchema, ConnectionDetailsSchema, \
+    ConnectionTestSchema
 from komand.api.endpoints import Endpoints
 
 API_TITLE = "Runtime API"
@@ -81,6 +82,7 @@ class PluginServer(gunicorn.app.base.BaseApplication):
         self.spec.components.schema('ActionTriggerInput', schema=ActionTriggerInputSchema)
         self.spec.components.schema('ActionTriggerDetails', schema=ActionTriggerDetailsSchema)
         self.spec.components.schema('ConnectionDetails', schema=ConnectionDetailsSchema)
+        self.spec.components.schema('ConnectionTestOutput', schema=ConnectionTestSchema)
         self.spec.path(view=self.app.view_functions["v1.api_spec"])
         self.spec.path(view=self.app.view_functions["v1.plugin_info"])
         self.spec.path(view=self.app.view_functions["v1.plugin_spec"])
@@ -93,6 +95,7 @@ class PluginServer(gunicorn.app.base.BaseApplication):
         self.spec.path(view=self.app.view_functions["v1.action_details"])
         self.spec.path(view=self.app.view_functions["v1.trigger_details"])
         self.spec.path(view=self.app.view_functions["v1.connection"])
+        self.spec.path(view=self.app.view_functions["v1.connection_test"])
 
     def register_blueprint(self):
         """Register all blueprints"""

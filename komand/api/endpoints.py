@@ -4,7 +4,7 @@ import yaml
 import os
 import signal
 from flask import jsonify, request, abort, make_response, Blueprint
-from komand.exceptions import ClientException, ServerException, LoggedException
+from komand.exceptions import ClientException, ServerException, LoggedException, ConnectionTestException
 from komand.api.schemas import PluginInfoSchema, ActionTriggerDetailsSchema, ConnectionDetailsSchema
 
 
@@ -375,6 +375,48 @@ class Endpoints:
             conn = self.plugin.connection
             schema = conn.schema
             return jsonify(ConnectionDetailsSchema().dump(schema))
+
+        @v1.route("/connection/test", methods=["POST"])
+        def connection_test():
+            """Run connection test endpoint
+            ---
+            post:
+              summary: Run connection test
+              description: Run InsightConnect plugin connection test
+              responses:
+                200:
+                  description: Connection test output to be returned
+                  schema: ConnectionTestSchema
+                204:
+                  description: The server successfully processed the request and is not returning any content
+                400:
+                  description: A ConnectionTestException has occurred
+                500:
+                  description: Internal server error
+            """
+            status_code = 200
+            message = None
+            try:
+                if hasattr(self.plugin.connection, "test"):
+                    response = self.plugin.connection.test()
+                    if response is None:
+                        status_code = 204
+                        message = "The server successfully processed the request and is not returning any content"
+                    else:
+                        message = response
+                else:
+                    status_code = 204
+                    message = "The server successfully processed the request and is not returning any content"
+            except Exception as e:
+                if isinstance(e, ConnectionTestException):
+                    status_code = 400
+                    message = e.data
+                else:
+                    status_code = 500
+                    message = str(e)
+            finally:
+                output = make_response(jsonify({"message": message}), status_code)
+                return output
 
         blueprints = [legacy, v1]
         return blueprints

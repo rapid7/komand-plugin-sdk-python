@@ -53,3 +53,7 @@ class ConnectionDetailsSchema(Schema):
     required = fields.List(fields.Str())
     title = fields.Str()
     type = fields.Str()
+
+
+class ConnectionTestSchema(Schema):
+    message = fields.Dict(required=False)
