@@ -12,6 +12,7 @@ jobs:
     strategy:
       matrix:
         python-version: [3.8]
+        dockerfile: [3-38, 3-38-slim]
     steps:
         - uses: actions/checkout@v1
         - name: Setup Python ${{ matrix.python-version }}
@@ -25,6 +26,15 @@ jobs:
           run: pip install tox tox-gh-actions
         - name: Run Tox
           run: tox
+        - name: Build Image
+          run: |
+            make build-image DOCKERFILE=${{matrix.dockerfile}}
+        - name: Deploy Image
+          env:
+            DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+            DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+          run: |
+            make deploy-image DOCKERFILE=${{matrix.dockerfile}}
         - name: Package dependencies
           run: |
             python3 -m pip install --user --upgrade setuptools wheel twine
@@ -32,9 +42,9 @@ jobs:
           run: |
             rm -rf dist/
             python3 setup.py sdist bdist_wheel
-        - name: PyPi Test Upload
+        - name: PyPi Upload
           env:
-            TWINE_USERNAME: ${{ secrets.PYPI_TEST_USERNAME }}
-            TWINE_PASSWORD: ${{ secrets.PYPI_TEST_PASSWORD }}
+            TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
+            TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
           run: |
-            python3 -m twine upload --repository-url https://test.pypi.org/legacy/ dist/*
+            python3 -m twine upload dist/*

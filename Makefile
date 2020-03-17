@@ -31,7 +31,7 @@ test:
 
 deploy-image: build-image
 	@echo docker login -u "********" -p "********"
-	@docker login -u $(KOMAND_DOCKER_USERNAME) -p $(KOMAND_DOCKER_PASSWORD)
+	@docker login -u $(DOCKER_USERNAME) -p $(DOCKER_PASSWORD)
 
 	docker push rapid7/insightconnect-python-${DOCKERFILE}-plugin
 	docker push rapid7/insightconnect-python-${DOCKERFILE}-plugin:$(VERSION)
