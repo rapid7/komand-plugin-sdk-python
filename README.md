@@ -7,6 +7,8 @@ results in the building and publishing of two components:
 * Python Plugin Runtime Library 
 * Base InsightConnect Plugin Docker Images 
 
+![InsightConnect Python Plugin Runtime Diagram](plugin-runtime-diagram.png)
+
 Docker images created during the build and deployment of this project are uploaded to the 
 [Rapid7 Docker Repositories](https://hub.docker.com/orgs/rapid7/repositories).
 
