@@ -1,0 +1,70 @@
+name: Publish Plugin Runtime
+
+on:
+  push:
+    tags:
+    - '*'
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.8]
+        dockerfile: [3-38, 3-38-slim]
+    steps:
+        - uses: actions/checkout@v1
+        - name: Setup Python ${{ matrix.python-version }}
+          uses: actions/setup-python@v1
+          with:
+            python-version: ${{ matrix.python-version }}
+        - name: Install dependencies
+          run: |
+            python -m pip install --upgrade pip coverage
+        - name: Install Tox
+          run: pip install tox tox-gh-actions
+        - name: Run Tox
+          run: tox
+        - name: Build Image
+          run: |
+            make build-image DOCKERFILE=${{matrix.dockerfile}}
+        - name: Deploy Image
+          env:
+            DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+            DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+          run: |
+            make deploy-image DOCKERFILE=${{matrix.dockerfile}}
+        - name: Package dependencies
+          run: |
+            python3 -m pip install --user --upgrade setuptools wheel twine
+        - name: Package
+          run: |
+            rm -rf dist/
+            python3 setup.py sdist bdist_wheel
+        - name: Create Release
+          id: create_release
+          uses: actions/create-release@master
+          env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          with:
+            tag_name: ${{ github.ref }}
+            release_name: Release ${{ github.ref }}
+            draft: false
+            prerelease: false
+        - name: Upload release generated swagger spec
+          id: upload-release-asset
+          uses: actions/upload-release-asset@v1
+          env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          with:
+            upload_url: ${{ steps.create_release.outputs.upload_url }}
+            asset_path: ./insightconnect-plugin-swagger.json
+            asset_name: insightconnect-plugin-swagger.json
+            asset_content_type: application/json
+        - name: PyPi Upload
+          env:
+            TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
+            TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+          run: |
+            python3 -m twine upload dist/*

@@ -1,9 +1,0 @@
-FROM python:3.7.2-alpine3.9
-
-LABEL organization=komand \
-			sdk=python \
-			type=plugin
-
-ENV PKGS bash make nano strace nmap htop tcpdump openssl
-
-RUN apk add --no-cache $PKGS

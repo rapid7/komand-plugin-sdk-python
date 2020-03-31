@@ -2,11 +2,10 @@ import json
 import time
 import concurrent.futures.thread as thread
 import concurrent.futures as futures
-from komand.exceptions import LoggedException
+from insightconnect_plugin_runtime.exceptions import LoggedException
 
 
 class CaptureDispatcher:
-
     def __init__(self):
         self.caught_message = None
 
@@ -32,14 +31,18 @@ def run_action(input_file, output_file, handler, expect_fail=False):
         else:
             raise e
 
-    if 'body' in output and 'log' in output['body']:
-        output['body']['log'] = ''
+    if "body" in output and "log" in output["body"]:
+        output["body"]["log"] = ""
 
-    if 'body' in expected_output and 'log' in expected_output['body']:
-        expected_output['body']['log'] = ''
+    if "body" in expected_output and "log" in expected_output["body"]:
+        expected_output["body"]["log"] = ""
 
     if output != expected_output:
-        raise Exception('Actual output differs from expected output.{} != {}'.format(output, expected_output))
+        raise Exception(
+            "Actual output differs from expected output.{} != {}".format(
+                output, expected_output
+            )
+        )
 
 
 def run_trigger(input_file, output_file, plugin, expect_timeout=False):
@@ -47,7 +50,7 @@ def run_trigger(input_file, output_file, plugin, expect_timeout=False):
     input_message = json.load(open(input_file))
     expected_output = json.load(open(output_file))
 
-    trigger_name = input_message['body']['trigger']
+    trigger_name = input_message["body"]["trigger"]
     capture = CaptureDispatcher()
     plugin.triggers[trigger_name].dispatcher = capture
 
@@ -64,15 +67,19 @@ def run_trigger(input_file, output_file, plugin, expect_timeout=False):
     if len(done) <= 0:
         if expect_timeout:
             return
-        raise Exception('Timeout')
+        raise Exception("Timeout")
 
     output = capture.caught_message
 
-    if 'body' in output and 'log' in output['body']:
-        output['body']['log'] = ''
+    if "body" in output and "log" in output["body"]:
+        output["body"]["log"] = ""
 
-    if 'body' in expected_output and 'log' in expected_output['body']:
-        expected_output['body']['log'] = ''
+    if "body" in expected_output and "log" in expected_output["body"]:
+        expected_output["body"]["log"] = ""
 
     if output != expected_output:
-        raise Exception('Actual output differs from expected output.{} != {}'.format(output, expected_output))
+        raise Exception(
+            "Actual output differs from expected output.{} != {}".format(
+                output, expected_output
+            )
+        )

@@ -1,2 +1,3 @@
 include komand/data/input_message_schema.json
 include komand/data/output_message_schema.json
+include insightconnect-plugin-swagger.json

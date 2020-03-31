@@ -1,13 +1,12 @@
 import json
 import decimal
 
-from komand.action import Action
-from komand.variables import Input, Output
-from komand.connection import Connection
+from insightconnect_plugin_runtime.action import Action
+from insightconnect_plugin_runtime.variables import Input, Output
+from insightconnect_plugin_runtime.connection import Connection
 
 
 def test_custom_encoder_action_succeeds():
-
     class DecimalEncoder(json.JSONEncoder):
         def default(self, o):
             if isinstance(o, decimal.Decimal):
@@ -21,14 +20,7 @@ def test_custom_encoder_action_succeeds():
     class CustomEncoderConnection(Connection):
         schema = {
             "type": "object",
-            "properties": {
-                "price": {
-                    "type": "number"
-                },
-                "name": {
-                    "type": "string"
-                },
-            }
+            "properties": {"price": {"type": "number"}, "name": {"type": "string"},},
         }
 
         def __init__(self):
@@ -38,14 +30,7 @@ def test_custom_encoder_action_succeeds():
             return None
 
     class CustomEncoderActionInput(Input):
-        schema = {
-            "type": "object",
-            "properties": {
-                "greeting": {
-                    "type": "string"
-                },
-            }
-        }
+        schema = {"type": "object", "properties": {"greeting": {"type": "string"},}}
 
         def __init__(self):
             super(self.__class__, self).__init__(schema=self.schema)
@@ -54,14 +39,7 @@ def test_custom_encoder_action_succeeds():
         schema = {
             "type": "object",
             "required": ["price", "name"],
-            "properties": {
-                "price": {
-                    "type": "number"
-                },
-                "name": {
-                    "type": "string"
-                },
-            }
+            "properties": {"price": {"type": "number"}, "name": {"type": "string"},},
         }
 
         def __init__(self):
@@ -70,20 +48,14 @@ def test_custom_encoder_action_succeeds():
     class CustomEncoderAction(Action):
         def __init__(self):
             super(self.__class__, self).__init__(
-                'stupid',
-                'an action',
+                "stupid",
+                "an action",
                 CustomEncoderActionInput(),
                 CustomEncoderActionOutput(),
             )
 
         def run(self, params={}):
-            return {
-                'price': decimal.Decimal('1100.0'),
-                'name': 'Jon'
-            }
+            return {"price": decimal.Decimal("1100.0"), "name": "Jon"}
 
         def test(self, params={}):
-            return {
-                'price': decimal.Decimal('1.1'),
-                'name': 'Jon'
-            }
+            return {"price": decimal.Decimal("1.1"), "name": "Jon"}

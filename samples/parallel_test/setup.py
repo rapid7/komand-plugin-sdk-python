@@ -2,13 +2,16 @@
 from setuptools import setup, find_packages
 
 
-setup(name='parallel_test-komand-plugin',
-      version='1.0.0',
-      description='Tests the parallel execution of steps',
-      author='komand',
-      author_email='',
-      url='',
-      packages=find_packages(),
-      install_requires=['komand'],  # Add third-party dependencies to requirements.txt, not here!
-      scripts=['bin/komand_parallel_test']
-      )
+setup(
+    name="parallel_test-komand-plugin",
+    version="1.0.0",
+    description="Tests the parallel execution of steps",
+    author="komand",
+    author_email="",
+    url="",
+    packages=find_packages(),
+    install_requires=[
+        "insightconnect-plugin-runtime"
+    ],  # Add third-party dependencies to requirements.txt, not here!
+    scripts=["bin/komand_parallel_test"],
+)

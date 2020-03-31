@@ -2,13 +2,16 @@
 from setuptools import setup, find_packages
 
 
-setup(name='hello_world-komand-plugin',
-      version='1.0.0',
-      description='A hello world plugin for SDK testing',
-      author='komand',
-      author_email='',
-      url='',
-      packages=find_packages(),
-      install_requires=['komand'],  # Add third-party dependencies to requirements.txt, not here!
-      scripts=['bin/komand_hello_world']
-      )
+setup(
+    name="hello_world-komand-plugin",
+    version="1.0.0",
+    description="A hello world plugin for SDK testing",
+    author="komand",
+    author_email="",
+    url="",
+    packages=find_packages(),
+    install_requires=[
+        "insightconnect-plugin-runtime"
+    ],  # Add third-party dependencies to requirements.txt, not here!
+    scripts=["bin/komand_hello_world"],
+)
