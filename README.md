@@ -132,7 +132,7 @@ after cloning this repository.
 
 ## Changelog
 
-* 4.0.1 - Fix bug by including schema files in manifest
+* 4.0.1 - Fix bug by including schema files in manifest | Fix issue uploading python library twice to PYPI
 * 4.0.0 - Implement new API endpoints | 
  Implement Swagger API documentation generation | 
  End support for Python2 and PyPy | 
