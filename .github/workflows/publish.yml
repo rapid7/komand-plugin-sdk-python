@@ -44,6 +44,7 @@ jobs:
             python3 setup.py sdist bdist_wheel
         - name: Create Release
           id: create_release
+          if: matrix.dockerfile == '3-38'
           uses: actions/create-release@master
           env:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -54,6 +55,7 @@ jobs:
             prerelease: false
         - name: Upload release generated swagger spec
           id: upload-release-asset
+          if: matrix.dockerfile == '3-38'
           uses: actions/upload-release-asset@v1
           env:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
