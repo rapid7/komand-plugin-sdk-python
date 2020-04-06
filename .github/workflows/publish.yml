@@ -29,12 +29,6 @@ jobs:
         - name: Build Image
           run: |
             make build-image DOCKERFILE=${{matrix.dockerfile}}
-        - name: Deploy Image
-          env:
-            DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-            DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-          run: |
-            make deploy-image DOCKERFILE=${{matrix.dockerfile}}
         - name: Package dependencies
           run: |
             python3 -m pip install --user --upgrade setuptools wheel twine
@@ -71,3 +65,9 @@ jobs:
           if: matrix.dockerfile == '3-38'
           run: |
             python3 -m twine upload dist/*
+        - name: Dockerhub Image Upload
+          env:
+            DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+            DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+          run: |
+            make deploy-image DOCKERFILE=${{matrix.dockerfile}}
