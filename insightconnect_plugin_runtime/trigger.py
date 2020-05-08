@@ -31,3 +31,4 @@ class Trigger(Step):
 
         # Clear the log contents for the next event
         self.log_stream.truncate(0)
+        self.log_stream.seek(0)
