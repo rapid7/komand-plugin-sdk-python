@@ -6,6 +6,7 @@ import argparse
 from .exceptions import LoggedException
 from .server import PluginServer
 
+
 GREEN = '\033[92m'
 RESET = '\033[0m'
 
@@ -49,21 +50,26 @@ class CLI(object):
         result += 'Name:        %s%s%s\n' % (GREEN, self.plugin.name, RESET)
         result += 'Vendor:      %s%s%s\n' % (GREEN, self.plugin.vendor, RESET)
         result += 'Version:     %s%s%s\n' % (GREEN, self.plugin.version, RESET)
-        result += 'Description: %s%s%s\n' % (GREEN, self.plugin.description, RESET)
+        result += 'Description: %s%s%s\n' % (
+            GREEN, self.plugin.description, RESET)
 
         if len(self.plugin.triggers) > 0:
             result += '\n'
-            result += 'Triggers (%s%d%s):\n' % (GREEN, len(self.plugin.triggers), RESET)
+            result += 'Triggers (%s%d%s):\n' % (
+                GREEN, len(self.plugin.triggers), RESET)
 
             for name, item in self.plugin.triggers.items():
-                result += '└── %s%s%s (%s%s)\n' % (GREEN, name, RESET, item.description, RESET)
+                result += '└── %s%s%s (%s%s)\n' % (
+                    GREEN, name, RESET, item.description, RESET)
 
         if len(self.plugin.actions) > 0:
             result += '\n'
-            result += 'Actions (%s%d%s):\n' % (GREEN, len(self.plugin.actions), RESET)
+            result += 'Actions (%s%d%s):\n' % (
+                GREEN, len(self.plugin.actions), RESET)
 
             for name, item in self.plugin.actions.items():
-                result += '└── %s%s%s (%s%s)\n' % (GREEN, name, RESET, item.description, RESET)
+                result += '└── %s%s%s (%s%s)\n' % (
+                    GREEN, name, RESET, item.description, RESET)
 
         print(result)
 
@@ -123,7 +129,8 @@ class CLI(object):
             msg = self.plugin.unmarshal(sys.stdin)
         exception = None
         try:
-            output = self.plugin.handle_step(msg, is_test=is_test, is_debug=is_debug)
+            output = self.plugin.handle_step(msg, is_test=is_test,
+                                             is_debug=is_debug)
         except LoggedException as e:
             output = e.output
             exception = e
@@ -144,21 +151,33 @@ class CLI(object):
         if args.debug:
             self.plugin.debug = True
 
-        PluginServer(self.plugin, port=args.port, workers=args.process_workers, threads=args.threads_per_worker,
-                     debug=args.debug).start()
+        # TODO: This is how the function get instantiated , update to use worker class
+        kwargs = dict(port=args.port,
+                      workers=args.process_workers,
+                      worker_class='gevent',
+                      debug=args.debug)
+        # if args.worker_class == 'sync':
+        #     kwargs["threads"] = args.threads_per_worker
+        # else:
+        #     kwargs["worker_connections"] = args.worker_connections
+        PluginServer(self.plugin, **kwargs).start()
 
     def run(self):
         """Run the CLI tool"""
         parser = argparse.ArgumentParser(description=self.plugin.description)
-        parser.add_argument('--version', action='store_true', help='Show version', default=False)
-        parser.add_argument('--debug', action='store_true', help='Log events to stdout', default=False)
+        parser.add_argument('--version', action='store_true',
+                            help='Show version', default=False)
+        parser.add_argument('--debug', action='store_true',
+                            help='Log events to stdout', default=False)
 
         subparsers = parser.add_subparsers(help='Commands')
 
-        test_command = subparsers.add_parser('test', help='Run a test using the start message on stdin')
+        test_command = subparsers.add_parser('test',
+                                             help='Run a test using the start message on stdin')
         test_command.set_defaults(func=self.test_step)
 
-        info_command = subparsers.add_parser('info', help='Display plugin info (triggers and actions).')
+        info_command = subparsers.add_parser('info',
+                                             help='Display plugin info (triggers and actions).')
         info_command.set_defaults(func=self.info)
 
         sample_command = subparsers.add_parser('sample',
@@ -173,11 +192,30 @@ class CLI(object):
 
         http_command = subparsers.add_parser('http', help='Run a server. ' +
                                                           'You must supply a port, otherwise will listen on 10001.')
-        http_command.add_argument('--port', help='--port', default=10001, type=int)
-        http_command.add_argument('--process_workers', help='The number of child processes to spawn',
+        http_command.add_argument('--port', help='--port', default=10001,
+                                  type=int)
+
+        http_command.add_argument('--process_workers',
+                                  help='The number of child processes to spawn',
                                   default=1, type=int)
-        http_command.add_argument('--threads_per_worker', help='The number of threads per worker process',
-                                  default=4, type=int)
+
+        http_command.add_argument('--worker_class', help='The type of worker',
+                                  default='sync', choices=['sync', 'gevent'])
+
+        connections_mutex_group = http_command.add_mutually_exclusive_group()
+
+        connections_mutex_group.add_argument(
+            '--worker_connections',
+            help='The maximum number of simultaneous clients, '
+                 'only affects the Gevent worker class',
+            default=1000, type=int)
+
+        connections_mutex_group.add_argument(
+            '--threads_per_worker',
+            help='The number of threads per worker process,'
+                 'only affects the sync worker class',
+            default=4, type=int)
+
         http_command.set_defaults(func=self.server)
 
         args = parser.parse_args(self.args)

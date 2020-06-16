@@ -31,13 +31,21 @@ class PluginServer(gunicorn.app.base.BaseApplication):
 
     """
 
-    def __init__(self, plugin, port=10001, workers=1, threads=4, debug=False):
+    def __init__(self, plugin, port=10001, workers=1, threads=4, debug=False,
+                 worker_class="sync", worker_connections=None):
         self.gunicorn_config = {
             'bind': '%s:%s' % ('0.0.0.0', port),
             'workers': workers,
             'threads': threads,
-            'loglevel': 'debug' if debug else 'info'
+            'loglevel': 'debug' if debug else 'info',
+            'worker_class': worker_class,
         }
+
+        # Use asynchronous type of workers
+        if worker_connections and worker_class == "gevent":
+            self.gunicorn_config.pop("threads")
+            self.gunicorn_config["worker_connections"] = worker_connections
+
         super(PluginServer, self).__init__()
         self.plugin = plugin
         self.arbiter = Arbiter(self)

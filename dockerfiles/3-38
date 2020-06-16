@@ -8,6 +8,11 @@ ENV SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt \
 		SSL_CERT_DIR=/etc/ssl/certs \
 		REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
 
+ENV DEBIAN_FRONTEND noninteractive
+RUN apt-get update && \
+    apt-get -y install gcc mono-mcs && \
+    rm -rf /var/lib/apt/lists/*
+
 ADD ./ /usr/src/komand
 WORKDIR /usr/src/komand
 

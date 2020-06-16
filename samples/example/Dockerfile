@@ -1,3 +1,4 @@
+# TODO: change to test we need to have  rapid7/insightconnect-python-3-38-plugin:latest
 FROM rapid7/insightconnect-python-3-38-plugin:latest
 # Refer to the following documentation for available SDK parent images: https://komand.github.io/python/sdk.html#version
 

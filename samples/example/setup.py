@@ -9,6 +9,7 @@ setup(name="example-rapid7-plugin",
       author_email="",
       url="",
       packages=find_packages(),
+      # TODO: in VULNDB it would be komand ,so if it is , we need to change 'insightconnect-plugin-runtime'
       install_requires=['insightconnect-plugin-runtime'],  # Add third-party dependencies to requirements.txt, not here!
       scripts=['bin/icon_example']
       )

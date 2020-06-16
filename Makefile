@@ -14,6 +14,7 @@ DOCKERFILE=3-38
 
 MAKE_VERBOSE=0
 
+# TODO: this is how the plugins gets built, build it and
 build-image:
 	docker build -t rapid7/insightconnect-python-$(DOCKERFILE)-plugin -f dockerfiles/$(DOCKERFILE) .
 	docker tag rapid7/insightconnect-python-${DOCKERFILE}-plugin rapid7/insightconnect-python-${DOCKERFILE}-plugin:$(VERSION)
@@ -27,7 +28,14 @@ install:
 
 test:
 	pip install tox
-	tox
+
+test_cli:
+	pip install tox
+	tox -- tests/plugin/hello_world/tests/test_cli.py
+
+test_server:
+	pip install tox
+	tox -- tests/plugin/hello_world/tests/test_server.py
 
 deploy-image: build-image
 	@echo docker login -u "********" -p "********"

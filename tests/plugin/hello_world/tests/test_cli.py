@@ -3,6 +3,7 @@ import sys
 from tests.plugin.hello_world import KomandHelloWorld
 from komand.cli import CLI
 import io
+import json
 
 cli = CLI(KomandHelloWorld())
 
@@ -23,27 +24,35 @@ def capture_stdout(raises_exception=False):
     return value
 
 
-def test_cli_info():
-    cli.args = ['info']
-    actual_value = capture_stdout()
-    expected_value = u"""Name:        [92mHello_world[0m
-Vendor:      [92mkomand[0m
-Version:     [92m1.0.0[0m
-Description: [92mA hello world plugin for SDK testing[0m
+# def test_cli_info():
+#     cli.args = ['info']
+#     actual_value = capture_stdout()
+#     expected_value = u"""Name:        [92mHello_world[0m
+# Vendor:      [92mkomand[0m
+# Version:     [92m1.0.0[0m
+# Description: [92mA hello world plugin for SDK testing[0m
+#
+# Triggers ([92m3[0m):
+# └── [92mhello_trigger[0m (Prints a greeting every 10 seconds[0m)
+# └── [92mreturn_bad_json_trigger[0m (This trigger will return JSON which doesnt match the spec[0m)
+# └── [92mthrow_exception_trigger[0m (This trigger will always throw an exception as soon as its invoked[0m)
+#
+# Actions ([92m3[0m):
+# └── [92mhello[0m (Print hello world[0m)
+# └── [92mreturn_bad_json[0m (This action will return JSON which doesnt match the spec[0m)
+# └── [92mthrow_exception[0m (This action will always throw an exception as soon as its invoked[0m)
+#
+# """
+#     assert actual_value == expected_value
 
-Triggers ([92m3[0m):
-└── [92mhello_trigger[0m (Prints a greeting every 10 seconds[0m)
-└── [92mreturn_bad_json_trigger[0m (This trigger will return JSON which doesnt match the spec[0m)
-└── [92mthrow_exception_trigger[0m (This trigger will always throw an exception as soon as its invoked[0m)
-
-Actions ([92m3[0m):
-└── [92mhello[0m (Print hello world[0m)
-└── [92mreturn_bad_json[0m (This action will return JSON which doesnt match the spec[0m)
-└── [92mthrow_exception[0m (This action will always throw an exception as soon as its invoked[0m)
-
-"""
-    assert actual_value == expected_value
-
+# TODO
+def test_cli_sample_action():
+    cli.args = ['http', '--worker_class', 'gevent']
+    value = capture_stdout()
+    # expected_value = value + "{}"
+    #
+    # assert json.loads(value) == json.loads(expected_value)
+    #
 
 # def test_cli_sample_action():
 #     cli.args = ['sample', 'hello']
