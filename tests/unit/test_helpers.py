@@ -214,6 +214,18 @@ def test_exec_command_success():
     assert has_keys
 
 
+def test_exec_command_pipe_failure():
+    result = helper.exec_command("ls -lrt|grep test")
+    has_error = result['stderr'] != ""
+    assert has_error
+
+
+def test_exec_command_append_failure():
+    result = helper.exec_command("ls -lrt >> outfile.log")
+    has_error = result['stderr'] != ""
+    assert has_error
+
+
 # encode_string
 
 

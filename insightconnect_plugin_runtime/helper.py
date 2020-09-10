@@ -9,6 +9,7 @@ import subprocess
 import time
 from io import IOBase
 from urllib import request
+import shlex
 
 import requests
 
@@ -302,8 +303,7 @@ def exec_command(command):
     """Return dict with keys stdout, stderr, and return code of executed subprocess command."""
     try:
         p = subprocess.Popen(
-            command,
-            shell=True,
+            shlex.split(command),
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
