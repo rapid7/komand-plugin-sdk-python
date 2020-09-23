@@ -4,6 +4,10 @@ LABEL organization=rapid7 \
 			sdk=python \
 			type=plugin
 
+# Support Gevent dependencies
+RUN apk update
+RUN apk add build-base libffi-dev openssl-dev
+
 ENV SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt \
 		SSL_CERT_DIR=/etc/ssl/certs \
 		REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt

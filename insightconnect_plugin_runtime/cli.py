@@ -41,7 +41,7 @@ class CLI(object):
 
         if "--" in self.args:
             index = self.args.index("--")
-            self.msg = " ".join(self.args[index + 1 :])
+            self.msg = " ".join(self.args[index + 1:])
             self.args = self.args[:index]
 
     def info(self, args):
@@ -49,11 +49,13 @@ class CLI(object):
         result += "Name:        %s%s%s\n" % (GREEN, self.plugin.name, RESET)
         result += "Vendor:      %s%s%s\n" % (GREEN, self.plugin.vendor, RESET)
         result += "Version:     %s%s%s\n" % (GREEN, self.plugin.version, RESET)
-        result += "Description: %s%s%s\n" % (GREEN, self.plugin.description, RESET)
+        result += "Description: %s%s%s\n" % (
+            GREEN, self.plugin.description, RESET)
 
         if len(self.plugin.triggers) > 0:
             result += "\n"
-            result += "Triggers (%s%d%s):\n" % (GREEN, len(self.plugin.triggers), RESET)
+            result += "Triggers (%s%d%s):\n" % (
+                GREEN, len(self.plugin.triggers), RESET)
 
             for name, item in self.plugin.triggers.items():
                 result += "└── %s%s%s (%s%s)\n" % (
@@ -66,7 +68,8 @@ class CLI(object):
 
         if len(self.plugin.actions) > 0:
             result += "\n"
-            result += "Actions (%s%d%s):\n" % (GREEN, len(self.plugin.actions), RESET)
+            result += "Actions (%s%d%s):\n" % (
+                GREEN, len(self.plugin.actions), RESET)
 
             for name, item in self.plugin.actions.items():
                 result += "└── %s%s%s (%s%s)\n" % (
@@ -135,7 +138,8 @@ class CLI(object):
             msg = self.plugin.unmarshal(sys.stdin)
         exception = None
         try:
-            output = self.plugin.handle_step(msg, is_test=is_test, is_debug=is_debug)
+            output = self.plugin.handle_step(msg, is_test=is_test,
+                                             is_debug=is_debug)
         except LoggedException as e:
             output = e.output
             exception = e
@@ -162,6 +166,8 @@ class CLI(object):
             workers=args.process_workers,
             threads=args.threads_per_worker,
             debug=args.debug,
+            worker_class=args.worker_class,
+            worker_connections=args.worker_connections
         ).start()
 
     def run(self):
@@ -171,7 +177,8 @@ class CLI(object):
             "--version", action="store_true", help="Show version", default=False
         )
         parser.add_argument(
-            "--debug", action="store_true", help="Log events to stdout", default=False
+            "--debug", action="store_true", help="Log events to stdout",
+            default=False
         )
 
         subparsers = parser.add_subparsers(help="Commands")
@@ -196,28 +203,47 @@ class CLI(object):
         run_command = subparsers.add_parser(
             "run",
             help="Run the plugin (default command)."
-            "You must supply the start message on stdin.",
+                 "You must supply the start message on stdin.",
         )
         run_command.set_defaults(func=self.run_step)
 
         http_command = subparsers.add_parser(
             "http",
             help="Run a server. "
-            + "You must supply a port, otherwise will listen on 10001.",
+                 + "You must supply a port, otherwise will listen on 10001.",
         )
-        http_command.add_argument("--port", help="--port", default=10001, type=int)
+        http_command.add_argument("--port", help="--port", default=10001,
+                                  type=int)
+
         http_command.add_argument(
             "--process_workers",
             help="The number of child processes to spawn",
             default=1,
             type=int,
         )
+
         http_command.add_argument(
             "--threads_per_worker",
             help="The number of threads per worker process",
             default=4,
             type=int,
         )
+
+        http_command.add_argument(
+            "--worker_class",
+            help="The type of the worker to run",
+            default='sync',
+            choices=["sync", "gevent"],
+            type=str,
+        )
+
+        http_command.add_argument(
+            "--worker_connections",
+            help="The number of connections to support for 'gevent' worker class(up to 1000)",
+            default=200,
+            type=int,
+        )
+
         http_command.set_defaults(func=self.server)
 
         args = parser.parse_args(self.args)

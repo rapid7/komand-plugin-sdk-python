@@ -1,0 +1,8 @@
+{
+  "bind": "0.0.0.0:10001",
+  "workers": 1,
+  "worker_connections": 200,
+  "worker_class": "gevent",
+  "threads": 4,
+  "loglevel": "debug"
+}

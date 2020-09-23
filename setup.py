@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name="insightconnect-plugin-runtime",
-    version="4.0.3",
+    version="4.1.0",
     description="InsightConnect Plugin Runtime",
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -20,6 +20,7 @@ setup(
         "certifi==2019.11.28",
         "Flask==1.1.1",
         "gunicorn==20.0.4",
+        "gevent==20.6.2",
         "marshmallow==3.4.0",
         "apispec==3.2.0",
         "apispec-webframeworks==0.5.2",

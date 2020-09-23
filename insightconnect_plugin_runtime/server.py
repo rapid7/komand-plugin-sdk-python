@@ -1,5 +1,6 @@
 import os
 import sys
+import json
 import gunicorn.app.base
 from flask import Flask
 from gunicorn.arbiter import Arbiter
@@ -38,13 +39,24 @@ class PluginServer(gunicorn.app.base.BaseApplication):
 
     """
 
-    def __init__(self, plugin, port=10001, workers=1, threads=4, debug=False):
-        self.gunicorn_config = {
-            "bind": "%s:%s" % ("0.0.0.0", port),
-            "workers": workers,
-            "threads": threads,
-            "loglevel": "debug" if debug else "info",
-        }
+    def __init__(self, plugin, port=10001, workers=1, threads=4, debug=False,
+                 worker_class='sync', worker_connections=200):
+
+        if os.environ.get("GUNICORN_CONFIG_FILE"):
+            with open(os.environ.get("GUNICORN_CONFIG_FILE")) as gf:
+                self.gunicorn_config = json.load(gf)
+        else:
+            self.gunicorn_config = {
+                "bind": "%s:%s" % ("0.0.0.0", port),
+                "workers": workers,
+                "worker_class": worker_class,
+                "loglevel": "debug" if debug else "info",
+            }
+            if worker_class == 'gevent':
+                self.gunicorn_config['worker_connections'] = worker_connections
+            else:
+                self.gunicorn_config['threads'] = threads
+
         super(PluginServer, self).__init__()
         self.plugin = plugin
         self.arbiter = Arbiter(self)
@@ -111,8 +123,10 @@ class PluginServer(gunicorn.app.base.BaseApplication):
         self.spec.components.schema(
             "ActionTriggerDetails", schema=ActionTriggerDetailsSchema
         )
-        self.spec.components.schema("ConnectionDetails", schema=ConnectionDetailsSchema)
-        self.spec.components.schema("ConnectionTestOutput", schema=ConnectionTestSchema)
+        self.spec.components.schema("ConnectionDetails",
+                                    schema=ConnectionDetailsSchema)
+        self.spec.components.schema("ConnectionTestOutput",
+                                    schema=ConnectionTestSchema)
         self.spec.path(view=self.app.view_functions["v1.api_spec"])
         self.spec.path(view=self.app.view_functions["v1.plugin_info"])
         self.spec.path(view=self.app.view_functions["v1.plugin_spec"])

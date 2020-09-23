@@ -68,6 +68,12 @@ The plugin will be started in `http` mode and listening at `http:0.0.0.0:10001`:
 [2020-02-13 23:21:13 -0500] [56571] [INFO] Booting worker with pid: 56571
 ```
 
+To override Gunicorn config export environment variable GUNICORN_CONFIG_FILE pointing to json file with config
+See example in samples/example/gcfg.json 
+```
+export GUNICORN_CONFIG_FILE ="./gcfg.json"
+```
+
 To build, install, and run runtime changes without the use of the `run-sample` rule, the below steps can be used for 
 same result:
 ```
@@ -131,6 +137,7 @@ contributed. Black is installed as a test dependency and the hook can be initial
 after cloning this repository.
 
 ## Changelog
+* 4.1.0 - Provide ability to run with gevent asynchronous gunicorn worker class for increased performance
 * 4.0.3 - Fix to avoid command injections when using exec_command helper method
 * 4.0.2 - Fix to remove unprintable characters from trigger logs
 * 4.0.1 - Fix bug by including schema files in manifest | Fix issue uploading python library twice to PYPI
