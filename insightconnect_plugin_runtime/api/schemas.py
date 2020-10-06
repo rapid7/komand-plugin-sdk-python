@@ -29,6 +29,20 @@ class ActionTriggerOutputSchema(Schema):
     version = fields.Str(required=True)
 
 
+class TaskOutputBodySchema(Schema):
+    log = fields.Str(required=True)
+    meta = fields.Dict(required=True)
+    output = fields.Dict(required=True)
+    status = fields.Str(required=True)
+    state = fields.Dict(required=True)
+
+
+class TaskOutputSchema(Schema):
+    body = fields.Nested(TaskOutputBodySchema, required=True)
+    type = fields.Str(required=True, validate=OneOf(["task_event"]))
+    version = fields.Str(required=True)
+
+
 class ActionTriggerInputBodySchema(Schema):
     action = fields.Str(required=True)
     connection = fields.Dict(required=True)
@@ -41,11 +55,33 @@ class ActionTriggerInputSchema(Schema):
     version = fields.Str(required=True)
 
 
+class TaskInputBodySchema(Schema):
+    task = fields.Str(required=True)
+    connection = fields.Dict(required=True)
+    input = fields.Dict(required=True)
+    state = fields.Dict(required=True)
+
+
+class TaskInputSchema(Schema):
+    body = fields.Nested(TaskInputBodySchema, required=True)
+    type = fields.Str(required=True, validate=OneOf(["task_event"]))
+    version = fields.Str(required=True)
+
+
 class ActionTriggerDetailsSchema(Schema):
     description = fields.Str()
     title = fields.Str()
     input = fields.Dict()
     output = fields.Dict()
+
+
+class TaskDetailsSchema(Schema):
+    description = fields.Str()
+    title = fields.Str()
+    input = fields.Dict()
+    output = fields.Dict()
+    schedule = fields.Dict()
+    state = fields.Dict()
 
 
 class ConnectionDetailsSchema(Schema):

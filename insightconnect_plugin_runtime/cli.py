@@ -80,10 +80,48 @@ class CLI(object):
                     RESET,
                 )
 
+        if len(self.plugin.tasks) > 0:
+            result += "\n"
+            result += "Tasks (%s%d%s):\n" % (GREEN, len(self.plugin.tasks), RESET)
+
+            for name, item in self.plugin.tasks.items():
+                result += "└── %s%s%s (%s%s)\n" % (
+                    GREEN,
+                    name,
+                    RESET,
+                    item.description,
+                    RESET,
+                )
+
         print(result)
 
     def sample(self, args):
         name = args.name
+        task = self.plugin.tasks.get(name)
+        if task:
+            conn = self.plugin.connection
+            input = None
+            if conn:
+                conn = conn.sample()
+            if task.input:
+                input = task.input.sample()
+            if task.state:
+                state = task.state.sample()
+
+            msg = {
+                "body": {
+                    "task": task.name,
+                    "meta": {},
+                    "input": input,
+                    "connection": conn,
+                    "state": state,
+                },
+                "type": "task_start",
+                "version": "v1",
+            }
+            self.plugin.marshal(msg, sys.stdout)
+            return
+
         trig = self.plugin.triggers.get(name)
         if trig:
             conn = self.plugin.connection
@@ -131,7 +169,7 @@ class CLI(object):
             self.plugin.marshal(msg, sys.stdout)
             return
 
-        raise ValueError("Invalid trigger or action name.")
+        raise ValueError("Invalid trigger, action or task name.")
 
     def execute_step(self, is_test=False, is_debug=False, msg=None):
         if not msg:
@@ -189,15 +227,15 @@ class CLI(object):
         test_command.set_defaults(func=self.test_step)
 
         info_command = subparsers.add_parser(
-            "info", help="Display plugin info (triggers and actions)."
+            "info", help="Display plugin info (triggers, actions and tasks)."
         )
         info_command.set_defaults(func=self.info)
 
         sample_command = subparsers.add_parser(
             "sample",
-            help="Show a sample start message for the provided trigger or action.",
+            help="Show a sample start message for the provided trigger, action or task.",
         )
-        sample_command.add_argument("name", help="trigger or action name")
+        sample_command.add_argument("name", help="trigger, action or task name")
         sample_command.set_defaults(func=self.sample)
 
         run_command = subparsers.add_parser(

@@ -5,6 +5,7 @@ import insightconnect_plugin_runtime.connection
 import insightconnect_plugin_runtime.plugin
 import insightconnect_plugin_runtime.schema
 import insightconnect_plugin_runtime.trigger
+import insightconnect_plugin_runtime.task
 import insightconnect_plugin_runtime.variables
 import insightconnect_plugin_runtime.helper
 import insightconnect_plugin_runtime.dispatcher
@@ -16,9 +17,11 @@ import logging
 Plugin = insightconnect_plugin_runtime.plugin.Plugin
 Action = insightconnect_plugin_runtime.action.Action
 Trigger = insightconnect_plugin_runtime.trigger.Trigger
+Task = insightconnect_plugin_runtime.task.Task
 Connection = insightconnect_plugin_runtime.connection.Connection
 Input = insightconnect_plugin_runtime.variables.Input
 Output = insightconnect_plugin_runtime.variables.Output
+State = insightconnect_plugin_runtime.variables.State
 CLI = insightconnect_plugin_runtime.cli.CLI
 
 # Many plugins use the certifi package, particularly indirectly through

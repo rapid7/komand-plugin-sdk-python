@@ -11,9 +11,14 @@ from insightconnect_plugin_runtime.api.schemas import (
     PluginInfoSchema,
     ActionTriggerOutputBodySchema,
     ActionTriggerOutputSchema,
+    TaskOutputBodySchema,
+    TaskOutputSchema,
     ActionTriggerInputBodySchema,
     ActionTriggerInputSchema,
+    TaskInputBodySchema,
+    TaskInputSchema,
     ActionTriggerDetailsSchema,
+    TaskDetailsSchema,
     ConnectionDetailsSchema,
     ConnectionTestSchema,
 )
@@ -115,10 +120,22 @@ class PluginServer(gunicorn.app.base.BaseApplication):
             "ActionTriggerOutput", schema=ActionTriggerOutputSchema
         )
         self.spec.components.schema(
+            "TaskOutputBody", schema=TaskOutputBodySchema
+        )
+        self.spec.components.schema(
+            "TaskOutput", schema=TaskOutputSchema
+        )
+        self.spec.components.schema(
             "ActionTriggerInputBody", schema=ActionTriggerInputBodySchema
         )
         self.spec.components.schema(
             "ActionTriggerInput", schema=ActionTriggerInputSchema
+        )
+        self.spec.components.schema(
+            "TaskInputBody", schema=TaskInputBodySchema
+        )
+        self.spec.components.schema(
+            "TaskInput", schema=TaskInputSchema
         )
         self.spec.components.schema(
             "ActionTriggerDetails", schema=ActionTriggerDetailsSchema
@@ -127,17 +144,24 @@ class PluginServer(gunicorn.app.base.BaseApplication):
                                     schema=ConnectionDetailsSchema)
         self.spec.components.schema("ConnectionTestOutput",
                                     schema=ConnectionTestSchema)
+        self.spec.components.schema(
+            "TaskDetails", schema=TaskDetailsSchema
+        )
         self.spec.path(view=self.app.view_functions["v1.api_spec"])
         self.spec.path(view=self.app.view_functions["v1.plugin_info"])
         self.spec.path(view=self.app.view_functions["v1.plugin_spec"])
         self.spec.path(view=self.app.view_functions["v1.actions"])
         self.spec.path(view=self.app.view_functions["v1.triggers"])
+        self.spec.path(view=self.app.view_functions["v1.tasks"])
         self.spec.path(view=self.app.view_functions["v1.status"])
         self.spec.path(view=self.app.view_functions["v1.action_run"])
+        self.spec.path(view=self.app.view_functions["v1.task_run"])
         self.spec.path(view=self.app.view_functions["v1.action_test"])
         self.spec.path(view=self.app.view_functions["v1.trigger_test"])
+        self.spec.path(view=self.app.view_functions["v1.task_test"])
         self.spec.path(view=self.app.view_functions["v1.action_details"])
         self.spec.path(view=self.app.view_functions["v1.trigger_details"])
+        self.spec.path(view=self.app.view_functions["v1.task_details"])
         self.spec.path(view=self.app.view_functions["v1.connection"])
         self.spec.path(view=self.app.view_functions["v1.connection_test"])
 

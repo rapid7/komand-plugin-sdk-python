@@ -13,6 +13,7 @@ from insightconnect_plugin_runtime.exceptions import (
 from insightconnect_plugin_runtime.api.schemas import (
     PluginInfoSchema,
     ActionTriggerDetailsSchema,
+    TaskDetailsSchema,
     ConnectionDetailsSchema,
 )
 
@@ -60,9 +61,43 @@ class Endpoints:
             """
             input_message = request.get_json(force=True)
             self.logger.debug("Request input: %s", input_message)
-            Endpoints.validate_action_trigger_empty_input(input_message)
-            Endpoints.validate_action_trigger_name(input_message, name, "action")
-            output = self.run_action_trigger(input_message)
+            Endpoints.validate_action_trigger_task_empty_input(input_message)
+            Endpoints.validate_action_trigger_task_name(input_message, name, "action")
+            output = self.run_action_trigger_task(input_message)
+            return output
+
+        @v1.route("/tasks/<string:name>", methods=["POST"])
+        @legacy.route("/tasks/<string:name>", methods=["POST"])
+        def task_run(name):
+            """Run task endpoint.
+            ---
+            post:
+              summary: Run a task
+              description: Run a task
+              parameters:
+                - in: path
+                  name: name
+                  description: Name of the task
+                  type: string
+                - in: body
+                  name: Task Input
+                  description: Input to run a task
+                  required: true
+                  schema: TaskInputSchema
+              responses:
+                200:
+                  description: Task output to be returned
+                  schema: TaskOutputSchema
+                400:
+                  description: Bad request
+                500:
+                  description: Unexpected error
+            """
+            input_message = request.get_json(force=True)
+            self.logger.debug("Request input: %s", input_message)
+            Endpoints.validate_action_trigger_task_empty_input(input_message)
+            Endpoints.validate_action_trigger_task_name(input_message, name, "task")
+            output = self.run_action_trigger_task(input_message)
             return output
 
         @legacy.route("/triggers/<string:name>/test", methods=["POST"])
@@ -94,9 +129,9 @@ class Endpoints:
             """
             input_message = request.get_json(force=True)
             self.logger.debug("Request input: %s", input_message)
-            Endpoints.validate_action_trigger_empty_input(input_message)
-            Endpoints.validate_action_trigger_name(input_message, name, "trigger")
-            output = self.run_action_trigger(input_message, True)
+            Endpoints.validate_action_trigger_task_empty_input(input_message)
+            Endpoints.validate_action_trigger_task_name(input_message, name, "trigger")
+            output = self.run_action_trigger_task(input_message, True)
             return output
 
         @legacy.route("/actions/<string:name>/test", methods=["POST"])
@@ -128,9 +163,43 @@ class Endpoints:
             """
             input_message = request.get_json(force=True)
             self.logger.debug("Request input: %s", input_message)
-            Endpoints.validate_action_trigger_empty_input(input_message)
-            Endpoints.validate_action_trigger_name(input_message, name, "action")
-            output = self.run_action_trigger(input_message, True)
+            Endpoints.validate_action_trigger_task_empty_input(input_message)
+            Endpoints.validate_action_trigger_task_name(input_message, name, "action")
+            output = self.run_action_trigger_task(input_message, True)
+            return output
+
+        @legacy.route("/tasks/<string:name>/test", methods=["POST"])
+        @v1.route("/tasks/<string:name>/test", methods=["POST"])
+        def task_test(name):
+            """Run task test endpoint.
+            ---
+            post:
+              summary: Run task test
+              description: Run task test
+              parameters:
+                - in: path
+                  name: name
+                  description: Name of the task
+                  type: string
+                - in: body
+                  name: Task Input
+                  description: Input to run a task
+                  required: true
+                  schema: TaskInputSchema
+              responses:
+                200:
+                  description: Task test output to be returned
+                  schema: TaskOutputSchema
+                400:
+                  description: Bad request
+                500:
+                  description: Unexpected error
+            """
+            input_message = request.get_json(force=True)
+            self.logger.debug("Request input: %s", input_message)
+            Endpoints.validate_action_trigger_task_empty_input(input_message)
+            Endpoints.validate_action_trigger_task_name(input_message, name, "task")
+            output = self.run_action_trigger_task(input_message, True)
             return output
 
         @v1.route("/api")
@@ -217,6 +286,26 @@ class Endpoints:
                 action_list.append(action)
             return jsonify(action_list)
 
+        @v1.route("/tasks")
+        def tasks():
+            """Plugin tasks list endpoint.
+            ---
+            get:
+              summary: Get list of plugin tasks
+              description: Get InsightConnect plugin all tasks
+              responses:
+                200:
+                  description: InsightConnect Plugin tasks list to be returned
+                  schema:
+                    type: array
+                    items:
+                      type: string
+            """
+            task_list = []
+            for task in self.plugin.tasks.keys():
+                task_list.append(task)
+            return jsonify(task_list)
+
         @v1.route("/actions/<string:name>")
         def action_details(name):
             """Get action details endpoint.
@@ -239,10 +328,39 @@ class Endpoints:
             plugin_spec_json = Endpoints.load_file_json_format(
                 "/python/src/plugin.spec.yaml"
             )
-            Endpoints.action_trigger_exists(plugin_spec_json, "actions", name)
+            Endpoints.action_trigger_task_exists(plugin_spec_json, "actions", name)
             return jsonify(
                 ActionTriggerDetailsSchema().dump(
                     plugin_spec_json.get("actions").get(name)
+                )
+            )
+
+        @v1.route("/tasks/<string:name>")
+        def task_details(name):
+            """Get task details endpoint.
+             ---
+             get:
+               summary: Retrieve task details
+               description: Retrieve task details
+               parameters:
+                 - in: path
+                   name: name
+                   description: Name of the task
+                   type: string
+               responses:
+                 200:
+                   description: Task details to be returned
+                   schema: TaskDetailsSchema
+                 400:
+                   description: Bad request
+             """
+            plugin_spec_json = Endpoints.load_file_json_format(
+                "/python/src/plugin.spec.yaml"
+            )
+            Endpoints.action_trigger_task_exists(plugin_spec_json, "tasks", name)
+            return jsonify(
+                TaskDetailsSchema().dump(
+                    plugin_spec_json.get("tasks").get(name)
                 )
             )
 
@@ -268,7 +386,7 @@ class Endpoints:
             plugin_spec_json = Endpoints.load_file_json_format(
                 "/python/src/plugin.spec.yaml"
             )
-            Endpoints.action_trigger_exists(plugin_spec_json, "triggers", name)
+            Endpoints.action_trigger_task_exists(plugin_spec_json, "triggers", name)
             return jsonify(
                 ActionTriggerDetailsSchema().dump(
                     plugin_spec_json.get("triggers").get(name)
@@ -479,13 +597,13 @@ class Endpoints:
         return num_workers - 1
 
     @staticmethod
-    def action_trigger_exists(plugin_spec_json, p_type, p_name):
-        actions_triggers = plugin_spec_json.get(p_type)
-        if actions_triggers is None or actions_triggers.get(p_name) is None:
-            msg = f"{p_type[:-1].capitalize()} {p_name} does not exists"
+    def action_trigger_task_exists(plugin_spec_json, p_type, p_name):
+        actions_triggers_tasks = plugin_spec_json.get(p_type)
+        if actions_triggers_tasks is None or actions_triggers_tasks.get(p_name) is None:
+            msg = f"{p_type[:-1].capitalize()} {p_name} does not exist"
             resp = make_response(jsonify({"error": msg}), 400)
             abort(resp)
-        return actions_triggers.get(p_name)
+        return actions_triggers_tasks.get(p_name)
 
     @staticmethod
     def load_file_json_format(filename):
@@ -493,16 +611,16 @@ class Endpoints:
             return yaml.safe_load(p_spec.read())
 
     @staticmethod
-    def validate_action_trigger_empty_input(input_message):
+    def validate_action_trigger_task_empty_input(input_message):
         if not input_message:
             resp = make_response(jsonify({"error": "Empty input provided"}), 400)
             abort(resp)
 
     @staticmethod
-    def validate_action_trigger_name(input_message, name, p_type):
+    def validate_action_trigger_task_name(input_message, name, p_type):
         name_in_input_msg = input_message.get("body", {}).get(p_type, None)
         if name_in_input_msg != name:
-            msg = f"Action name ({name_in_input_msg}) in input body is not matching with name ({name}) in route"
+            msg = f"{p_type.capitalize()} name ({name_in_input_msg}) in input body is not matching with name ({name}) in route"
             resp = make_response(jsonify({"error": msg}), 400)
             abort(resp)
 
@@ -513,7 +631,7 @@ class Endpoints:
             plugin_info.update({field: plugin_spec_json.get(field)})
         return plugin_info
 
-    def run_action_trigger(self, input_message, test=False):
+    def run_action_trigger_task(self, input_message, test=False):
         status_code = 200
         output = None
         try:

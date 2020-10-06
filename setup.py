@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name="insightconnect-plugin-runtime",
-    version="4.1.1",
+    version="4.2.0",
     description="InsightConnect Plugin Runtime",
     long_description=long_description,
     long_description_content_type="text/markdown",

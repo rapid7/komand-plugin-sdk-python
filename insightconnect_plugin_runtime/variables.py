@@ -4,8 +4,8 @@ import insightconnect_plugin_runtime.util as util
 from insightconnect_plugin_runtime.exceptions import ClientException
 
 
-class Input(object):
-    """ Input variables """
+class IOS(object):
+    """ Input Output State"""
 
     def __init__(self, schema):
         self.schema = schema
@@ -20,6 +20,17 @@ class Input(object):
     def validate(self, parameters):
         """ Validate variables """
         validate(parameters, self.schema)
+
+    def sample(self):
+        """ Sample object """
+        return util.sample(self.schema)
+
+
+class Input(IOS):
+    """ Input variables """
+
+    def __init__(self, schema):
+        super(Input, self).__init__(schema)
 
     def validate_required(self, parameters):
         """
@@ -58,28 +69,16 @@ class Input(object):
                 if (value is None) or (isinstance(value, str) and not len(value)):
                     raise ClientException(message.format(key=key))
 
-    def sample(self):
-        """ Sample object """
-        return util.sample(self.schema)
 
-
-class Output(object):
+class Output(IOS):
     """ Output variables """
 
     def __init__(self, schema):
-        self.schema = schema
-        self.parameters = None
+        super(Output, self).__init__(schema)
 
-    def set(self, parameters, should_validate=True):
-        """ Set parameters """
-        self.parameters = parameters
-        if should_validate:
-            self.validate(self.parameters)
 
-    def validate(self, parameters):
-        """ Validate variables """
-        validate(parameters, self.schema)
+class State(IOS):
+    """ Task state """
 
-    def sample(self):
-        """ Sample object """
-        return util.sample(self.schema)
+    def __init__(self, schema):
+        super(State, self).__init__(schema)

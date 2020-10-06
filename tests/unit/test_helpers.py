@@ -251,17 +251,6 @@ def test_encode_file_success():
     os.remove("test.txt")
 
 
-# check_url_modified
-
-
-def test_check_url_modified_false():
-    assert not helper.check_url_modified("https://httpstat.us/304")
-
-
-def test_check_url_modified_true():
-    assert helper.check_url_modified("https://httpstat.us/200")
-
-
 # get_url_content_disposition
 
 

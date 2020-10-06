@@ -16,6 +16,7 @@ from .exceptions import ClientException, ServerException, LoggedException
 message_output_type = {
     "action_start": "action_event",
     "trigger_start": "trigger_event",
+    "task_start": "task_event",
 }
 
 
@@ -148,6 +149,7 @@ class Plugin(object):
         self.connection_cache = ConnectionCache(connection)
         self.triggers = {}
         self.actions = {}
+        self.tasks = {}
         self.debug = False
         self.custom_decoder = custom_decoder
         self.custom_encoder = custom_encoder
@@ -160,8 +162,12 @@ class Plugin(object):
         """ add a new action """
         self.actions[action.name] = action
 
+    def add_task(self, task):
+        """ add a new task"""
+        self.tasks[task.name] = task
+
     @staticmethod
-    def envelope(message_type, input_message, log, success, output, error_message):
+    def envelope(message_type, input_message, log, success, output, error_message, state):
         """
         Creates an output message of a step's execution.
 
@@ -171,6 +177,7 @@ class Plugin(object):
         :param success: whether or not the step was successful
         :param output: The step data output
         :param error_message: An error message if an error was thrown
+        :param state: The state of task_event. Only applicable to tasks.
         :return: An output message
         """
 
@@ -179,6 +186,10 @@ class Plugin(object):
             "status": "ok" if success else "error",
             "meta": input_message["body"].get("meta", None),
         }
+
+        if state:
+            output_message["state"] = state
+
         if success:
             output_message["output"] = output
         else:
@@ -247,9 +258,16 @@ class Plugin(object):
                 )
             if not isinstance(body["trigger"], str):
                 raise ClientException("Trigger field must be a string")
+        elif type_ == "task_start":
+            if "task" not in body:
+                raise ClientException(
+                    'Message is task_start but field "task" is missing from body'
+                )
+            if not isinstance(body["task"], str):
+                raise ClientException("Task field must be a string")
         else:
             raise ClientException(
-                "Unsupported message type %s. Must be action_start or trigger_start"
+                "Unsupported message type %s. Must be action_start, trigger_start or task_start"
             )
 
         if "meta" not in body:
@@ -290,12 +308,13 @@ class Plugin(object):
         ex = None
         output = None
         out_type = None
+        state = None
 
         try:
             # Attempt to grab message type first
             message_type = input_message.get("type")
             out_type = message_output_type.get(message_type)
-            if message_type not in ["action_start", "trigger_start"]:
+            if message_type not in ["action_start", "trigger_start", "task_start"]:
                 raise ClientException(
                     'Unsupported message type "{}"'.format(message_type)
                 )
@@ -322,6 +341,28 @@ class Plugin(object):
                     is_test,
                     is_debug,
                 )
+            elif message_type == "task_start":
+                out_type = "task_event"
+                if is_test:
+                    # state will not be returned by task's test method
+                    output = self.start_step(
+                        input_message["body"],
+                        "task",
+                        logger,
+                        log_stream,
+                        is_test,
+                        is_debug,
+                    )
+                else:
+                    # state will be returned by task's run method along with output
+                    output, state = self.start_step(
+                        input_message["body"],
+                        "task",
+                        logger,
+                        log_stream,
+                        is_test,
+                        is_debug,
+                    )
         except ClientException as e:
             success = False
             ex = e
@@ -336,7 +377,7 @@ class Plugin(object):
             logger.exception(e)
         finally:
             output = Plugin.envelope(
-                out_type, input_message, log_stream.getvalue(), success, output, str(ex)
+                out_type, input_message, log_stream.getvalue(), success, output, str(ex), state
             )
             if not success:
                 raise LoggedException(ex, output)
@@ -386,11 +427,15 @@ class Plugin(object):
                     step.dispatcher = Http(message_body["dispatcher"])
 
         params = message_body["input"]
+        state = {}
 
         if not is_test:
             # Validate input message
             try:
                 step.input.validate(params)
+                if step_key == "task":
+                    state = message_body["state"]
+                    step.state.validate(state)
 
                 # Validate required inputs
                 # Step inputs will be checked against schema for required properties existence
@@ -425,13 +470,21 @@ class Plugin(object):
         # However, the code generation generates the test method without the params argument.
         parameters = inspect.signature(func)
         if len(parameters.parameters) > 0:
-            output = func(params)
+            if step_key == "task" and not is_test:
+                output, state = func(params, state)
+            else:
+                output = func(params)
         else:
-            output = func()
+            if step_key == "task" and not is_test:
+                output, state = func()
+            else:
+                output = func()
 
         # Don't validate output for any test functions - action/trigger tests shouldn't be validated due to them
         # not providing value and a connection test shouldn't be validated due to it being generic/universal
         if not is_test:
             step.output.validate(output)
 
+        if step_key == "task" and not is_test:
+            return output, state
         return output

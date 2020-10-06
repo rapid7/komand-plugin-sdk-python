@@ -7,11 +7,12 @@ from io import StringIO
 class Step(object):
     """A action"""
 
-    def __init__(self, name, description, input, output):
+    def __init__(self, name, description, input, output, state=None):
         self.name = name
         self.description = description
         self.input = input
         self.output = output
+        self.state = state
         self.connection = None
         self.debug = False
         self.stream = StringIO()
