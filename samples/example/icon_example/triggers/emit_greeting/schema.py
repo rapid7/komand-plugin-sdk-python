@@ -8,18 +8,17 @@ class Component:
 
 
 class Input:
-
+    
     INTERVAL = "interval"
-
+    
 
 class Output:
-
+    
     GREETING = "greeting"
-
+    
 
 class EmitGreetingInput(insightconnect_plugin_runtime.Input):
-    schema = json.loads(
-        """
+    schema = json.loads("""
    {
   "type": "object",
   "title": "Variables",
@@ -36,16 +35,14 @@ class EmitGreetingInput(insightconnect_plugin_runtime.Input):
     "interval"
   ]
 }
-    """
-    )
+    """)
 
     def __init__(self):
         super(self.__class__, self).__init__(self.schema)
 
 
 class EmitGreetingOutput(insightconnect_plugin_runtime.Output):
-    schema = json.loads(
-        """
+    schema = json.loads("""
    {
   "type": "object",
   "title": "Variables",
@@ -78,8 +75,7 @@ class EmitGreetingOutput(insightconnect_plugin_runtime.Output):
     }
   }
 }
-    """
-    )
+    """)
 
     def __init__(self):
         super(self.__class__, self).__init__(self.schema)

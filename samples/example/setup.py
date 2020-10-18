@@ -2,16 +2,13 @@
 from setuptools import setup, find_packages
 
 
-setup(
-    name="example-rapid7-plugin",
-    version="1.0.0",
-    description="Example plugin for testing",
-    author="rapid7",
-    author_email="",
-    url="",
-    packages=find_packages(),
-    install_requires=[
-        "insightconnect-plugin-runtime"
-    ],  # Add third-party dependencies to requirements.txt, not here!
-    scripts=["bin/icon_example"],
-)
+setup(name="example-rapid7-plugin",
+      version="1.0.0",
+      description="Example plugin for testing",
+      author="rapid7",
+      author_email="",
+      url="",
+      packages=find_packages(),
+      install_requires=['insightconnect-plugin-runtime'],  # Add third-party dependencies to requirements.txt, not here!
+      scripts=['bin/icon_example']
+      )

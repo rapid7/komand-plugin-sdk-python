@@ -11,16 +11,6 @@ Description = "Example plugin for testing"
 
 
 def main():
-    # If the worker is configured to run as gevent class
-    #  we need to override default python behavior with the one defined in gevent.
-    #  It can be achieved by monkey patching the default python implementation of
-    #  Python runtime objects( threads/signals/sockets) with the one implemented by gevent.
-    #  Ideally, we don't have to do it, and gevent workers should be able to monkey patch implicitly.
-    #  However, we are also monkey patching the certifi package,
-    #  and it may cause infinite recursion problem as described in https://github.com/gevent/gevent/issues/1016.
-    #  To avoid the infinite recursion, we first monkey patching with gevent
-    #  and only then importing the rest of the dependencies. It only has to be done
-    #  if the plugin is running in Server mode(http).
     if 'http' in argv:
         if os.environ.get("GUNICORN_CONFIG_FILE"):
             with open(os.environ.get("GUNICORN_CONFIG_FILE")) as gf:
@@ -32,7 +22,6 @@ def main():
             from gevent import monkey
             monkey.patch_all()
 
-    # import the rest of the dependencies
     import insightconnect_plugin_runtime
     from icon_example import connection, actions, triggers
 
@@ -43,16 +32,18 @@ def main():
                 vendor=Vendor,
                 version=Version,
                 description=Description,
-                connection=connection.Connection(),
+                connection=connection.Connection()
             )
             self.add_trigger(triggers.EmitGreeting())
+
+            self.add_action(actions.RaiseError())
 
             self.add_action(actions.SayGoodbye())
 
             self.add_action(actions.SayHello())
 
-        """Run plugin"""
 
+    """Run plugin"""
     cli = insightconnect_plugin_runtime.CLI(ICONExample())
     cli.run()
 
