@@ -10,7 +10,13 @@ import uuid
 
 from .connection import ConnectionCache
 from .dispatcher import Stdout, Http
-from .exceptions import ClientException, ServerException, LoggedException, ConnectionTestException, PluginException
+from .exceptions import (
+    ClientException,
+    ServerException,
+    LoggedException,
+    ConnectionTestException,
+    PluginException,
+)
 
 
 message_output_type = {
@@ -167,7 +173,16 @@ class Plugin(object):
         self.tasks[task.name] = task
 
     @staticmethod
-    def envelope(message_type, input_message, log, success, output, ex, state):
+    def envelope(
+        message_type,
+        input_message,
+        log,
+        success,
+        output,
+        error_message,
+        state,
+        ex: None,
+    ):
         """
         Creates an output message of a step's execution.
 
@@ -176,8 +191,9 @@ class Plugin(object):
         :param log: The log of the step, as a single string
         :param success: whether or not the step was successful
         :param output: The step data output
-        :param ex: An error that was thrown
+        :param error_message: An error message if an error was thrown
         :param state: The state of task_event. Only applicable to tasks.
+        :param ex: An error that was thrown
         :return: An output message
         """
 
@@ -193,12 +209,12 @@ class Plugin(object):
         if success:
             output_message["output"] = output
         else:
-            output_message["error"] = str(ex)
-            if isinstance(ex, ConnectionTestException) or isinstance(ex, PluginException):
+            output_message["error"] = error_message
+            if ex and isinstance(ex, ConnectionTestException):
                 output_message["exception"] = {
                     "cause": ex.cause,
                     "assistance": ex.assistance,
-                    "data": ex.data
+                    "data": ex.data,
                 }
         return {"body": output_message, "version": "v1", "type": message_type}
 
@@ -383,7 +399,14 @@ class Plugin(object):
             logger.exception(e)
         finally:
             output = Plugin.envelope(
-                out_type, input_message, log_stream.getvalue(), success, output, ex, state
+                out_type,
+                input_message,
+                log_stream.getvalue(),
+                success,
+                output,
+                str(ex),
+                state,
+                ex,
             )
             if not success:
                 raise LoggedException(ex, output)
