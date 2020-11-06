@@ -9,15 +9,14 @@ class Component:
 
 class Input:
     NAME = "name"
-
+    
 
 class Output:
     MESSAGE = "message"
-
+    
 
 class SayGoodbyeInput(insightconnect_plugin_runtime.Input):
-    schema = json.loads(
-        """
+    schema = json.loads("""
    {
   "type": "object",
   "title": "Variables",
@@ -33,16 +32,14 @@ class SayGoodbyeInput(insightconnect_plugin_runtime.Input):
     "name"
   ]
 }
-    """
-    )
+    """)
 
     def __init__(self):
         super(self.__class__, self).__init__(self.schema)
 
 
 class SayGoodbyeOutput(insightconnect_plugin_runtime.Output):
-    schema = json.loads(
-        """
+    schema = json.loads("""
    {
   "type": "object",
   "title": "Variables",
@@ -57,8 +54,7 @@ class SayGoodbyeOutput(insightconnect_plugin_runtime.Output):
     "message"
   ]
 }
-    """
-    )
+    """)
 
     def __init__(self):
         super(self.__class__, self).__init__(self.schema)

@@ -21,18 +21,19 @@ def main():
     #  To avoid the infinite recursion, we first monkey patching with gevent
     #  and only then importing the rest of the dependencies. It only has to be done
     #  if the plugin is running in Server mode(http).
-    if 'http' in argv:
+    if "http" in argv:
         if os.environ.get("GUNICORN_CONFIG_FILE"):
             with open(os.environ.get("GUNICORN_CONFIG_FILE")) as gf:
                 gunicorn_cfg = json.load(gf)
                 if gunicorn_cfg.get("worker_class", "sync") == "gevent":
                     from gevent import monkey
+
                     monkey.patch_all()
-        elif 'gevent' in argv:
+        elif "gevent" in argv:
             from gevent import monkey
+
             monkey.patch_all()
 
-    # import the rest of the dependencies
     import insightconnect_plugin_runtime
     from icon_example import connection, actions, triggers
 
@@ -47,12 +48,13 @@ def main():
             )
             self.add_trigger(triggers.EmitGreeting())
 
+            self.add_action(actions.RaiseError())
+
             self.add_action(actions.SayGoodbye())
 
             self.add_action(actions.SayHello())
 
-        """Run plugin"""
-
+    """Run plugin"""
     cli = insightconnect_plugin_runtime.CLI(ICONExample())
     cli.run()
 

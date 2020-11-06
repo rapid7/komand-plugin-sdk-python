@@ -137,6 +137,7 @@ contributed. Black is installed as a test dependency and the hook can be initial
 after cloning this repository.
 
 ## Changelog
+* 4.2.1 - Add helpful error messages in JSON
 * 4.2.0 - Add implementation and endpoints for tasks
 * 4.1.1 - Update gevent dependency version to 20.9.0
 * 4.1.0 - Provide ability to run with gevent asynchronous gunicorn worker class for increased performance

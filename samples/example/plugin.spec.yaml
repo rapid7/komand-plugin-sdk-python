@@ -85,3 +85,20 @@ actions:
         title: Message
         type: string
         required: true
+  raise_error:
+    title: Raise Error
+    description: Raise PluginException or ConnectionTestException
+    input:
+      type:
+        type: string
+        description: Exception type
+        required: true
+        enum:
+          - Exception
+          - PluginException
+          - ConnectionTestException
+    output:
+      success:
+        title: Success
+        type: boolean
+        required: true

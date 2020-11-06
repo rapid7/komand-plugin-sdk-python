@@ -4,32 +4,37 @@ import json
 
 
 class Component:
-    DESCRIPTION = "Emit say hello message"
+    DESCRIPTION = "Raise PluginException or ConnectionTestException"
 
 
 class Input:
-    NAME = "name"
+    TYPE = "type"
     
 
 class Output:
-    MESSAGE = "message"
+    SUCCESS = "success"
     
 
-class SayHelloInput(insightconnect_plugin_runtime.Input):
+class RaiseErrorInput(insightconnect_plugin_runtime.Input):
     schema = json.loads("""
    {
   "type": "object",
   "title": "Variables",
   "properties": {
-    "name": {
+    "type": {
       "type": "string",
-      "title": "Name",
-      "description": "Name to say hello to",
+      "title": "Type",
+      "description": "Exception type",
+      "enum": [
+        "Exception",
+        "PluginException",
+        "ConnectionTestException"
+      ],
       "order": 1
     }
   },
   "required": [
-    "name"
+    "type"
   ]
 }
     """)
@@ -38,20 +43,20 @@ class SayHelloInput(insightconnect_plugin_runtime.Input):
         super(self.__class__, self).__init__(self.schema)
 
 
-class SayHelloOutput(insightconnect_plugin_runtime.Output):
+class RaiseErrorOutput(insightconnect_plugin_runtime.Output):
     schema = json.loads("""
    {
   "type": "object",
   "title": "Variables",
   "properties": {
-    "message": {
-      "type": "string",
-      "title": "Message",
+    "success": {
+      "type": "boolean",
+      "title": "Success",
       "order": 1
     }
   },
   "required": [
-    "message"
+    "success"
   ]
 }
     """)
