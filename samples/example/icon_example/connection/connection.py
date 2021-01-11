@@ -22,5 +22,4 @@ class Connection(insightconnect_plugin_runtime.Connection):
         self.logger.info("Connect: Connecting...")
 
     def test(self):
-        # TODO: Implement connection test
-        pass
+        return {"success": True}

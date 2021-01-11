@@ -14,8 +14,7 @@ from .exceptions import (
     ClientException,
     ServerException,
     LoggedException,
-    ConnectionTestException,
-    PluginException,
+    ConnectionTestException
 )
 
 

@@ -552,6 +552,14 @@ class Endpoints:
             status_code = 200
             message = None
             try:
+                if hasattr(self.plugin.connection, "logger") and hasattr(self.plugin.connection.logger, "info"):
+                    self.plugin.connection.logger.info(
+                        "{vendor}/{plugin_name}:{plugin_version}. Step name: connection".format(
+                            vendor=self.plugin.connection.meta.vendor,
+                            plugin_name=self.plugin.connection.meta.name,
+                            plugin_version=self.plugin.connection.meta.version
+                        )
+                    )
                 if hasattr(self.plugin.connection, "test"):
                     response = self.plugin.connection.test()
                     if response is None:
@@ -570,8 +578,7 @@ class Endpoints:
                     status_code = 500
                     message = str(e)
             finally:
-                output = make_response(jsonify({"message": message}), status_code)
-                return output
+                return make_response(jsonify({"message": message}), status_code)
 
         blueprints = [legacy, v1]
         return blueprints
